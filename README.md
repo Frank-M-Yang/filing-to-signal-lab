@@ -1,74 +1,110 @@
-# 财报量化信号验证框架
+# Filing-to-Signal Lab
 
-**Bias-Aware Backtesting Framework** 研究一个可被证伪的问题：
+**Bias-Aware Backtesting Framework · 财报量化信号验证框架**
 
-> 市场究竟在定价企业所处的状态、状态的变化，还是相对于事前预期的新信息？使用事后
-> 修订数据又会怎样扭曲这个结论？
+[English](#english) · [中文](#中文)
 
-> **Research Preview 状态（2026-08-15）：** 偏差审计与点时事件研究管线已经通过，
-> 但单一毛利率 Innovation 的收益有效性尚未建立。本项目是研究与教育工具，不是投资
-> 建议、选股模型或已经验证的交易策略。
+<a id="english"></a>
 
-## 当前研究结论
+## English
 
-第一轮真实收益研究在观察收益前冻结了 58 个候选财报事件。最终 49 个事件、15 家发行人
-同时具备完整 Level、Delta、Raw Innovation、Standardized Innovation 与 20 个交易日
-市场超额收益。主要结果为：
+Filing-to-Signal Lab investigates a falsifiable question:
 
-- 标准化 Innovation 的 Spearman IC 为 `+0.045`，发行人聚类 95% 区间为
-  `[-0.316, +0.356]`；方向略正，但不确定性很大；
-- Innovation 相对 Delta 的 IC 差为 `+0.064`，bootstrap `p=0.697`，没有建立增量优势；
-- 5 日窗口 Innovation IC 为 `+0.204`，但属于次要敏感性检验，BH 校正后不显著；
-- 仅保留回看时仍存活的公司，会把样本平均市场超额收益抬高 `1.81` 个百分点；
-- 补回一项跨越 OB→TEAD 代码迁移的负向事件后，Innovation IC 从 `+0.094` 降至
-  `+0.045`，最终冻结判定保持 `effectiveness_not_established`。
+> Do markets price a firm's current state, the change in that state, or the innovation—the
+> difference between newly disclosed information and the expectation formed immediately before
+> the filing? How much do hindsight revisions and historical-data biases distort the answer?
 
-因此，当前版本的正面成果不是“发现了可交易 alpha”，而是证明系统能够发现并量化足以
-改变结论的幸存者、证券身份、公告时点和未来数据偏差。完整方法、冻结判定及限制见
-[纵向有效性研究](docs/longitudinal_effectiveness_v1.md)、
-[预注册协议](docs/preliminary_effectiveness_preregistration_v1.md)和
-[OB→TEAD 修复审计](docs/ticker_transition_repair_v1.md)。
+> **Research Preview — 2026-08-15:** the point-in-time data, bias-audit, and event-return
+> pipelines are operational. The return effectiveness of a standalone gross-margin Innovation
+> signal has **not** been established. This repository is an educational research system, not
+> investment advice, a stock-selection model, or a validated trading strategy.
 
-第一项正式研究只使用毛利率，比较 Level、Delta、Raw Innovation 和 Standardized
-Innovation，并区分首次价格反应与随后可交易漂移。现有模拟回测是遗留的偏差机制演示，
-用于展示三类常见偏差如何把一个弱信号包装成看似优秀的策略：
+### Current empirical result
 
-- 前视偏差：在历史时点使用后来才知道的重述数据；
-- 幸存者偏差：从历史股票池中删除最终退市的公司；
-- 公告延迟偏差：假设能在公告日收盘成交，而不是第二个交易日开盘成交。
+The first return study froze 58 candidate filing events before observing their returns. The final
+complete-case sample contains 49 events from 15 issuers, each with Level, Delta, Raw Innovation,
+Standardized Innovation, and a 20-trading-day market-excess return.
 
-当前应用中的组合表现均来自确定性模拟数据，只用于研究方法展示，不构成真实市场证据或
-投资建议。Apple 案例是真实披露证据，但它只证明修订会改变信号，不证明信号能预测收益。
+- Standardized Innovation has a Spearman IC of **+0.045**, with an issuer-clustered 95% interval
+  of **[-0.316, +0.356]**. The point estimate is slightly positive, but uncertainty is large.
+- Innovation minus Delta has an IC difference of **+0.064** with bootstrap **p = 0.697**; no
+  incremental advantage is established.
+- The five-day Innovation IC is **+0.204**, but it is a secondary sensitivity result and is not
+  significant after Benjamini–Hochberg correction.
+- Keeping only companies that survive in hindsight raises the sample's mean market-excess return
+  by **1.81 percentage points**.
+- Restoring one negative event across the OB→TEAD ticker transition reduces Innovation IC from
+  **+0.094** to **+0.045**. The frozen verdict remains
+  `effectiveness_not_established`.
 
-正式研究协议见 [State, Change, and Innovation](docs/research_protocol.md)。
+The positive result is therefore methodological, not a claim of tradable alpha: the system can
+detect and quantify survivorship, security-identity, announcement-timing, and future-data errors
+large enough to alter a research conclusion. See the
+[longitudinal effectiveness study](docs/longitudinal_effectiveness_v1.md), the
+[preregistration](docs/preliminary_effectiveness_preregistration_v1.md), and the
+[OB→TEAD repair audit](docs/ticker_transition_repair_v1.md).
 
-## 运行
+### Research design
 
-使用 Python 3.10+：
+The primary representation study compares four views of the same company × filing event ×
+information set:
+
+- **Level:** the firm's disclosed financial state.
+- **Delta:** the year-over-year change in that state.
+- **Raw Innovation:** actual value minus a strictly out-of-sample, pre-event forecast.
+- **Standardized Innovation:** Raw Innovation scaled only by strictly earlier out-of-sample
+  forecast errors.
+
+All representations are compared on the same complete-case event sample. Forecast cutoffs,
+training endpoints, filing acceptance timestamps, price types, and tradable windows are explicit.
+Originally reported values power the unbiased signal; later/restated values are used only for
+look-ahead-bias experiments.
+
+The application also retains a deterministic simulation that demonstrates how three biases can
+make a weak signal look strong:
+
+- **Look-ahead bias:** backfilling later/restated accounting values into historical decisions.
+- **Survivorship bias:** deleting companies that later delist from the historical universe.
+- **Announcement-timing bias:** assuming execution at the announcement close instead of the
+  second trading-day open.
+
+Simulated portfolio performance is a calibrated mechanism demonstration, not market evidence.
+The Apple case is real disclosure evidence, but it shows that revisions can change a signal—not
+that the signal predicts returns.
+
+The formal protocol is documented in
+[State, Change, and Innovation](docs/research_protocol.md).
+
+### Quick start
+
+Python 3.10+ and [uv](https://docs.astral.sh/uv/) are recommended:
 
 ```bash
-uv sync --dev
+uv sync --locked --dev
 uv run python -m scripts.run_public_reproduction
 uv run streamlit run app.py
 ```
 
-第一条命令不需要 SEC 身份声明或行情 API Key：它会重新计算确定性模拟和 Apple 2009
-案例，并校验冻结的 49 事件聚合结果，输出到
-`output/public_reproduction/public_reproduction_summary.json`。由于第三方事件级行情不随
-Git 分发，这一命令不会声称重新计算完整真实收益研究；证据分层和可推送文件范围见
-[Public Release Manifest](docs/public_release_manifest.md)。
+The reproduction command needs neither an SEC identity nor a market-data API key. It recomputes
+the deterministic simulation and Apple 2009 case, verifies the frozen 49-event aggregate
+snapshot, and writes:
 
-也可以使用常规虚拟环境：
+```text
+output/public_reproduction/public_reproduction_summary.json
+```
+
+Because licensed event-level prices are not distributed, this command does not pretend to
+recompute the complete empirical return ledger. The evidence levels and release boundary are
+defined in the [Public Release Manifest](docs/public_release_manifest.md).
+
+A conventional environment is also supported:
 
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-默认配置使用 50 只模拟股票、36 个季度和固定随机种子。第一次生成后，Streamlit
-会缓存数据，因此切换偏差开关和参数时不需要重新模拟价格。
-
-运行公开仓库的质量门：
+Run every public quality gate with:
 
 ```bash
 uv run ruff format --check .
@@ -78,202 +114,123 @@ uv run python -m scripts.audit_public_release
 uv run pytest
 ```
 
-生成 Word 研究报告需要本地冻结的实证产物，这些大文件不随 Git 分发：
+### Public evidence and data boundary
 
-```powershell
-uv sync --group reports
-uv run python -m scripts.create_academic_effectiveness_paper
-```
+| Layer | What the public repository can reproduce | Evidence type |
+|---|---|---|
+| Bias simulation | Recompute all scenarios from a fixed seed | Deterministic simulation |
+| Apple 2009 | Re-derive gross margin and signal distortion from a curated SEC slice | Real filing mechanism |
+| 49-event study | Verify versioned aggregate statistics and the frozen verdict | Frozen aggregate snapshot |
+| Full empirical rebuild | Recollect SEC and market data with the user's own identity and credentials | Credentialed reconstruction |
 
-## 项目结构
+Git contains code, tests, methods, small SEC example slices, version identifiers, and aggregate
+results. It excludes raw SEC responses, processed event panels, Massive/Polygon market payloads,
+generated reports, credentials, and temporary renders. In a fresh clone, research views 02–05
+fall back to `data/examples/research_preview_summary.json`; when local research assets exist,
+the application enables event-level audit views and downloads.
+
+See [Data and artifact policy](DATA_LICENSE.md),
+[Public Research Preview checklist](docs/public_release_checklist.md), and
+[Public Release Manifest](docs/public_release_manifest.md).
+
+### Project layout
 
 ```text
-data_generator.py  # 模拟点时财报、重述、退市与每日价格
-signals.py         # SUE 与毛利率同比变化；只使用历史窗口
-backtest.py        # 事件驱动多空回测、偏差开关、指标与情景比较
-event_panel.py     # Company × Filing Event × Information Set 契约与 OOS 预测
-forecast_tournament.py # M0–M4 严格 PIT 预测竞赛
-revision_robustness.py # 走步修订风险、安全边际与信号翻转诊断
-revision_tail_audit.py # 尾部事件 SEC 来源复核与候选二阶段过滤器诊断
-app.py             # Streamlit 交互界面和静态研究总结
-sec_data/          # SEC 客户端、批量快照、历史 filing catalog、点时清洗与修订比较
-data/examples/     # 可提交、离线可复现的真实 SEC 案例切片
-tests/             # 信号时序、偏差语义、可复现性和验收目标测试
-docs/              # 方法、模拟校准和已知限制
+data_generator.py          # Deterministic PIT filings, revisions, delistings, and prices
+signals.py                 # SUE and gross-margin change using prior information only
+backtest.py                # Event-driven long-short backtest and explicit bias switches
+event_panel.py             # Company × Filing Event × Information Set contract
+forecast_tournament.py     # M0–M4 strictly PIT forecasting tournament
+revision_robustness.py     # Walk-forward revision risk and decision safety margins
+revision_tail_audit.py     # Filing-source review of revision-tail events
+app.py                     # Streamlit research interface
+sec_data/                  # SEC collection, PIT cleaning, identity, and market adapters
+scripts/                   # Reproducible research and audit entry points
+data/examples/             # Small public SEC slices and frozen aggregate preview
+tests/                     # Timing, bias, reproducibility, and acceptance tests
+docs/                      # Protocols, results, calibration, and limitations
 ```
 
-## 公开仓库的数据边界
+### Research milestones
 
-Git 仓库只包含代码、测试、方法文档、小型 SEC 示例切片、冻结版本标识和汇总结果。SEC
-原始响应、本地 processed 数据、Massive 市场数据、生成报告与临时渲染均被排除。完整实证
-账本需要使用者以自己的身份声明和供应商凭证重新采集。代码采用
-[MIT License](LICENSE)；第三方数据及生成物边界见 [Data and artifact policy](DATA_LICENSE.md)。
-首个公开版本的逐项门槛见 [Public Research Preview checklist](docs/public_release_checklist.md)，
-可推送/不可推送边界见 [Public Release Manifest](docs/public_release_manifest.md)。
+1. **Apple 2009 look-ahead case.** The original 10-K and a 10-K/A accepted roughly 90 days later
+   contain 210 strictly comparable XBRL facts, 77 of which changed. The curated 13-fact slice
+   shows 2009 gross margin moving from 35.96% to 40.14%, and its year-over-year signal from
+   +1.65 pp to +4.94 pp. Backfilling the amendment inflates the historical signal by 3.29 pp.
+   This was retrospective accounting-standard adoption, not evidence of fraud.
 
-在 fresh clone 中，成果 02–05 自动显示 `data/examples/research_preview_summary.json` 的
-冻结聚合快照；如果本地存在完整研究资产，应用会切换到事件级审计页面和下载功能。
+2. **Level / Delta / Innovation.** Strict PIT representations were built for an 82-company core
+   cohort. The first Innovation specification remained highly correlated with Delta, motivating
+   a preregistered forecasting tournament instead of tuning against return outcomes.
 
-## 回测约定
+3. **Forecast tournament.** M0–M4 were evaluated on 812 common PIT events from 71 companies.
+   Company-aware OLS (M2) won with 35.4% MAE skill and improved on the benchmark in all six
+   eligible years. This establishes financial forecast skill, not return predictability.
 
-每个财报季度形成一个横截面：
+4. **Revision robustness.** Among 503 decision-time events with enough history, the 95% median
+   revision-at-risk margin was 0.166 gross-margin percentage points. Empirical coverage reached
+   97.4% over 417 later-resolved events, with three realized direction flips. A proposed
+   structural-change filter missed those flips and was rejected.
 
-1. 用公告时可得的财报计算信号；
-2. 无偏执行在公告后的第二个交易日开盘建仓；
-3. 持有 20 个交易日并在收盘退出；
-4. 做多信号最高的 20%，做空最低的 20%；
-5. 每侧占 50% 总资金，组合总敞口为 100%、净敞口为 0%；
-6. 个股收益减去同期模拟市场收益后，用于 IC 和分位数组合比较。
+5. **Historical-universe and market-data controls.** The SEC catalog contains 1,057,454 target
+   filings and 13,106 candidate CIKs. PIT Assets are matched for 62,963 of 74,410 filing-frame
+   issuer-years. A frozen 500-observation probability sample separates representative inference
+   from deliberately enriched stress cases. The 28-event price pilot also demonstrates that
+   deleting three securities that delisted only after the formal exit raises mean excess return
+   by 1.76 pp.
 
-应用固定比较“全部偏差”“修正前视偏差”“修正全部偏差”三种情景，并可叠加用户
-当前选择。默认模拟参数经过透明校准，使全部偏差情景的年化收益接近 15%，全部修正后
-低于 3%。这个差距是演示设计，不是对真实市场收益的估计。
+6. **Longitudinal effectiveness study.** After exchange-calendar, corporate-action, delisting,
+   benchmark, and ticker-transition controls, 49 complete events from 15 issuers passed the
+   preregistered data gate. The final result is
+   `effectiveness_not_established`, which is the project's current honest stopping point.
 
-## 数据源扩展
+Detailed milestone documents are linked from [docs/](docs/).
 
-`data_generator.py` 中的 `ResearchDataSource` 协议定义了数据入口。
-`SimulatedDataSource` 是当前实现。未来 SimFin、Sharadar 或 SEC EDGAR 适配器只需返回
-相同的 `ResearchData`：点时财报表、每日个股价格和基准价格。真实适配器必须额外解决
-公告时间、历史成分股、退市收益、重述版本和公司行为。
+### Backtest conventions
 
-## 已知限制
+For each simulated reporting-quarter cross-section:
 
-- 模拟相关性是人为设定的，不能用于评估真实 SUE 或毛利率信号。
-- 使用工作日而非完整交易所日历；不模拟节假日、停牌或涨跌停。
-- 没有交易成本、借券约束和成交量冲击。
-- 季度组合按横截面批次结算；公司公告日可不同，但同一季度统一排名。
-- 退市通过股票退出样本和压力收益模拟，未复刻真实退市价格流程。
-- 当前应用不调用 OpenAI；文字总结使用确定性模板，离线即可运行。
+1. Form signals using information available at the announcement.
+2. Enter at the second trading-day open after the announcement.
+3. Hold for 20 trading days and exit at the close.
+4. Buy the strongest 20% and short the weakest 20%.
+5. Allocate 50% gross exposure to each side: 100% gross, zero net.
+6. Subtract the concurrent simulated benchmark return for IC and quantile analysis.
 
-## SEC 真实数据试验台
+The application compares “all biases,” “look-ahead corrected,” and “all biases corrected.”
+Transparent simulation calibration makes the all-bias annual return approximately 15% and the
+fully corrected return below 3%. That gap is a design target, not an estimate of real performance.
 
-应用包含一个独立的 SEC EDGAR 工作区。它使用 SEC 官方、无需 API Key 的
-`submissions` 和 `companyfacts` JSON 接口，不依赖收费的 `sec-api` 服务。输入 ticker
-或 CIK 后，它会：
+### SEC EDGAR workbench
 
-1. 按 SEC 要求发送带真实联系邮箱的 `User-Agent`，并将速率限制为每秒 5 次以内；
-2. 保存响应原始字节及 SHA-256，不覆盖不同版本；
-3. 解析 10-K、10-Q、10-K/A 和 10-Q/A 的 accession 与 UTC 接受时间；
-4. 展平标准 XBRL facts，保留标签、单位、期间、表单版本和原始路径；
-5. 将修正文件与此前同标签、同单位、同期间的原始披露严格配对；
-6. 把缺少接受时间、非法单位或无法验证的记录写入拒绝表；
-7. 输出 filings、facts、amendment comparisons、rejections 四个 CSV 和 manifest。
+The Streamlit application includes an independent SEC workspace built on the official,
+key-free `submissions` and `companyfacts` JSON endpoints. It preserves exact response bytes and
+SHA-256 hashes, parses accession and UTC acceptance times, normalizes standard XBRL facts,
+strictly pairs amendments, and records rejected observations.
 
-先配置身份声明：
+SEC requires automated clients to identify themselves with a real contact address:
 
 ```powershell
 $env:SEC_USER_AGENT="Your Name your.email@domain.com"
 uv run streamlit run app.py
 ```
 
-也可以直接在 SEC 工作区输入 User-Agent。邮箱不是 API Key，但 SEC 要求自动客户端
-提供可联系的身份。下载内容保存在 `data/sec/` 并被 Git 忽略。
-
-同一管线也可以脱离界面运行：
+The same pipeline can run without the interface:
 
 ```powershell
 $env:SEC_USER_AGENT="Your Name your.email@domain.com"
 uv run python -m sec_data.cli AAPL
-# 需要更老的 filing history 时：
 uv run python -m sec_data.cli AAPL --include-archives
 ```
 
-这个工作区当前是“披露数据审计”，不是完整真实回测。没有接入点时历史价格、交易所
-日历和退市收益之前，SEC facts 不会被直接送入绩效曲线。
+Downloads are stored under `data/sec/` and ignored by Git. This workspace is a disclosure-data
+audit, not a complete live backtest; performance research additionally requires PIT security
+identity, exchange calendars, corporate actions, prices, and delisting outcomes.
 
-## 成果 01：Apple 2009 前视偏差案例
+### Full local research pipeline
 
-侧边栏的“成果 01 · Apple 修订案例”是项目的第一个真实数据成果，可离线运行。案例来自
-Apple 2009 年 10-K 与 90 天后提交的 10-K/A，展示收入确认准则追溯采用如何改变此前
-财年的收入、毛利润、净利润、EPS，以及最终进入策略的毛利率同比信号。
-
-核心结果：
-
-- 完整审计中有 210 组严格可比 XBRL facts，其中 77 组数值发生变化；
-- 2009 毛利率从原始披露的 35.96% 变为修订后的 40.14%；
-- 2009 毛利率同比信号从当时可得的 +1.65 个百分点变为 +4.94 个百分点；
-- 若把修订值回填到原始公告日，信号被放大 3.29 个百分点。
-
-案例只包含 13 条与信号直接相关、发生变化的事实，并保留 accession、UTC 接受时间、
-单位、期间和完整导出 SHA-256。它是前视偏差的机制验证，不是 Apple 欺诈或财报错误案例，
-也不代表全市场重述分布。详见 [Apple 2009 案例方法](docs/apple_2009_case_study.md)。
-
-更详细的定义见 [研究方法](docs/methodology.md) 和
-[模拟与限制](docs/simulation_and_limitations.md)，真实数据设计见
-[SEC 数据管线](docs/sec_data_pipeline.md)。
-
-2026 Global 500 批量抓取的口径、覆盖率与局限见
-[Global 500 → SEC 季度数据样本](docs/global500_sec_cohort.md)。
-
-82 家核心资产的版本、事实选择规则、严格 Level/Delta 表和人工复核边界见
-[核心资产清洗说明](docs/core_asset_cleaning.md)。
-
-第二个真实数据成果已经在 82 家核心资产上构建严格 PIT 的 Level、Delta 和 expanding-OOS
-Innovation。方法、样本漏斗以及“v1 Innovation 尚未充分区别于 Delta”的诚实结果见
-[Level / Delta / Innovation 研究 v1](docs/representation_research_v1.md)。
-
-在接入收益前，v2 只按 PIT 有效性、样本外预测准确率、跨期稳定性和校准选择模型，明确
-禁止以降低 Delta–Innovation 相关性为调参目标。冻结的候选模型、MAE 主指标和数据 gate 见
-[Forecast tournament v2 预注册](docs/forecast_tournament_v2_preregistration.md)。
-
-M0–M4 已在 812 个共同点时事件上执行。M2 company-aware OLS 以 35.4% 的 MAE skill
-胜出，并在六个合格年份全部改善；M3 和 M4 未超过更简单的 M2。该结论仍只属于财务预测，
-不属于收益证据。完整结果见
-[Forecast tournament v2 results](docs/forecast_tournament_v2_results.md)。
-
-第四个成果把问题推进到公告时点的决策稳健性：只让已经由后续比较披露或 amendment
-解决的历史结果进入修订分布，把仍停留在原始 accession 的零变化事件视为右删失。逐份
-核对 15 个超出 95% 缓冲的事件后，4 个 XBRL 语义碰撞被纠正，剩余 11 个均为业务范围或
-列报口径的历史重绘，没有确认到经济差错。503 个事件在当时拥有足够历史；95% 中位安全
-边际仍为 0.166 个毛利率百分点，在 417 个后来可验证事件上的覆盖率提高到 97.4%，方向
-翻转从 4 个降为 3 个。候选的事件时点结构变化过滤器没有抓到这 3 个翻转，因此明确不
-上线。见 [Revision Robustness v2 Results](docs/revision_robustness_v2_results.md) 和
-[Revision Tail Source Audit v1](docs/revision_tail_audit_v1.md)。这仍是财务信号稳定性证据，
-不是收益或仓位建议。
-
-第五阶段的历史公司世界扩库已经完成第一轮数据资产。官方 SEC `submissions.zip` 中覆盖
-2016–2025 的 1,757 个历史分片已全部解析，完整 catalog 包含 1,057,454 条目标 filing、
-13,106 个具有原始定期报告的候选 CIK，以及退市、注销申报、破产、延迟申报和财报不可信
-等独立信号。Representative 与刻意富集的 Stress 样本已经分离；后者没有总体权重，不能
-估计市场发生率。
-
-官方 `companyfacts.zip` 也已按原始字节和 SHA-256 保存。严格以 accession、报告期和
-`accepted_at` 匹配的 `us-gaap:Assets` 覆盖 62,963 / 74,410 个候选公司年度（84.62%）。
-1,771 个低于 1 万美元的极小资产值仅被标记复核，没有删除，以免重新制造大公司偏差。
-历史身份层也已启动：冻结 74,410 个公司年度的年份均衡采集顺序，保存 1,500 个 filing
-index 和其中 500 个完整 cover/XBRL 验证样本。1,500 个 filing-time 公司身份全部验证，
-1,481 个取得当时 SIC；高精度旧式封面登记表解析后，321 个取得 subject-CIK 匹配的
-ticker/无 ticker 状态，248 个同时取得交易所。首批还发现 144 个 SIC 6189 资产支持证券主体和 68 个
-SIC 6770 blank-check 公司，证明“申报 10-K/10-Q”不能直接等同于普通股公司世界。
-
-两阶段概率样本已经冻结：按 10 年 × 四个 PIT 资产分位数加 size-missing 共 50 层，每层
-抽取 10 个公司年度，总计 500 个；已知入选概率和权重精确重构 74,410 个 filing-frame
-公司年度。所有 500 个样本 cover 已保存，且不允许因非普通股或解析困难而替补。严格证券
-标题复核得到 208 个普通股候选、14 个 blank-check 股权候选和 72 个资产支持证券主体；
-还有 200 个证券范围未决，因此加权结果仅是诊断，不能当作市场比例。由于历史证券标题、
-价格身份、size 缺失机制和极值语义仍未完成，equity analysis sample 仍未冻结，也没有把
-SEC 披露事实接入收益回测。见 [Probability sample v1](docs/probability_sample_v1.md)、
-[Filing-time identity v1](docs/filing_cover_history_v1.md) 和
-[SEC Historical Universe Pipeline](docs/sec_historical_universe_pipeline.md)。行情接入的强制字段、
-供应商能力审计和当前阻塞项见 [Point-in-Time Price Readiness v1](docs/price_readiness_v1.md)。
-
-Massive/Polygon 的第一版 PIT 证券主表适配器已经冻结 222 个候选事件，其中 34 个在免费
-Basic 计划文档所述的两年历史窗口内。适配器使用 CIK + 公告日期查询、header 鉴权、原始
-字节与 SHA-256 保存，并禁止用当前 ticker 回填历史。本机构建时没有配置 API Key，因此结果
-诚实记录为 0 个已抓取、0 个最终价格身份，收益 gate 继续关闭。见
-[Massive Point-in-Time Reference Pilot v1](docs/massive_reference_pilot_v1.md)。
-
-在该身份审计中唯一通过且具有稳定 FIGI 的 28 个事件现已进入第二阶段：Massive 未调整日线价格适配器。
-它显式请求 `adjusted=false`，保存原始响应及 SHA-256，并只生成“观察到的事件窗口候选”；
-在历史证券有效区间、正式交易所日历、公司行为和退市结果齐备前不计算或发布真实收益。
-当前28个目标已全部抓取，共1,035根通过校验的日线和28个候选窗口，价格解析拒绝为0。
-NYSE/Nasdaq官方2024–2025日历与2025年1月9日临时休市公告也已保存并完成哈希审计。
-正式日历使6个盘前公告事件的入场和退出日期各提前一个交易日；28/28个正式窗口均有原始价格。
-完整方法见 [Official Exchange Calendar v1](docs/exchange_calendar_v1.md)。
-方法与运行命令见
-[Massive Unadjusted Daily-Price Pilot v1](docs/massive_price_pilot_v1.md)。
-
-复现三个真实数据研究阶段：
+These commands require the corresponding locally collected data and, where applicable, the
+user's own provider credentials:
 
 ```powershell
 uv run python -m scripts.run_representation_research
@@ -297,16 +254,271 @@ uv run python -m scripts.build_longitudinal_expansion
 uv run python -m scripts.build_sec_universe_design
 ```
 
-历史证券连续性与公司行为层现已为 28 个价格窗口冻结起点身份、终点身份、Ticker 变更、拆股和分红共 140 条查询。完整方法、断点续抓命令和当前 gate 状态见
-[Massive 历史证券连续性与公司行为 Pilot v1](docs/massive_security_actions_pilot_v1.md)。28 个事件的退市结果层也已完成：25只证券在结果截止日仍活跃，DNB、ISPO和ASNS均在正式退出后才退市，窗口内退市为0；系统禁止把缺失退市回报填成0。运行方法和分类合同见 [Massive 退市结果与窗口终值 Pilot v1](docs/massive_delisting_outcome_pilot_v1.md)。
+Generating the Word research paper also requires local frozen empirical artifacts:
 
-第一版真实事件收益账本现已生成28/28条公司总收益：第二个交易日未调整开盘买入、持有20个正式交易日、未调整收盘退出，拆股改变持股数，现金分红保留但不再投资。SPY市场基准的未调整价格、拆股和分红也已完成，28/28条市场超额收益可用；行业超额收益继续等待历史行业映射。完整口径见 [真实事件收益账本 v1](docs/event_return_ledger_v1.md)。
+```powershell
+uv sync --group reports
+uv run python -m scripts.create_academic_effectiveness_paper
+```
 
-基于这份账本，第一版诊断实验已经冻结：全样本平均20日市场超额收益为 -1.04%，9/28个事件跑赢SPY。若故意用未来退市状态删除3只正式退出后后来退市的证券，均值变为 +0.72%，被抬高1.76个百分点；中位数只抬高0.13个百分点，说明效应主要来自负尾部。现在28/28个目标 filing 已按 accession 和 accepted_at 接入同口径 PIT 财务层；覆盖漏斗为 Level 15、Delta 13、严格样本外 Innovation 11。完整共同样本只有11/28，未达到至少20个事件且80%覆盖的预先承诺闸门，因此系统仍不计算 IC，也不对信号有效性下结论。运行 `uv run python -m scripts.build_pilot_filing_features` 和 `uv run python -m scripts.build_event_return_diagnostics` 后，在 Streamlit 选择“成果 05 · 真实事件收益诊断”。方法和限制见 [28事件 PIT 财务特征 v1.1](docs/pilot_filing_features_v1.md) 与 [真实事件收益诊断 v1.1](docs/event_return_diagnostics_v1.md)。
+### Known limitations
 
-纵向扩样在读取收益前冻结了 58 个候选事件和至少 47 个完整事件的覆盖门。市场批次、
-公司行动、退市结局与 OB→TEAD 证券代码迁移修复完成后，最终得到 49 个完整事件、
-15 家发行人和 174 个 event-horizon 观察。20 日主检验以及 1 日、5 日次要窗口均按预注册
-规则执行；最终判定为 `effectiveness_not_established`。完整数据门、发行人聚类推断、
-稳健性诊断和下一步独立扩样要求见
-[纵向有效性研究 v1](docs/longitudinal_effectiveness_v1.md)。
+- Simulated correlations are calibrated and cannot establish real SUE or gross-margin returns.
+- The simulation uses business days rather than a complete exchange calendar and does not model
+  holidays, suspensions, price limits, transaction costs, borrow constraints, or market impact.
+- Quarterly simulated portfolios rank one reporting cohort at a time even when announcement
+  dates differ.
+- Simulated delistings do not replicate a complete real-world delisting-return process.
+- The current empirical sample is small, issuer-concentrated, and insufficient for a claim of
+  stable alpha.
+- The application uses deterministic templates and does not require OpenAI.
+
+The software is released under the [MIT License](LICENSE). Third-party data remain subject to
+their original terms.
+
+---
+
+<a id="中文"></a>
+
+## 中文
+
+Filing-to-Signal Lab 研究一个可被证伪的问题：
+
+> 市场究竟在定价企业所处的状态、状态的变化，还是新信息——即新披露信息与公告前一刻
+> 状态依赖预期之间的差？事后修订数据和历史数据偏差又会怎样扭曲答案？
+
+> **Research Preview — 2026-08-15：** 点时数据、偏差审计和事件收益管线已经可以运行，
+> 但单一毛利率 Innovation 信号的收益有效性**尚未建立**。本仓库是研究与教育系统，
+> 不是投资建议、选股模型或已经验证的交易策略。
+
+### 当前实证结果
+
+第一轮真实收益研究在观察收益前冻结了 58 个候选财报事件。最终共同样本包含 15 家发行人
+的 49 个事件，每个事件都同时拥有 Level、Delta、Raw Innovation、Standardized
+Innovation 和 20 个交易日市场超额收益。
+
+- 标准化 Innovation 的 Spearman IC 为 **+0.045**，发行人聚类 95% 区间为
+  **[-0.316, +0.356]**；方向略正，但不确定性很大。
+- Innovation 相对 Delta 的 IC 差为 **+0.064**，bootstrap **p = 0.697**，没有建立增量
+  优势。
+- 5 日窗口 Innovation IC 为 **+0.204**，但它属于次要敏感性结果，BH 校正后不显著。
+- 只保留回看时仍存活的公司，会把样本平均市场超额收益抬高 **1.81 个百分点**。
+- 补回一项跨越 OB→TEAD 代码迁移的负向事件后，Innovation IC 从 **+0.094** 降至
+  **+0.045**；最终冻结判定仍为 `effectiveness_not_established`。
+
+因此，当前版本的正面成果不是“发现可交易 alpha”，而是系统能够发现并量化足以改变
+研究结论的幸存者偏差、证券身份错误、公告时点偏差和未来数据泄漏。完整方法与限制见
+[纵向有效性研究](docs/longitudinal_effectiveness_v1.md)、
+[预注册协议](docs/preliminary_effectiveness_preregistration_v1.md)和
+[OB→TEAD 修复审计](docs/ticker_transition_repair_v1.md)。
+
+### 研究设计
+
+核心表示研究在同一个 Company × Filing Event × Information Set 样本上比较四类输入：
+
+- **Level：** 企业当前披露的财务状态。
+- **Delta：** 该状态的同比变化。
+- **Raw Innovation：** 实际值减去公告前生成的严格样本外预测。
+- **Standardized Innovation：** 只使用更早样本外预测误差对 Raw Innovation 标准化。
+
+所有表示必须使用同一个完整事件样本。特征截止时间、训练终点、filing 接受时间、价格
+类型和可交易窗口全部显式记录。无偏信号只使用首次披露值；后来修订值只在开启前视偏差
+实验时使用。
+
+应用还保留一套确定性模拟，用来展示三种偏差如何把弱信号包装成看似优秀的策略：
+
+- **前视偏差：** 把后来才知道的修订值回填到历史决策时点。
+- **幸存者偏差：** 从历史公司世界中删除后来退市的公司。
+- **公告时点偏差：** 假设可以在公告日收盘成交，而不是第二个交易日开盘。
+
+模拟组合表现只是一套经过校准的机制演示，不是真实市场证据。Apple 案例是真实披露证据，
+但它只证明修订可以改变信号，不证明信号能够预测收益。
+
+正式协议见 [State, Change, and Innovation](docs/research_protocol.md)。
+
+### 快速开始
+
+推荐使用 Python 3.10+ 和 [uv](https://docs.astral.sh/uv/)：
+
+```bash
+uv sync --locked --dev
+uv run python -m scripts.run_public_reproduction
+uv run streamlit run app.py
+```
+
+公开复现命令不需要 SEC 身份声明或行情 API Key。它会重新计算确定性模拟和 Apple 2009
+案例，校验冻结的 49 事件聚合快照，并写入：
+
+```text
+output/public_reproduction/public_reproduction_summary.json
+```
+
+由于持牌事件级行情不随 Git 分发，这个命令不会冒充重新计算完整真实收益账本。证据层级
+和公开边界见 [Public Release Manifest](docs/public_release_manifest.md)。
+
+也可以使用常规虚拟环境：
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+运行公开仓库全部质量门：
+
+```bash
+uv run ruff format --check .
+uv run ruff check .
+uv run mypy
+uv run python -m scripts.audit_public_release
+uv run pytest
+```
+
+### 公开证据与数据边界
+
+| 层级 | 公开仓库可以复现什么 | 证据类型 |
+|---|---|---|
+| 偏差模拟 | 使用固定种子重新计算所有情景 | 确定性模拟 |
+| Apple 2009 | 从精选 SEC 切片重新推导毛利率和信号扭曲 | 真实 filing 机制 |
+| 49 事件研究 | 校验带版本的聚合统计和冻结判定 | 冻结聚合快照 |
+| 完整实证重建 | 使用者以自己的身份和凭证重新抓取 SEC 与行情 | 有凭证的数据重建 |
+
+Git 只包含代码、测试、方法文档、小型 SEC 示例切片、版本标识和聚合结果。SEC 原始响应、
+processed 事件面板、Massive/Polygon 行情、生成报告、凭证和临时渲染不会进入 Git。
+在 fresh clone 中，成果 02–05 自动显示
+`data/examples/research_preview_summary.json`；本地存在完整研究资产时，应用才会开放
+事件级审计页面和下载功能。
+
+详见 [数据与生成物政策](DATA_LICENSE.md)、
+[Public Research Preview checklist](docs/public_release_checklist.md)和
+[Public Release Manifest](docs/public_release_manifest.md)。
+
+### 项目结构
+
+```text
+data_generator.py          # 确定性 PIT 财报、修订、退市和价格模拟
+signals.py                 # 只使用历史信息计算 SUE 与毛利率变化
+backtest.py                # 事件驱动多空回测和显式偏差开关
+event_panel.py             # Company × Filing Event × Information Set 契约
+forecast_tournament.py     # M0–M4 严格 PIT 预测竞赛
+revision_robustness.py     # 走步修订风险与决策安全边际
+revision_tail_audit.py     # 修订尾部事件的 filing 来源复核
+app.py                     # Streamlit 研究界面
+sec_data/                  # SEC 抓取、PIT 清洗、身份和行情适配器
+scripts/                   # 可复现研究与审计入口
+data/examples/             # 可公开的小型 SEC 切片与冻结聚合预览
+tests/                     # 时序、偏差、复现性和验收测试
+docs/                      # 协议、结果、校准与限制
+```
+
+### 研究里程碑
+
+1. **Apple 2009 前视偏差案例。** 原始 10-K 与约 90 天后接受的 10-K/A 含有 210 组严格
+   可比 XBRL facts，其中 77 组发生变化。精选的 13 条事实显示，2009 毛利率从 35.96%
+   变为 40.14%，同比信号从 +1.65 pp 变为 +4.94 pp；回填修订值会把历史信号放大
+   3.29 pp。这是收入确认准则的追溯采用，不是欺诈证据。
+
+2. **Level / Delta / Innovation。** 在 82 家核心公司上构建严格 PIT 表示。第一版
+   Innovation 与 Delta 仍高度相关，因此项目选择预注册预测竞赛，而不是根据收益结果
+   调参。
+
+3. **预测竞赛。** M0–M4 在 71 家公司的 812 个共同 PIT 事件上评估。Company-aware OLS
+   （M2）以 35.4% MAE skill 胜出，并在全部六个合格年份优于基准。这建立的是财务预测
+   能力，不是收益预测能力。
+
+4. **修订稳健性。** 503 个决策时点事件拥有足够历史，95% 中位 revision-at-risk 安全
+   边际为 0.166 个毛利率百分点。在 417 个后来解决的事件上，经验覆盖率为 97.4%，实际
+   方向翻转为 3 个。候选结构变化过滤器没有抓到这 3 个翻转，因此被拒绝上线。
+
+5. **历史公司世界与市场数据控制。** SEC catalog 包含 1,057,454 条目标 filing 和
+   13,106 个候选 CIK。74,410 个 filing-frame 公司年度中有 62,963 个成功匹配 PIT
+   Assets。冻结的 500 条概率样本把代表性推断与刻意富集的压力案例分开。28 事件价格
+   pilot 还显示，删除 3 只在正式退出后才退市的证券，会把平均超额收益抬高 1.76 pp。
+
+6. **纵向有效性研究。** 在加入正式交易所日历、公司行动、退市结局、市场基准和 ticker
+   迁移控制后，15 家发行人的 49 个完整事件通过预注册数据门。最终结果为
+   `effectiveness_not_established`，这是项目目前诚实的停止点。
+
+各阶段详细文件见 [docs/](docs/)。
+
+### 回测约定
+
+每个模拟财报季度形成一个横截面：
+
+1. 用公告时可得的信息形成信号。
+2. 在公告后的第二个交易日开盘建仓。
+3. 持有 20 个交易日并在收盘退出。
+4. 做多信号最高的 20%，做空最低的 20%。
+5. 每侧配置 50% 总敞口：总敞口 100%，净敞口为 0。
+6. 减去同期模拟基准收益，再计算 IC 和分位数组合。
+
+应用比较“全部偏差”“修正前视偏差”和“修正全部偏差”。透明模拟校准使全部偏差情景的
+年化收益约为 15%，全部修正后低于 3%。这个差距是演示目标，不是真实收益估计。
+
+### SEC EDGAR 工作区
+
+Streamlit 应用包含独立的 SEC 工作区，使用官方、无需 API Key 的 `submissions` 和
+`companyfacts` JSON 接口。系统保存精确响应字节和 SHA-256，解析 accession 与 UTC
+接受时间，标准化 XBRL facts，严格配对 amendment，并记录拒绝观测。
+
+SEC 要求自动客户端使用真实联系地址声明身份：
+
+```powershell
+$env:SEC_USER_AGENT="Your Name your.email@domain.com"
+uv run streamlit run app.py
+```
+
+同一管线可以脱离界面运行：
+
+```powershell
+$env:SEC_USER_AGENT="Your Name your.email@domain.com"
+uv run python -m sec_data.cli AAPL
+uv run python -m sec_data.cli AAPL --include-archives
+```
+
+下载内容保存在 `data/sec/` 并被 Git 忽略。这个工作区属于披露数据审计，不是完整实盘
+回测；绩效研究还需要 PIT 证券身份、交易所日历、公司行动、行情和退市结局。
+
+### 完整本地研究管线
+
+以下命令需要对应的本地数据；涉及供应商时，需要使用者自己的凭证：
+
+```powershell
+uv run python -m scripts.run_representation_research
+uv run python -m scripts.run_forecast_tournament
+uv run python -m scripts.run_revision_robustness
+uv run python -m scripts.build_sec_filing_catalog --start-year 2016 --end-year 2025
+uv run python -m scripts.build_sec_size_features
+uv run python -m scripts.build_sec_filing_cover_history --artifact-policy index-only --limit 1000
+uv run python -m scripts.build_sec_probability_sample
+uv run python -m scripts.collect_sec_probability_sample
+uv run python -m scripts.build_massive_reference_pilot
+uv run python -m scripts.build_massive_price_pilot
+uv run python -m scripts.build_exchange_calendar
+uv run python -m scripts.build_massive_security_actions_pilot
+uv run python -m scripts.build_massive_delisting_pilot
+uv run python -m scripts.build_sec_price_readiness
+uv run python -m scripts.build_event_return_ledger
+uv run python -m scripts.build_pilot_filing_features
+uv run python -m scripts.build_event_return_diagnostics
+uv run python -m scripts.build_longitudinal_expansion
+uv run python -m scripts.build_sec_universe_design
+```
+
+生成 Word 研究论文还需要本地冻结的实证产物：
+
+```powershell
+uv sync --group reports
+uv run python -m scripts.create_academic_effectiveness_paper
+```
+
+### 已知限制
+
+- 模拟相关性经过人为校准，不能建立真实 SUE 或毛利率信号收益。
+- 模拟使用工作日而非完整交易所日历，也没有模拟节假日、停牌、涨跌停、交易成本、
+  借券约束和市场冲击。
+- 模拟季度组合按单个报告期横截面排名，即使公司公告日期不同。
+- 模拟退市没有复刻完整的真实退市收益过程。
+- 当前实证样本较小且发行人集中，不足以声称存在稳定 alpha。
+- 应用使用确定性文字模板，不依赖 OpenAI。
+
+软件采用 [MIT License](LICENSE)。第三方数据仍受其原始条款约束。
