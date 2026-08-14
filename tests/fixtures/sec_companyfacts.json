@@ -1,0 +1,132 @@
+{
+  "cik": 1,
+  "entityName": "Real Data Demo Corp",
+  "facts": {
+    "us-gaap": {
+      "EarningsPerShareDiluted": {
+        "label": "Earnings Per Share, Diluted",
+        "description": "Diluted earnings per share.",
+        "units": {
+          "USD/shares": [
+            {
+              "start": "2024-01-01",
+              "end": "2024-03-31",
+              "val": 0.5,
+              "accn": "0000000001-24-000001",
+              "fy": 2024,
+              "fp": "Q1",
+              "form": "10-Q",
+              "filed": "2024-05-03",
+              "frame": "CY2024Q1"
+            },
+            {
+              "start": "2024-01-01",
+              "end": "2024-03-31",
+              "val": 0.45,
+              "accn": "0000000001-24-000002",
+              "fy": 2024,
+              "fp": "Q1",
+              "form": "10-Q/A",
+              "filed": "2024-05-10",
+              "frame": "CY2024Q1"
+            }
+          ]
+        }
+      },
+      "RevenueFromContractWithCustomerExcludingAssessedTax": {
+        "label": "Revenue",
+        "description": "Revenue from contracts with customers.",
+        "units": {
+          "USD": [
+            {
+              "start": "2024-01-01",
+              "end": "2024-03-31",
+              "val": 100000000,
+              "accn": "0000000001-24-000001",
+              "fy": 2024,
+              "fp": "Q1",
+              "form": "10-Q",
+              "filed": "2024-05-03"
+            },
+            {
+              "start": "2024-01-01",
+              "end": "2024-03-31",
+              "val": 98000000,
+              "accn": "0000000001-24-000002",
+              "fy": 2024,
+              "fp": "Q1",
+              "form": "10-Q/A",
+              "filed": "2024-05-10"
+            },
+            {
+              "start": "2023-01-01",
+              "end": "2023-03-31",
+              "val": 90000000,
+              "accn": "0000000001-23-999999",
+              "fy": 2023,
+              "fp": "Q1",
+              "form": "10-Q",
+              "filed": "2023-05-01"
+            }
+          ]
+        }
+      },
+      "GrossProfit": {
+        "label": "Gross Profit",
+        "description": "Revenue less cost of revenue.",
+        "units": {
+          "USD": [
+            {
+              "start": "2024-01-01",
+              "end": "2024-03-31",
+              "val": 40000000,
+              "accn": "0000000001-24-000001",
+              "fy": 2024,
+              "fp": "Q1",
+              "form": "10-Q",
+              "filed": "2024-05-03"
+            },
+            {
+              "start": "2024-01-01",
+              "end": "2024-03-31",
+              "val": 40000000,
+              "accn": "0000000001-24-000002",
+              "fy": 2024,
+              "fp": "Q1",
+              "form": "10-Q/A",
+              "filed": "2024-05-10"
+            }
+          ]
+        }
+      },
+      "Assets": {
+        "label": "Assets",
+        "description": "Total assets.",
+        "units": {
+          "USD": [
+            {
+              "end": "2024-03-31",
+              "val": 500000000,
+              "accn": "0000000001-24-000002",
+              "fy": 2024,
+              "fp": "Q1",
+              "form": "10-Q/A",
+              "filed": "2024-05-10"
+            }
+          ],
+          "": [
+            {
+              "end": "2024-03-31",
+              "val": 500000000,
+              "accn": "0000000001-24-000002",
+              "fy": 2024,
+              "fp": "Q1",
+              "form": "10-Q/A",
+              "filed": "2024-05-10"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

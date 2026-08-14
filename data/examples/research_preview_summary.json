@@ -1,0 +1,128 @@
+{
+  "schema_version": "public-research-preview-v1",
+  "generated_from": {
+    "representation": "ldi-pit-v1-0cb6ab453c6535d9",
+    "forecast_tournament": "gm-forecast-v2-675735a5687a7fd1",
+    "revision_robustness": "revision-robustness-v2-9c615c9c359202b9",
+    "longitudinal_effectiveness": "preliminary-effectiveness-diagnostic-v1-ec29d989f4f879f1"
+  },
+  "representation": {
+    "core_companies": 82,
+    "level_events": 1954,
+    "delta_events": 1723,
+    "raw_innovation_events": 813,
+    "common_representation_events": 713,
+    "companies_with_minimum_innovation_history": 65,
+    "forecast_skill": {
+      "MAE": -0.06836624104094313,
+      "RMSE": 0.03517259701479036,
+      "OOS R2": 0.06910808244881583
+    },
+    "rank_movement": {
+      "median_abs_percentile": 0.07433380084151475,
+      "changes_quintile": 0.42917251051893407,
+      "moves_two_or_more_quintiles": 0.061711079943899017
+    },
+    "rank_correlations": {
+      "Delta vs raw": 0.8781587756838715,
+      "Delta vs standardized": 0.8803960148756856,
+      "Raw vs standardized": 0.9966998429294343
+    },
+    "revised_target_events": 153,
+    "status": "innovation_not_yet_distinct_from_delta"
+  },
+  "forecast_tournament": {
+    "common_sample_events": 812,
+    "common_sample_companies": 71,
+    "selected_model_id": "M2",
+    "selected_model_name": "Company-aware OLS",
+    "eligible_years": 6,
+    "positive_mae_skill_years": 6,
+    "model_mae_skill": {
+      "M0": 0.0,
+      "M1": -0.06607699168091097,
+      "M2": 0.3544852335163884,
+      "M3": 0.3376564170045393,
+      "M4": 0.28938773108493643
+    },
+    "m2_year_mae_skill": {
+      "2020": 0.18794116776975334,
+      "2021": 0.4124948892841821,
+      "2022": 0.3673153447551515,
+      "2023": 0.4586167817648594,
+      "2024": 0.4151827041223721,
+      "2025": 0.18169249869865134
+    },
+    "historical_return_gate_pass": false
+  },
+  "revision_robustness": {
+    "selected_model_id": "M2",
+    "primary_confidence": 0.95,
+    "primary_decision_events": 503,
+    "primary_resolved_evaluation_events": 417,
+    "primary_median_revision_at_risk": 0.0016598833625858,
+    "primary_empirical_coverage": 0.973621103117506,
+    "primary_robust_decision_share": 0.9025844930417495,
+    "primary_realized_direction_flips": 3,
+    "economic_error_corrections_in_reviewed_tail": 0,
+    "confidence": [0.8, 0.9, 0.95, 0.975, 0.99],
+    "median_revision_at_risk": [0.0, 0.0, 0.0016598833625858, 0.0431140399865966, 0.0743967487385187],
+    "empirical_coverage": [0.9424460431654677, 0.9424460431654677, 0.973621103117506, 1.0, 1.0],
+    "robust_decision_share": [1.0, 1.0, 0.9025844930417495, 0.1550695825049702, 0.05964214711729622],
+    "tail_classifications": {
+      "列报重绘": 5,
+      "业务范围重绘": 6,
+      "XBRL 语义碰撞": 4,
+      "确认的经济差错": 0
+    }
+  },
+  "longitudinal_effectiveness": {
+    "candidate_events": 58,
+    "complete_events": 49,
+    "issuers": 15,
+    "forms": {
+      "10-Q": 38,
+      "10-K": 11
+    },
+    "representation_ic": {
+      "Level": -0.15261,
+      "Delta": -0.019185,
+      "Innovation raw": 0.04495,
+      "Innovation std": 0.044695
+    },
+    "innovation_ci": [-0.315911, 0.356217],
+    "innovation_minus_delta": 0.06388,
+    "innovation_minus_delta_p": 0.69693,
+    "horizon_ic": {
+      "1 day": {
+        "Delta": 0.028,
+        "Innovation": -0.025
+      },
+      "5 days": {
+        "Delta": -0.014337,
+        "Innovation": 0.204291
+      },
+      "20 days": {
+        "Delta": -0.019185,
+        "Innovation": 0.044695
+      }
+    },
+    "innovation_quantile_return": {
+      "Low": -0.028938,
+      "Middle": 0.00916,
+      "High": 0.004214
+    },
+    "survivorship_mean_return": {
+      "All events": -0.005672,
+      "Survivors only": 0.012435,
+      "Later delisted": -0.135444
+    },
+    "survivor_only_inflation_pp": 1.8107,
+    "repair_ic": {
+      "Before OB→TEAD repair": 0.093793,
+      "After repair": 0.044695
+    },
+    "verdict": "effectiveness_not_established"
+  },
+  "evidence_boundary": "Aggregate frozen diagnostics only. No event-level SEC or provider market data are redistributed in the public repository."
+}

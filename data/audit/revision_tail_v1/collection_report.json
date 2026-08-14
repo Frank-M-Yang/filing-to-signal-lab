@@ -1,0 +1,11 @@
+{
+  "audit_version": "revision-tail-filing-snapshots-v1",
+  "generated_at": "2026-08-13T10:09:39.796362+00:00",
+  "manifest_sha256": "7e5a5fc2bfb6c99a3de289a2238d1f7eaefba189746faa0bd98e731d30652b1f",
+  "source": "SEC EDGAR primary filing documents",
+  "tail_event_count": 15,
+  "tail_events_path": "data\\processed\\global500_2026\\revision_robustness_v1\\revision_tail_events.csv",
+  "tail_events_sha256": "8fc9e64ba1c127a3f8c41af042d07a8d60a15a183bd86488bff51bde9fd27393",
+  "unique_company_count": 7,
+  "unique_filing_documents": 29
+}

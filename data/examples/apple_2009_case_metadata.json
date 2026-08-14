@@ -1,0 +1,19 @@
+{
+  "case_id": "apple-2009-revenue-recognition",
+  "company": "Apple Inc.",
+  "ticker": "AAPL",
+  "cik": "0000320193",
+  "fiscal_year": 2009,
+  "original_accession": "0001193125-09-214859",
+  "original_accepted_at": "2009-10-27T20:18:29+00:00",
+  "amendment_accession": "0001193125-10-012091",
+  "amendment_accepted_at": "2010-01-25T21:25:58+00:00",
+  "comparable_fact_count": 210,
+  "changed_fact_count": 77,
+  "curated_fact_count": 13,
+  "median_absolute_revision": 0.2658254033926355,
+  "source_export_sha256": "31d375da8b9d8160297f711e9ebf5c48bb1a7b630e59f4f5dafe46d197b091b7",
+  "original_filing_url": "https://www.sec.gov/Archives/edgar/data/320193/000119312509214859/0001193125-09-214859-index.htm",
+  "amendment_filing_url": "https://www.sec.gov/Archives/edgar/data/320193/000119312510012091/d10ka.htm",
+  "reason": "Retrospective adoption of amended revenue-recognition standards for arrangements with multiple deliverables and software elements."
+}

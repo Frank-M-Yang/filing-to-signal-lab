@@ -1,0 +1,78 @@
+[project]
+name = "bias-aware-backtesting"
+version = "0.4.0"
+description = "Interactive framework showing how common data biases distort financial-signal backtests"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "httpx>=0.28,<1",
+  "numpy>=1.26,<3",
+  "pandas>=2.2,<4",
+  "plotly>=5.24,<7",
+  "pyarrow>=18,<24",
+  "streamlit>=1.61,<2",
+]
+
+[dependency-groups]
+dev = [
+  "mypy>=1.16,<2",
+  "pandas-stubs>=2.2",
+  "pytest>=8.4,<10",
+  "ruff>=0.12,<1",
+]
+reports = [
+  "pillow>=11,<13",
+  "python-docx>=1.2,<2",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "RUF"]
+ignore = ["RUF001"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = [
+  "data_generator.py",
+  "signals.py",
+  "backtest.py",
+  "event_panel.py",
+  "representation_research.py",
+  "forecast_tournament.py",
+  "revision_robustness.py",
+  "revision_tail_audit.py",
+  "scripts/build_sec_filing_catalog.py",
+  "scripts/build_sec_filing_cover_history.py",
+  "scripts/build_sec_probability_sample.py",
+  "scripts/build_sec_price_readiness.py",
+  "scripts/build_massive_reference_pilot.py",
+  "scripts/build_massive_price_pilot.py",
+  "scripts/build_exchange_calendar.py",
+  "scripts/build_massive_security_actions_pilot.py",
+  "scripts/build_massive_delisting_pilot.py",
+  "scripts/build_event_return_ledger.py",
+  "scripts/build_event_return_diagnostics.py",
+  "scripts/build_pilot_filing_features.py",
+  "scripts/build_longitudinal_expansion.py",
+  "scripts/collect_sec_probability_sample.py",
+  "scripts/build_sec_universe_design.py",
+  "scripts/build_sec_size_features.py",
+  "scripts/audit_public_release.py",
+  "scripts/run_representation_research.py",
+  "scripts/run_forecast_tournament.py",
+  "scripts/run_revision_robustness.py",
+  "scripts/run_public_reproduction.py",
+  "scripts/collect_revision_tail_filings.py",
+  "sec_data",
+]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-config --strict-markers"
+testpaths = ["tests"]
