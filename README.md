@@ -14,10 +14,11 @@ Filing-to-Signal Lab investigates a falsifiable question:
 > difference between newly disclosed information and the expectation formed immediately before
 > the filing? How much do hindsight revisions and historical-data biases distort the answer?
 
-> **Research Preview — 2026-08-15:** the point-in-time data, bias-audit, and event-return
-> pipelines are operational. The return effectiveness of a standalone gross-margin Innovation
-> signal has **not** been established. This repository is an educational research system, not
-> investment advice, a stock-selection model, or a validated trading strategy.
+> **Research Preview — 2026-08-27:** the point-in-time data, bias-audit, event-return, and first
+> model-ready feature pipelines are operational. The return effectiveness of a standalone
+> gross-margin Innovation signal has **not** been established. This repository is an educational
+> research system, not investment advice, a stock-selection model, or a validated trading
+> strategy.
 
 ### Current empirical result
 
@@ -43,6 +44,14 @@ large enough to alter a research conclusion. See the
 [longitudinal effectiveness study](docs/longitudinal_effectiveness_v1.md), the
 [preregistration](docs/preliminary_effectiveness_preregistration_v1.md), and the
 [OB→TEAD repair audit](docs/ticker_transition_repair_v1.md).
+
+The next model round now has a separate point-in-time feature store and a frozen seven-model
+baseline tournament. Because all 58 existing event outcomes had already been inspected, they are
+permanently marked as training-only rather than reused as validation. Of those events, 35 have a
+complete filing-plus-market feature vector. The current tournament correctly emits zero
+validation predictions and the verdict `insufficient_unobserved_validation_evidence`; its sealed
+holdout begins on 2026-08-28. See the
+[Tradeable Dataset and Baseline Tournament v1](docs/tradeable_dataset_and_baseline_tournament_v1.md).
 
 ### Research design
 
@@ -143,6 +152,8 @@ event_panel.py             # Company × Filing Event × Information Set contract
 forecast_tournament.py     # M0–M4 strictly PIT forecasting tournament
 revision_robustness.py     # Walk-forward revision risk and decision safety margins
 revision_tail_audit.py     # Filing-source review of revision-tail events
+tradeable_dataset.py       # PIT filing/market features, labels, and evidence roles
+baseline_alpha_tournament.py # Same-sample walk-forward baseline models and gates
 app.py                     # Streamlit research interface
 sec_data/                  # SEC collection, PIT cleaning, identity, and market adapters
 scripts/                   # Reproducible research and audit entry points
@@ -183,6 +194,11 @@ docs/                      # Protocols, results, calibration, and limitations
    benchmark, and ticker-transition controls, 49 complete events from 15 issuers passed the
    preregistered data gate. The final result is
    `effectiveness_not_established`, which is the project's current honest stopping point.
+
+7. **Tradeable Dataset and baseline tournament.** The 58 already-inspected outcomes are frozen as
+   training-only. A same-sample filing/market feature store contains 35 complete model rows, but
+   no unobserved validation event yet. The seven-model walk-forward tournament therefore stops at
+   `insufficient_unobserved_validation_evidence` without opening the sealed holdout.
 
 Detailed milestone documents are linked from [docs/](docs/).
 
@@ -252,6 +268,8 @@ uv run python -m scripts.build_pilot_filing_features
 uv run python -m scripts.build_event_return_diagnostics
 uv run python -m scripts.build_longitudinal_expansion
 uv run python -m scripts.build_sec_universe_design
+uv run python -m scripts.build_tradeable_dataset
+uv run python -m scripts.run_baseline_alpha_tournament
 ```
 
 Generating the Word research paper also requires local frozen empirical artifacts:
@@ -271,6 +289,8 @@ uv run python -m scripts.create_academic_effectiveness_paper
 - Simulated delistings do not replicate a complete real-world delisting-return process.
 - The current empirical sample is small, issuer-concentrated, and insufficient for a claim of
   stable alpha.
+- The first model-ready build has 35 complete training rows and no genuinely unobserved
+  validation events; it produces no model-selection or trading claim.
 - The application uses deterministic templates and does not require OpenAI.
 
 The software is released under the [MIT License](LICENSE). Third-party data remain subject to
@@ -287,9 +307,9 @@ Filing-to-Signal Lab 研究一个可被证伪的问题：
 > 市场究竟在定价企业所处的状态、状态的变化，还是新信息——即新披露信息与公告前一刻
 > 状态依赖预期之间的差？事后修订数据和历史数据偏差又会怎样扭曲答案？
 
-> **Research Preview — 2026-08-15：** 点时数据、偏差审计和事件收益管线已经可以运行，
-> 但单一毛利率 Innovation 信号的收益有效性**尚未建立**。本仓库是研究与教育系统，
-> 不是投资建议、选股模型或已经验证的交易策略。
+> **Research Preview — 2026-08-27：** 点时数据、偏差审计、事件收益和第一版训练就绪
+> 特征管线已经可以运行，但单一毛利率 Innovation 信号的收益有效性**尚未建立**。
+> 本仓库是研究与教育系统，不是投资建议、选股模型或已经验证的交易策略。
 
 ### 当前实证结果
 
@@ -311,6 +331,12 @@ Innovation 和 20 个交易日市场超额收益。
 [纵向有效性研究](docs/longitudinal_effectiveness_v1.md)、
 [预注册协议](docs/preliminary_effectiveness_preregistration_v1.md)和
 [OB→TEAD 修复审计](docs/ticker_transition_repair_v1.md)。
+
+下一轮模型已经拥有独立的点时特征库和冻结的七模型基线竞赛。因为现有 58 个事件的收益
+都已经被我们看过，它们被永久标记为只可训练，不能再次充当验证证据；其中 35 个事件拥有
+完整的财报与市场特征。当前竞赛正确地产生 0 条验证预测，判定为
+`insufficient_unobserved_validation_evidence`，封存测试集从 2026-08-28 开始。详见
+[Tradeable Dataset and Baseline Tournament v1](docs/tradeable_dataset_and_baseline_tournament_v1.md)。
 
 ### 研究设计
 
@@ -402,6 +428,8 @@ event_panel.py             # Company × Filing Event × Information Set 契约
 forecast_tournament.py     # M0–M4 严格 PIT 预测竞赛
 revision_robustness.py     # 走步修订风险与决策安全边际
 revision_tail_audit.py     # 修订尾部事件的 filing 来源复核
+tradeable_dataset.py       # PIT 财报/市场特征、收益标签和证据角色
+baseline_alpha_tournament.py # 共同样本走步基线模型与研究门槛
 app.py                     # Streamlit 研究界面
 sec_data/                  # SEC 抓取、PIT 清洗、身份和行情适配器
 scripts/                   # 可复现研究与审计入口
@@ -437,6 +465,10 @@ docs/                      # 协议、结果、校准与限制
 6. **纵向有效性研究。** 在加入正式交易所日历、公司行动、退市结局、市场基准和 ticker
    迁移控制后，15 家发行人的 49 个完整事件通过预注册数据门。最终结果为
    `effectiveness_not_established`，这是项目目前诚实的停止点。
+
+7. **可交易数据集与基线竞赛。** 58 个已经观察过结果的事件被冻结为只可训练。共同样本
+   特征库目前有 35 条完整模型记录，但还没有从未观察过结果的验证事件。因此七模型走步
+   竞赛停在 `insufficient_unobserved_validation_evidence`，也没有打开封存测试集。
 
 各阶段详细文件见 [docs/](docs/)。
 
@@ -502,6 +534,8 @@ uv run python -m scripts.build_pilot_filing_features
 uv run python -m scripts.build_event_return_diagnostics
 uv run python -m scripts.build_longitudinal_expansion
 uv run python -m scripts.build_sec_universe_design
+uv run python -m scripts.build_tradeable_dataset
+uv run python -m scripts.run_baseline_alpha_tournament
 ```
 
 生成 Word 研究论文还需要本地冻结的实证产物：
@@ -519,6 +553,8 @@ uv run python -m scripts.create_academic_effectiveness_paper
 - 模拟季度组合按单个报告期横截面排名，即使公司公告日期不同。
 - 模拟退市没有复刻完整的真实退市收益过程。
 - 当前实证样本较小且发行人集中，不足以声称存在稳定 alpha。
+- 第一版训练就绪数据只有 35 条完整训练记录，且没有真正未观察的验证事件；当前不能据此
+  选择模型或作出交易结论。
 - 应用使用确定性文字模板，不依赖 OpenAI。
 
 软件采用 [MIT License](LICENSE)。第三方数据仍受其原始条款约束。

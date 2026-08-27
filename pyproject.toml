@@ -10,6 +10,7 @@ dependencies = [
   "pandas>=2.2,<4",
   "plotly>=5.24,<7",
   "pyarrow>=18,<24",
+  "scikit-learn>=1.5,<2",
   "streamlit>=1.61,<2",
 ]
 
@@ -48,6 +49,8 @@ files = [
   "forecast_tournament.py",
   "revision_robustness.py",
   "revision_tail_audit.py",
+  "tradeable_dataset.py",
+  "baseline_alpha_tournament.py",
   "scripts/build_sec_filing_catalog.py",
   "scripts/build_sec_filing_cover_history.py",
   "scripts/build_sec_probability_sample.py",
@@ -68,6 +71,8 @@ files = [
   "scripts/run_representation_research.py",
   "scripts/run_forecast_tournament.py",
   "scripts/run_revision_robustness.py",
+  "scripts/build_tradeable_dataset.py",
+  "scripts/run_baseline_alpha_tournament.py",
   "scripts/run_public_reproduction.py",
   "scripts/collect_revision_tail_filings.py",
   "sec_data",
