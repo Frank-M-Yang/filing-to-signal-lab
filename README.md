@@ -53,6 +53,12 @@ validation predictions and the verdict `insufficient_unobserved_validation_evide
 holdout begins on 2026-08-28. See the
 [Tradeable Dataset and Baseline Tournament v1](docs/tradeable_dataset_and_baseline_tournament_v1.md).
 
+The first unseen-sample expansion now freezes 2,503 candidate events from 180 issuers without
+loading returns. SEC reconstruction produces 1,074 complete filing-feature events from 87
+unobserved issuers; only 319 also fall inside the currently documented Basic price-history
+window. The bottleneck is therefore measurable: both issuer breadth and longer price history are
+still required. See [Unseen Validation Expansion v1](docs/validation_expansion_v1.md).
+
 ### Research design
 
 The primary representation study compares four views of the same company × filing event ×
@@ -155,7 +161,7 @@ revision_tail_audit.py     # Filing-source review of revision-tail events
 tradeable_dataset.py       # PIT filing/market features, labels, and evidence roles
 baseline_alpha_tournament.py # Same-sample walk-forward baseline models and gates
 app.py                     # Streamlit research interface
-sec_data/                  # SEC collection, PIT cleaning, identity, and market adapters
+sec_data/                  # SEC collection, PIT cleaning, validation expansion, and market adapters
 scripts/                   # Reproducible research and audit entry points
 data/examples/             # Small public SEC slices and frozen aggregate preview
 tests/                     # Timing, bias, reproducibility, and acceptance tests
@@ -199,6 +205,11 @@ docs/                      # Protocols, results, calibration, and limitations
    training-only. A same-sample filing/market feature store contains 35 complete model rows, but
    no unobserved validation event yet. The seven-model walk-forward tournament therefore stops at
    `insufficient_unobserved_validation_evidence` without opening the sealed holdout.
+
+8. **Unseen validation expansion.** An outcome-blind 2022–2025 registry contains 2,503 new
+   candidate events. SEC data alone yields 1,074 complete events from 87 unobserved issuers. The
+   current Basic price window retains only 319, so the project expands the frozen SEC sample and
+   seeks longer price history instead of weakening the model gates.
 
 Detailed milestone documents are linked from [docs/](docs/).
 
@@ -270,6 +281,7 @@ uv run python -m scripts.build_longitudinal_expansion
 uv run python -m scripts.build_sec_universe_design
 uv run python -m scripts.build_tradeable_dataset
 uv run python -m scripts.run_baseline_alpha_tournament
+uv run python -m scripts.build_validation_expansion
 ```
 
 Generating the Word research paper also requires local frozen empirical artifacts:
@@ -291,6 +303,8 @@ uv run python -m scripts.create_academic_effectiveness_paper
   stable alpha.
 - The first model-ready build has 35 complete training rows and no genuinely unobserved
   validation events; it produces no model-selection or trading claim.
+- The first unseen expansion has sufficient planned events but only 87 filing-feature-complete
+  issuers, while the current Basic price window covers only six quarters.
 - The application uses deterministic templates and does not require OpenAI.
 
 The software is released under the [MIT License](LICENSE). Third-party data remain subject to
@@ -337,6 +351,11 @@ Innovation 和 20 个交易日市场超额收益。
 完整的财报与市场特征。当前竞赛正确地产生 0 条验证预测，判定为
 `insufficient_unobserved_validation_evidence`，封存测试集从 2026-08-28 开始。详见
 [Tradeable Dataset and Baseline Tournament v1](docs/tradeable_dataset_and_baseline_tournament_v1.md)。
+
+第一轮未观察样本扩展在完全不加载收益的情况下，冻结了 180 家发行人的 2,503 个候选事件。
+SEC 重建后有 87 家未观察发行人的 1,074 个事件具备完整财报特征，但其中只有 319 个同时
+落入当前记录的 Basic 行情历史窗口。瓶颈因此已经量化：仍需要扩大公司覆盖并取得更长的
+历史行情。详见 [Unseen Validation Expansion v1](docs/validation_expansion_v1.md)。
 
 ### 研究设计
 
@@ -431,7 +450,7 @@ revision_tail_audit.py     # 修订尾部事件的 filing 来源复核
 tradeable_dataset.py       # PIT 财报/市场特征、收益标签和证据角色
 baseline_alpha_tournament.py # 共同样本走步基线模型与研究门槛
 app.py                     # Streamlit 研究界面
-sec_data/                  # SEC 抓取、PIT 清洗、身份和行情适配器
+sec_data/                  # SEC 抓取、PIT 清洗、验证扩展和行情适配器
 scripts/                   # 可复现研究与审计入口
 data/examples/             # 可公开的小型 SEC 切片与冻结聚合预览
 tests/                     # 时序、偏差、复现性和验收测试
@@ -469,6 +488,10 @@ docs/                      # 协议、结果、校准与限制
 7. **可交易数据集与基线竞赛。** 58 个已经观察过结果的事件被冻结为只可训练。共同样本
    特征库目前有 35 条完整模型记录，但还没有从未观察过结果的验证事件。因此七模型走步
    竞赛停在 `insufficient_unobserved_validation_evidence`，也没有打开封存测试集。
+
+8. **未观察验证样本扩展。** 2022–2025 年的无收益选择登记表包含 2,503 个新候选事件。
+   仅使用 SEC 数据可得到 87 家未观察发行人的 1,074 个完整事件；当前 Basic 行情窗口只
+   保留 319 个，因此项目选择扩大冻结样本并寻找更长行情，而不是降低模型门槛。
 
 各阶段详细文件见 [docs/](docs/)。
 
@@ -536,6 +559,7 @@ uv run python -m scripts.build_longitudinal_expansion
 uv run python -m scripts.build_sec_universe_design
 uv run python -m scripts.build_tradeable_dataset
 uv run python -m scripts.run_baseline_alpha_tournament
+uv run python -m scripts.build_validation_expansion
 ```
 
 生成 Word 研究论文还需要本地冻结的实证产物：
@@ -555,6 +579,8 @@ uv run python -m scripts.create_academic_effectiveness_paper
 - 当前实证样本较小且发行人集中，不足以声称存在稳定 alpha。
 - 第一版训练就绪数据只有 35 条完整训练记录，且没有真正未观察的验证事件；当前不能据此
   选择模型或作出交易结论。
+- 第一轮未观察扩展虽然候选事件足够，但财报特征完整的发行人只有 87 家；当前 Basic 行情
+  也只覆盖六个季度。
 - 应用使用确定性文字模板，不依赖 OpenAI。
 
 软件采用 [MIT License](LICENSE)。第三方数据仍受其原始条款约束。

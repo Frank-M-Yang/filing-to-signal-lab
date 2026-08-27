@@ -22,6 +22,18 @@ def main() -> int:
     parser.add_argument("--benchmark-root", type=Path, default=None)
     parser.add_argument("--action-root", type=Path, default=None)
     parser.add_argument(
+        "--evidence-registry-root",
+        type=Path,
+        default=None,
+        help="pre-outcome validation expansion containing accession-level evidence roles",
+    )
+    parser.add_argument(
+        "--preregistration-root",
+        type=Path,
+        default=None,
+        help="existing legacy-outcome registry; required provenance for an expansion build",
+    )
+    parser.add_argument(
         "--preregistration-output-root",
         type=Path,
         default=Path("data/processed/tradeable_dataset_preregistration"),
@@ -46,23 +58,34 @@ def main() -> int:
         Path("data/processed/longitudinal_security_actions"),
         "massive_security_actions_report.json",
     )
-    preregistration = build_tradeable_dataset_preregistration(
-        ledger_root,
-        output_root=args.preregistration_output_root,
-    )
-    print(
-        "TRADEABLE PREREGISTRATION DONE "
-        f"version={preregistration.report['dataset_version']} "
-        f"legacy_observed={preregistration.report['legacy_observed_events']} "
-        f"output={preregistration.output_root}",
-        flush=True,
-    )
+    if args.evidence_registry_root is not None:
+        preregistration_root = args.preregistration_root or _latest_root(
+            args.preregistration_output_root, "preregistration_report.json"
+        )
+        print(
+            f"TRADEABLE PREREGISTRATION REUSED output={preregistration_root.resolve()}",
+            flush=True,
+        )
+    else:
+        preregistration = build_tradeable_dataset_preregistration(
+            ledger_root,
+            output_root=args.preregistration_output_root,
+        )
+        preregistration_root = preregistration.output_root
+        print(
+            "TRADEABLE PREREGISTRATION DONE "
+            f"version={preregistration.report['dataset_version']} "
+            f"legacy_observed={preregistration.report['legacy_observed_events']} "
+            f"output={preregistration.output_root}",
+            flush=True,
+        )
     dataset = build_tradeable_dataset(
         ledger_root,
         price_root,
         benchmark_root,
         action_root,
-        preregistration.output_root,
+        preregistration_root,
+        evidence_registry_root=args.evidence_registry_root,
         output_root=args.dataset_output_root,
     )
     print(

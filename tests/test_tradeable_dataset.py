@@ -45,6 +45,54 @@ def test_tradeable_dataset_rejects_future_market_clock() -> None:
         validate_tradeable_dataset(dataset)
 
 
+def test_preregistered_accession_roles_control_evaluation() -> None:
+    ledger, bars, benchmark, actions = _fixture_inputs()
+    roles = pd.DataFrame(
+        {
+            "accession_number": ["accession-1", "accession-2"],
+            "evidence_role": [
+                "legacy_issuer_training_only",
+                "unobserved_validation_candidate",
+            ],
+        }
+    )
+    result = calculate_tradeable_dataset(
+        ledger,
+        bars,
+        benchmark,
+        actions,
+        set(),
+        preregistered_event_roles=roles,
+    )
+    events = result.event_dataset.set_index("accession_number")
+
+    assert bool(events.loc["accession-1", "prior_outcome_observed"])
+    assert not bool(events.loc["accession-1", "model_evaluation_candidate"])
+    assert not bool(events.loc["accession-2", "prior_outcome_observed"])
+    assert bool(events.loc["accession-2", "model_evaluation_candidate"])
+    assert result.report["external_event_role_registry_used"] is True
+
+
+def test_unregistered_return_event_is_rejected() -> None:
+    ledger, bars, benchmark, actions = _fixture_inputs()
+    incomplete_registry = pd.DataFrame(
+        {
+            "accession_number": ["accession-1"],
+            "evidence_role": ["legacy_issuer_training_only"],
+        }
+    )
+
+    with pytest.raises(FilingCatalogError, match="not frozen before outcome"):
+        calculate_tradeable_dataset(
+            ledger,
+            bars,
+            benchmark,
+            actions,
+            set(),
+            preregistered_event_roles=incomplete_registry,
+        )
+
+
 def test_split_adjustment_avoids_false_momentum_jump() -> None:
     ledger, bars, benchmark, actions = _fixture_inputs()
     baseline = calculate_tradeable_dataset(ledger, bars, benchmark, actions, set())

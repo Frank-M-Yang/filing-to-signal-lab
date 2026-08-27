@@ -112,6 +112,7 @@ def calculate_tradeable_dataset(
     issuer_actions: pd.DataFrame,
     legacy_observed_event_ids: Iterable[str],
     config: TradeableDatasetConfig | None = None,
+    preregistered_event_roles: pd.DataFrame | None = None,
 ) -> TradeableDatasetTables:
     """Build one auditable row per event without reading future market observations."""
     cfg = config or TradeableDatasetConfig()
@@ -180,6 +181,35 @@ def calculate_tradeable_dataset(
         how="left",
         validate="one_to_one",
     )
+    registered_roles_used = preregistered_event_roles is not None
+    if preregistered_event_roles is not None:
+        roles = preregistered_event_roles.copy()
+        _require_columns(roles, {"accession_number", "evidence_role"}, "event-role registry")
+        if roles["accession_number"].duplicated().any():
+            raise FilingCatalogError("Event-role registry accessions are duplicated")
+        allowed_roles = {
+            "legacy_issuer_training_only",
+            "legacy_observed_training_only",
+            "unobserved_validation_candidate",
+            "sealed_holdout",
+        }
+        unexpected = set(roles["evidence_role"].dropna().astype(str)).difference(allowed_roles)
+        if unexpected:
+            raise FilingCatalogError(f"Event-role registry contains unknown roles: {unexpected}")
+        roles = roles[["accession_number", "evidence_role"]].rename(
+            columns={"evidence_role": "preregistered_evidence_role"}
+        )
+        dataset = dataset.merge(roles, on="accession_number", how="left", validate="many_to_one")
+        if dataset["preregistered_evidence_role"].isna().any():
+            missing = dataset.loc[
+                dataset["preregistered_evidence_role"].isna(), "accession_number"
+            ].astype(str)
+            raise FilingCatalogError(
+                "A return event was not frozen before outcome construction: "
+                + ", ".join(missing.head(5))
+            )
+    else:
+        dataset["preregistered_evidence_role"] = pd.NA
     dataset["feature_cutoff"] = dataset["accepted_at"]
     dataset["form_is_10k"] = dataset["form"].eq("10-K").astype(float)
     dataset["filing_features_complete"] = (
@@ -195,7 +225,12 @@ def calculate_tradeable_dataset(
         dataset["target_ready_20d"].astype(bool)
         & dataset["target_market_excess_return_20d"].notna()
     )
-    dataset["prior_outcome_observed"] = dataset["longitudinal_event_id"].isin(legacy_ids)
+    registered_legacy = dataset["preregistered_evidence_role"].isin(
+        ["legacy_issuer_training_only", "legacy_observed_training_only"]
+    )
+    dataset["prior_outcome_observed"] = (
+        dataset["longitudinal_event_id"].isin(legacy_ids) | registered_legacy
+    )
     holdout_start = pd.Timestamp(cfg.sealed_holdout_start)
     validation_start = pd.Timestamp(cfg.validation_start)
     dataset["time_role"] = np.select(
@@ -214,6 +249,9 @@ def calculate_tradeable_dataset(
         ["legacy_observed_training_only", "sealed_holdout"],
         default="unobserved_evaluation_candidate",
     )
+    registered_holdout = dataset["preregistered_evidence_role"].eq("sealed_holdout")
+    dataset.loc[registered_holdout, "time_role"] = "sealed_holdout"
+    dataset.loc[registered_holdout, "evidence_role"] = "sealed_holdout"
     base_candidate = (
         dataset["analysis_sample"].astype(bool)
         & dataset["combined_features_complete"]
@@ -253,6 +291,7 @@ def calculate_tradeable_dataset(
         "model_training_candidates": int(dataset["model_training_candidate"].sum()),
         "unobserved_evaluation_candidates": int(dataset["model_evaluation_candidate"].sum()),
         "sealed_holdout_candidates": int(dataset["sealed_holdout_candidate"].sum()),
+        "external_event_role_registry_used": registered_roles_used,
         "current_model_gate": bool(dataset["model_evaluation_candidate"].any()),
         "current_gate_reason": (
             "unobserved_evaluation_events_available"
@@ -388,6 +427,7 @@ def build_tradeable_dataset(
     action_root: Path,
     preregistration_root: Path,
     *,
+    evidence_registry_root: Path | None = None,
     output_root: Path = Path("data/processed/tradeable_dataset"),
     config: TradeableDatasetConfig | None = None,
 ) -> TradeableDatasetResult:
@@ -403,6 +443,10 @@ def build_tradeable_dataset(
             preregistration_root / "output_manifest.json"
         ),
     }
+    if evidence_registry_root is not None:
+        manifests["evidence_registry_manifest_sha256"] = _sha256_file(
+            evidence_registry_root / "output_manifest.json"
+        )
     ledger = load_catalog_table(ledger_root, "longitudinal_event_return_ledger.parquet")
     issuer_bars = load_catalog_table(price_root, "massive_daily_price_observations.parquet")
     benchmark_bars = load_catalog_table(
@@ -410,6 +454,11 @@ def build_tradeable_dataset(
     )
     issuer_actions = load_catalog_table(action_root, "normalized_corporate_actions.parquet")
     legacy = load_catalog_table(preregistration_root, "legacy_observed_event_ids.parquet")
+    event_roles = (
+        load_catalog_table(evidence_registry_root, "validation_candidate_events.parquet")
+        if evidence_registry_root is not None
+        else None
+    )
     tables = calculate_tradeable_dataset(
         ledger,
         issuer_bars,
@@ -417,6 +466,7 @@ def build_tradeable_dataset(
         issuer_actions,
         legacy["longitudinal_event_id"].astype(str),
         cfg,
+        event_roles,
     )
     payload = json.dumps({**manifests, "config": asdict(cfg)}, sort_keys=True).encode()
     dataset_version = cfg.version + "-" + hashlib.sha256(payload).hexdigest()[:16]

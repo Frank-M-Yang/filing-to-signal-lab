@@ -73,6 +73,7 @@ files = [
   "scripts/run_revision_robustness.py",
   "scripts/build_tradeable_dataset.py",
   "scripts/run_baseline_alpha_tournament.py",
+  "scripts/build_validation_expansion.py",
   "scripts/run_public_reproduction.py",
   "scripts/collect_revision_tail_filings.py",
   "sec_data",
