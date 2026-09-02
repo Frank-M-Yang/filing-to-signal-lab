@@ -44,6 +44,7 @@ files = [
   "data_generator.py",
   "signals.py",
   "backtest.py",
+  "cost_gate.py",
   "event_panel.py",
   "representation_research.py",
   "forecast_tournament.py",
