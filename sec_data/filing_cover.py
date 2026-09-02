@@ -355,7 +355,7 @@ def build_filing_cover_history(
     if plan_report.get("catalog_manifest_sha256") != catalog_manifest_sha256:
         raise FilingCatalogError("Filing-cover target plan does not tie to the catalog")
     targets = load_filing_cover_targets(plan_root)
-    snapshots = _load_all_valid_snapshots(raw_root)
+    snapshots = load_filing_artifact_snapshots(raw_root)
     if not snapshots:
         raise FilingCatalogError("No preserved filing-cover artifacts are available")
     snapshots_by_target_kind = {
@@ -836,6 +836,75 @@ def parse_filing_index(
     }
 
 
+def parse_filing_security_evidence(
+    primary_content: bytes,
+    index_content: bytes,
+    *,
+    index_url: str,
+    subject_cik: str,
+) -> list[dict[str, Any]]:
+    """Extract conservatively attributable cover-page security registrations."""
+    normalized_subject = normalize_cik(subject_cik)
+    facts = parse_cover_facts(primary_content)
+    metadata = parse_filing_index(
+        index_content,
+        index_url=index_url,
+        subject_cik=normalized_subject,
+    )
+    visible = parse_visible_registration_tables(primary_content)
+    single_filer_subject = bool(
+        metadata.get("filer_entity_count") == 1
+        and metadata.get("subject_cik") == normalized_subject
+    )
+    return merge_visible_registration_evidence(
+        _security_observations(_fact_lookup(facts), subject_cik=normalized_subject),
+        visible,
+        subject_cik=normalized_subject,
+        single_filer_subject=single_filer_subject,
+    )
+
+
+def parse_share_class_outstanding_facts(
+    content: bytes,
+    *,
+    subject_cik: str,
+) -> list[dict[str, Any]]:
+    """Extract subject-attributable DEI shares outstanding by stock-class context."""
+    parser = _ShareClassOutstandingParser()
+    parser.feed(content.decode("utf-8", errors="replace"))
+    parser.close()
+    normalized_subject = normalize_cik(subject_cik)
+    rows: list[dict[str, Any]] = []
+    for fact in parser.facts:
+        context = parser.contexts.get(fact["context_ref"], {})
+        if context.get("entity_cik") != normalized_subject:
+            continue
+        member = context.get("class_member")
+        if not member:
+            continue
+        numeric = _parse_share_count(
+            fact["value"],
+            scale=fact["scale"],
+            sign=fact["sign"],
+        )
+        if numeric is None:
+            continue
+        rows.append(
+            {
+                "concept": "EntityCommonStockSharesOutstanding",
+                "context_ref": fact["context_ref"],
+                "context_entity_cik": normalized_subject,
+                "class_member": member,
+                "class_dimension": context.get("class_dimension"),
+                "instant": context.get("instant"),
+                "shares_outstanding": numeric,
+                "scale": fact["scale"],
+                "format": fact["format"],
+            }
+        )
+    return rows
+
+
 class _CoverFactParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
@@ -909,6 +978,116 @@ class _CoverFactParser(HTMLParser):
             self._fragments.append(data)
         if self._identifier_fragments is not None:
             self._identifier_fragments.append(data)
+
+
+class _ShareClassOutstandingParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.contexts: dict[str, dict[str, str]] = {}
+        self.facts: list[dict[str, str]] = []
+        self._context_id: str | None = None
+        self._context_capture: tuple[str, str] | None = None
+        self._context_fragments: list[str] = []
+        self._fact_depth = 0
+        self._fact: dict[str, str] | None = None
+        self._fact_fragments: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        lowered = tag.lower()
+        attributes = {key.lower(): value or "" for key, value in attrs}
+        local = _local_concept(lowered)
+        if local == "context":
+            self._context_id = attributes.get("id") or None
+            if self._context_id is not None:
+                self.contexts.setdefault(self._context_id, {})
+        elif self._context_id is not None and local == "identifier":
+            self._context_capture = ("entity_cik", "")
+            self._context_fragments = []
+        elif self._context_id is not None and local == "explicitmember":
+            dimension = attributes.get("dimension", "")
+            if _local_concept(dimension).lower() == "statementclassofstockaxis":
+                self._context_capture = ("class_member", dimension)
+                self._context_fragments = []
+        elif self._context_id is not None and local == "instant":
+            self._context_capture = ("instant", "")
+            self._context_fragments = []
+        concept = ""
+        if lowered == "ix:nonfraction":
+            concept = _local_concept(attributes.get("name", ""))
+        elif ":" in lowered:
+            concept = local
+        if self._fact_depth == 0 and concept.lower() == "entitycommonstocksharesoutstanding":
+            self._fact_depth = 1
+            self._fact = {
+                "context_ref": attributes.get("contextref", ""),
+                "scale": attributes.get("scale", "0"),
+                "sign": attributes.get("sign", ""),
+                "format": attributes.get("format", ""),
+            }
+            self._fact_fragments = []
+        elif self._fact_depth > 0:
+            self._fact_depth += 1
+
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        self.handle_starttag(tag, attrs)
+        self.handle_endtag(tag)
+
+    def handle_endtag(self, tag: str) -> None:
+        local = _local_concept(tag.lower())
+        if self._context_capture is not None:
+            field, dimension = self._context_capture
+            expected = {
+                "entity_cik": "identifier",
+                "class_member": "explicitmember",
+                "instant": "instant",
+            }[field]
+            if local == expected and self._context_id is not None:
+                value = re.sub(r"\s+", " ", "".join(self._context_fragments)).strip()
+                if field == "entity_cik":
+                    normalized = _normalized_reported_cik(value)
+                    if normalized is not None:
+                        self.contexts[self._context_id][field] = normalized
+                elif value:
+                    self.contexts[self._context_id][field] = value
+                    if field == "class_member":
+                        self.contexts[self._context_id]["class_dimension"] = dimension
+                self._context_capture = None
+                self._context_fragments = []
+        if local == "context":
+            self._context_id = None
+        if self._fact_depth == 0:
+            return
+        self._fact_depth -= 1
+        if self._fact_depth != 0 or self._fact is None:
+            return
+        self._fact["value"] = re.sub(r"\s+", " ", "".join(self._fact_fragments)).strip()
+        self.facts.append(self._fact)
+        self._fact = None
+        self._fact_fragments = []
+
+    def handle_data(self, data: str) -> None:
+        if self._context_capture is not None:
+            self._context_fragments.append(data)
+        if self._fact_depth > 0:
+            self._fact_fragments.append(data)
+
+
+def _parse_share_count(value: str, *, scale: str, sign: str) -> int | None:
+    normalized = html.unescape(value).replace(",", "").strip()
+    if normalized.startswith("(") and normalized.endswith(")"):
+        normalized = "-" + normalized[1:-1]
+    if not re.fullmatch(r"[-+]?\d+(?:\.\d+)?", normalized):
+        return None
+    try:
+        scale_value = int(scale or "0")
+        numeric = float(normalized) * (10**scale_value)
+    except (OverflowError, ValueError):
+        return None
+    if sign.strip() == "-":
+        numeric = -numeric
+    if not np.isfinite(numeric) or numeric < 0 or not numeric.is_integer():
+        return None
+    return int(numeric)
 
 
 def _load_or_fetch(
@@ -987,7 +1166,8 @@ def _existing_snapshot(
     return None
 
 
-def _load_all_valid_snapshots(raw_root: Path) -> list[FilingArtifactSnapshot]:
+def load_filing_artifact_snapshots(raw_root: Path) -> list[FilingArtifactSnapshot]:
+    """Load every preserved snapshot after verifying its size and SHA-256 hash."""
     selected: dict[tuple[str, str], FilingArtifactSnapshot] = {}
     for manifest_path in sorted((raw_root / "snapshots").glob("*/*.json")):
         document = json.loads(manifest_path.read_text(encoding="utf-8"))

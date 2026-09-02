@@ -5,7 +5,10 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from sec_data.event_return_diagnostics import calculate_event_return_diagnostics
+from sec_data.event_return_diagnostics import (
+    EventReturnDiagnosticConfig,
+    calculate_event_return_diagnostics,
+)
 
 
 def test_survivors_only_counterfactual_reports_future_status_inflation() -> None:
@@ -15,13 +18,22 @@ def test_survivors_only_counterfactual_reports_future_status_inflation() -> None
     )
     representation = _representation_panel(["0009999999"], ["other-accession"])
 
-    result = calculate_event_return_diagnostics(ledger, readiness, representation)
+    result = calculate_event_return_diagnostics(
+        ledger,
+        readiness,
+        representation,
+        EventReturnDiagnosticConfig(uncertainty_resamples=1000),
+    )
 
     assert result.report["events"] == 4
     assert result.report["survivors_only_mean_inflation_pp"] == pytest.approx(10.0)
     assert result.report["later_delisted_mean_market_excess_return"] == pytest.approx(-0.3)
     assert result.report["representation_complete_events"] == 0
     assert result.report["exploratory_ic_allowed"] is False
+    all_events = result.survivorship_counterfactual.loc[
+        result.survivorship_counterfactual["sample_id"].eq("all_events")
+    ].iloc[0]
+    assert all_events["sample_label"] == "全部 4 个事件（无偏主样本）"
     assert set(result.feature_join_audit["feature_join_status"]) == {
         "issuer_not_in_representation_universe"
     }
@@ -42,7 +54,12 @@ def test_exact_accession_and_clock_join_unlocks_exploratory_ic() -> None:
     ledger["cik"] = ciks
     representation = _representation_panel(ciks, accessions)
 
-    result = calculate_event_return_diagnostics(ledger, readiness, representation)
+    result = calculate_event_return_diagnostics(
+        ledger,
+        readiness,
+        representation,
+        EventReturnDiagnosticConfig(uncertainty_resamples=1000),
+    )
 
     assert result.report["representation_complete_events"] == observations
     assert result.report["exploratory_ic_allowed"] is True
@@ -65,13 +82,52 @@ def test_event_count_alone_cannot_bypass_feature_coverage_gate() -> None:
     representation = _representation_panel(ciks, accessions)
     representation.loc[20:, "gm_innovation_std"] = float("nan")
 
-    result = calculate_event_return_diagnostics(ledger, readiness, representation)
+    result = calculate_event_return_diagnostics(
+        ledger,
+        readiness,
+        representation,
+        EventReturnDiagnosticConfig(uncertainty_resamples=1000),
+    )
 
     assert result.report["representation_complete_events"] == 20
     assert result.report["representation_complete_coverage"] == pytest.approx(2.0 / 3.0)
     assert result.report["exploratory_ic_allowed"] is False
     assert result.representation_ic["spearman_ic"].isna().all()
     assert not result.representation_ic["coverage_ratio_pass"].any()
+
+
+def test_pre_event_applicability_defines_the_feature_coverage_denominator() -> None:
+    observations = 30
+    ledger, readiness = _return_inputs(
+        issuer_returns=[index / 100.0 for index in range(observations)],
+        later_delisted=[False] * observations,
+    )
+    ciks = [f"{index + 1:010d}" for index in range(observations)]
+    accessions = [f"accession-{index}" for index in range(observations)]
+    readiness["cik"] = ciks
+    readiness["accession_number"] = accessions
+    ledger["cik"] = ciks
+    representation = _representation_panel(ciks, accessions)
+    representation["gross_margin_history_eligible"] = [True] * 25 + [False] * 5
+    representation.loc[20:24, "gm_innovation_std"] = float("nan")
+
+    result = calculate_event_return_diagnostics(
+        ledger,
+        readiness,
+        representation,
+        EventReturnDiagnosticConfig(uncertainty_resamples=1000),
+    )
+
+    assert result.report["representation_applicable_events"] == 25
+    assert result.report["representation_complete_events"] == 20
+    assert result.report["representation_complete_coverage"] == pytest.approx(0.8)
+    assert result.report["exploratory_ic_allowed"] is True
+    assert len(result.representation_return_sample) == 20
+    assert result.representation_ic_uncertainty["permutation_p_two_sided"].notna().all()
+    assert (
+        result.feature_join_audit["feature_join_status"].eq("gross_margin_history_ineligible").sum()
+        == 5
+    )
 
 
 def _return_inputs(

@@ -10,6 +10,7 @@ from pathlib import Path
 import httpx
 import pandas as pd
 
+from sec_data.exploratory_cohort import build_calendar_year_exploratory_cohort
 from sec_data.massive_reference import MassiveReferenceClient
 from sec_data.massive_security_actions import (
     build_massive_security_actions_audit,
@@ -193,6 +194,29 @@ def test_five_query_collection_validates_interval_and_actions(tmp_path: Path) ->
     assert audit.report["return_study_gate"] is False
 
 
+def test_action_plan_accepts_manifest_bound_exploratory_cohort(tmp_path: Path) -> None:
+    reference_root, price_root, calendar_root = _write_upstream_fixtures(tmp_path)
+    cohort = build_calendar_year_exploratory_cohort(
+        reference_root,
+        price_root,
+        calendar_root,
+        output_root=tmp_path / "cohort",
+    )
+
+    plan = build_massive_security_actions_target_plan(
+        reference_root,
+        price_root,
+        calendar_root,
+        cohort_root=cohort.output_root,
+        output_root=tmp_path / "targets",
+    )
+
+    assert plan.report["targets"] == 1
+    assert plan.report["exploratory_only"] is True
+    assert plan.report["exploratory_cohort_version"] == cohort.report["dataset_version"]
+    assert plan.report["exploratory_cohort_manifest_sha256"]
+
+
 def test_session_grid_fallback_replaces_experimental_event_404(tmp_path: Path) -> None:
     reference_root, price_root, calendar_root = _write_upstream_fixtures(tmp_path)
     plan = build_massive_security_actions_target_plan(
@@ -302,6 +326,15 @@ def _write_upstream_fixtures(tmp_path: Path) -> tuple[Path, Path, Path]:
             }
         ]
     ).to_parquet(price_root / "massive_daily_price_targets.parquet", index=False)
+    pd.DataFrame(
+        [
+            {
+                "price_target_id": "price-event-1",
+                "provider_price_query_complete": True,
+                "observed_event_window_candidate": True,
+            }
+        ]
+    ).to_parquet(price_root / "sample_massive_price_audit.parquet", index=False)
     (price_root / "massive_price_report.json").write_text(
         json.dumps(
             {

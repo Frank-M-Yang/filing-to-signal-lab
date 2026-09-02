@@ -117,6 +117,7 @@ def build_massive_security_actions_target_plan(
     price_root: Path,
     calendar_root: Path,
     *,
+    cohort_root: Path | None = None,
     output_root: Path = Path("data/market/massive_security_actions/targets"),
     config: MassiveSecurityActionsConfig | None = None,
 ) -> MassiveSecurityActionsPlanResult:
@@ -134,6 +135,32 @@ def build_massive_security_actions_target_plan(
         raise FilingCatalogError("Calendar audit does not tie to the selected price audit")
 
     targets = load_catalog_table(price_root, "massive_daily_price_targets.parquet")
+    cohort_manifest_sha256: str | None = None
+    cohort_report: dict[str, Any] | None = None
+    if cohort_root is not None:
+        cohort_manifest_sha256 = _sha256_file(cohort_root / "output_manifest.json")
+        cohort_report = _read_json(cohort_root / "exploratory_cohort_report.json")
+        if cohort_report.get("reference_manifest_sha256") != reference_manifest_sha256:
+            raise FilingCatalogError("Exploratory cohort does not tie to the reference audit")
+        if cohort_report.get("price_manifest_sha256") != price_manifest_sha256:
+            raise FilingCatalogError("Exploratory cohort does not tie to the price audit")
+        if cohort_report.get("calendar_manifest_sha256") != calendar_manifest_sha256:
+            raise FilingCatalogError("Exploratory cohort does not tie to the calendar audit")
+        if not cohort_report.get("exploratory_only"):
+            raise FilingCatalogError("Cohort is not labelled exploratory-only")
+        if not cohort_report.get("downstream_evidence_collection_gate"):
+            raise FilingCatalogError("Exploratory cohort is not ready for evidence collection")
+        cohort = load_catalog_table(cohort_root, "selected_exploratory_events.parquet")
+        if cohort["price_target_id"].duplicated().any():
+            raise FilingCatalogError("Exploratory cohort contains duplicate price targets")
+        targets = targets.merge(
+            cohort[["price_target_id"]],
+            on="price_target_id",
+            how="inner",
+            validate="one_to_one",
+        )
+        if len(targets) != int(cohort_report.get("selected_events", -1)):
+            raise FilingCatalogError("Exploratory cohort targets do not match the price audit")
     alignment = load_catalog_table(calendar_root, "event_calendar_alignment.parquet")
     reference = load_catalog_table(reference_root, "massive_reference_observations.parquet")
     selected = _selected_reference_evidence(targets, reference)
@@ -204,6 +231,7 @@ def build_massive_security_actions_target_plan(
             "reference_manifest_sha256": reference_manifest_sha256,
             "price_manifest_sha256": price_manifest_sha256,
             "calendar_manifest_sha256": calendar_manifest_sha256,
+            "cohort_manifest_sha256": cohort_manifest_sha256,
             "config": asdict(cfg),
             "targets": targets.to_dict(orient="records"),
         },
@@ -236,6 +264,11 @@ def build_massive_security_actions_target_plan(
         "price_manifest_sha256": price_manifest_sha256,
         "calendar_version": calendar_report["dataset_version"],
         "calendar_manifest_sha256": calendar_manifest_sha256,
+        "exploratory_cohort_version": (
+            cohort_report["dataset_version"] if cohort_report is not None else None
+        ),
+        "exploratory_cohort_manifest_sha256": cohort_manifest_sha256,
+        "exploratory_only": cohort_report is not None,
         "config": asdict(cfg),
         "targets": len(targets),
         "queries_per_target": len(_QUERY_KINDS),
@@ -254,6 +287,7 @@ def build_massive_security_actions_target_plan(
                 "reference_manifest_sha256": reference_manifest_sha256,
                 "price_manifest_sha256": price_manifest_sha256,
                 "calendar_manifest_sha256": calendar_manifest_sha256,
+                "cohort_manifest_sha256": cohort_manifest_sha256,
                 "artifacts": {target_path.name: artifact},
                 "report_sha256": _sha256_file(report_path),
             },

@@ -10,6 +10,7 @@ strictly earlier original nine-month 10-Q facts.
 from __future__ import annotations
 
 import hashlib
+import itertools
 import json
 import math
 import uuid
@@ -34,7 +35,7 @@ from sec_data.event_cleaning import (
 )
 from sec_data.filing_catalog import FilingCatalogError, load_catalog_table
 
-PILOT_FEATURE_VERSION: Final[str] = "pilot-filing-features-v1.1"
+PILOT_FEATURE_VERSION: Final[str] = "pilot-filing-features-v1.2-asof-applicability"
 FLOW_TAGS: Final[tuple[str, ...]] = (
     *REVENUE_TAGS,
     *DIRECT_GROSS_PROFIT_TAGS,
@@ -70,6 +71,9 @@ class PilotFilingFeatureConfig:
     minimum_trailing_events: int = 4
     minimum_forecast_training_events: int = 100
     minimum_prior_oos_errors: int = 50
+    minimum_prior_level_events_for_applicability: int = 8
+    minimum_prior_delta_events_for_applicability: int = 4
+    minimum_prior_standardized_innovations_for_applicability: int = 4
     version: str = PILOT_FEATURE_VERSION
 
     def validate(self) -> None:
@@ -90,6 +94,12 @@ class PilotFilingFeatureConfig:
             raise ValueError("Forecast training count must exceed feature count")
         if self.minimum_prior_oos_errors < 2:
             raise ValueError("Forecast sigma requires at least two prior OOS errors")
+        if self.minimum_prior_level_events_for_applicability < 4:
+            raise ValueError("Gross-margin applicability requires prior Level history")
+        if self.minimum_prior_delta_events_for_applicability < 2:
+            raise ValueError("Gross-margin applicability requires prior Delta history")
+        if self.minimum_prior_standardized_innovations_for_applicability < 2:
+            raise ValueError("Gross-margin applicability requires prior OOS innovations")
 
 
 @dataclass(frozen=True)
@@ -242,7 +252,7 @@ def build_pilot_filing_features(
     history = history.sort_values(
         ["actual_available_at", "company_id", "event_id"], kind="mergesort"
     ).reset_index(drop=True)
-    target_features, target_audit = audit_target_feature_coverage(targets, history)
+    target_features, target_audit = audit_target_feature_coverage(targets, history, cfg)
     selection_audit = (
         pd.concat(selection_audits, ignore_index=True) if selection_audits else pd.DataFrame()
     )
@@ -387,6 +397,7 @@ def _standardize_base_events(events: pd.DataFrame) -> pd.DataFrame:
     output["ytd_component_fact_id"] = pd.NA
     output["annual_revenue_fact_id"] = pd.NA
     output["annual_component_fact_id"] = pd.NA
+    output["tag_bridge_evidence"] = pd.NA
     return output.reindex(columns=_history_columns())
 
 
@@ -421,6 +432,11 @@ def _build_q4_events(
             )
         ]
         direct_pair = _select_flow_pair(direct_candidates)
+        revenue_bridges = _validated_asof_tag_bridges(original_facts, accepted_at, REVENUE_TAGS)
+        profit_bridges = _validated_asof_tag_bridges(
+            original_facts, accepted_at, DIRECT_GROSS_PROFIT_TAGS
+        )
+        cost_bridges = _validated_asof_tag_bridges(original_facts, accepted_at, TOTAL_COST_TAGS)
         q3_filing = _select_prior_q3_filing(
             original_10q,
             report_date=report_date,
@@ -450,7 +466,13 @@ def _build_q4_events(
                     inclusive="both",
                 )
             ]
-            derived = _annual_minus_ytd_values(annual_candidates, ytd_candidates)
+            derived = _annual_minus_ytd_values(
+                annual_candidates,
+                ytd_candidates,
+                revenue_tag_bridges=revenue_bridges,
+                profit_tag_bridges=profit_bridges,
+                cost_tag_bridges=cost_bridges,
+            )
             source_method = "annual_minus_original_nine_months"
         else:
             source_method = "missing_prior_q3_filing"
@@ -470,6 +492,9 @@ def _build_q4_events(
                 "q4_source_method": source_method,
                 "prior_q3_accession": (
                     str(q3_filing["accession_number"]) if q3_filing is not None else None
+                ),
+                "tag_bridge_evidence": (
+                    derived.get("tag_bridge_evidence") if derived is not None else None
                 ),
             }
         )
@@ -540,6 +565,7 @@ def _build_q4_events(
                 "ytd_component_fact_id": derived.get("ytd_component_fact_id"),
                 "annual_revenue_fact_id": derived.get("annual_revenue_fact_id"),
                 "annual_component_fact_id": derived.get("annual_component_fact_id"),
+                "tag_bridge_evidence": derived.get("tag_bridge_evidence"),
             }
         )
     return (
@@ -689,19 +715,29 @@ def _direct_q4_values(pair: FlowPair) -> dict[str, Any] | None:
 
 
 def _annual_minus_ytd_values(
-    annual_candidates: pd.DataFrame, ytd_candidates: pd.DataFrame
+    annual_candidates: pd.DataFrame,
+    ytd_candidates: pd.DataFrame,
+    *,
+    revenue_tag_bridges: dict[tuple[str, str], tuple[str, str]] | None = None,
+    profit_tag_bridges: dict[tuple[str, str], tuple[str, str]] | None = None,
+    cost_tag_bridges: dict[tuple[str, str], tuple[str, str]] | None = None,
 ) -> dict[str, Any] | None:
+    revenue_bridges = revenue_tag_bridges or {}
     annual_revenues = _flow_choices(annual_candidates, REVENUE_TAGS)
     ytd_revenues = _flow_choices(ytd_candidates, REVENUE_TAGS)
     revenue_matches = [
         (annual, ytd)
         for annual in annual_revenues
         for ytd in ytd_revenues
-        if _same_semantic_flow(annual, ytd)
+        if _same_semantic_flow(annual, ytd, revenue_bridges)
     ]
-    for component_tags, method in (
-        (DIRECT_GROSS_PROFIT_TAGS, "direct_gross_profit"),
-        (TOTAL_COST_TAGS, "revenue_minus_total_cost"),
+    for component_tags, method, component_bridges in (
+        (
+            DIRECT_GROSS_PROFIT_TAGS,
+            "direct_gross_profit",
+            profit_tag_bridges or {},
+        ),
+        (TOTAL_COST_TAGS, "revenue_minus_total_cost", cost_tag_bridges or {}),
     ):
         annual_components = _flow_choices(annual_candidates, component_tags)
         ytd_components = _flow_choices(ytd_candidates, component_tags)
@@ -709,7 +745,7 @@ def _annual_minus_ytd_values(
             (annual, ytd)
             for annual in annual_components
             for ytd in ytd_components
-            if _same_semantic_flow(annual, ytd)
+            if _same_semantic_flow(annual, ytd, component_bridges)
         ]
         candidates: list[tuple[tuple[int, int, str, str], dict[str, Any]]] = []
         for annual_revenue, ytd_revenue in revenue_matches:
@@ -754,6 +790,14 @@ def _annual_minus_ytd_values(
                     "annual_component_fact_id": annual_component.fact_id,
                     "ytd_revenue_fact_id": ytd_revenue.fact_id,
                     "ytd_component_fact_id": ytd_component.fact_id,
+                    "tag_bridge_evidence": _tag_bridge_evidence_json(
+                        annual_revenue,
+                        ytd_revenue,
+                        revenue_bridges,
+                        annual_component,
+                        ytd_component,
+                        component_bridges,
+                    ),
                 }
                 score = (
                     annual_revenue.priority,
@@ -767,14 +811,80 @@ def _annual_minus_ytd_values(
     return None
 
 
-def _same_semantic_flow(annual: FlowFact, ytd: FlowFact) -> bool:
+def _same_semantic_flow(
+    annual: FlowFact,
+    ytd: FlowFact,
+    tag_bridges: dict[tuple[str, str], tuple[str, str]] | None = None,
+) -> bool:
+    bridges = tag_bridges or {}
+    tags_match = annual.tag == ytd.tag or _tag_pair(annual.tag, ytd.tag) in bridges
     return bool(
         annual.taxonomy == ytd.taxonomy
-        and annual.tag == ytd.tag
+        and tags_match
         and annual.unit == ytd.unit
         and annual.period_start == ytd.period_start
         and ytd.accepted_at < annual.accepted_at
     )
+
+
+def _validated_asof_tag_bridges(
+    facts: pd.DataFrame,
+    cutoff: pd.Timestamp,
+    tag_family: tuple[str, ...],
+) -> dict[tuple[str, str], tuple[str, str]]:
+    history = facts.loc[facts["tag"].isin(tag_family) & (facts["accepted_at"] < cutoff)].copy()
+    bridges: dict[tuple[str, str], tuple[str, str]] = {}
+    grouping = [
+        "taxonomy",
+        "unit",
+        "period_start",
+        "period_end",
+        "value_numeric",
+    ]
+    for _, equivalent in history.groupby(grouping, dropna=False, sort=True):
+        tags = sorted(equivalent["tag"].astype(str).unique())
+        for left_tag, right_tag in itertools.combinations(tags, 2):
+            left = equivalent.loc[equivalent["tag"].eq(left_tag)].sort_values("fact_id")
+            right = equivalent.loc[equivalent["tag"].eq(right_tag)].sort_values("fact_id")
+            evidence = (str(left.iloc[0]["fact_id"]), str(right.iloc[0]["fact_id"]))
+            pair = _tag_pair(left_tag, right_tag)
+            if pair not in bridges or evidence < bridges[pair]:
+                bridges[pair] = evidence
+    return bridges
+
+
+def _tag_bridge_evidence_json(
+    annual_revenue: FlowFact,
+    ytd_revenue: FlowFact,
+    revenue_bridges: dict[tuple[str, str], tuple[str, str]],
+    annual_component: FlowFact,
+    ytd_component: FlowFact,
+    component_bridges: dict[tuple[str, str], tuple[str, str]],
+) -> str | None:
+    evidence: list[dict[str, Any]] = []
+    for family, annual, ytd, bridges in (
+        ("revenue", annual_revenue, ytd_revenue, revenue_bridges),
+        ("component", annual_component, ytd_component, component_bridges),
+    ):
+        if annual.tag == ytd.tag:
+            continue
+        pair = _tag_pair(annual.tag, ytd.tag)
+        fact_ids = bridges.get(pair)
+        if fact_ids is None:
+            raise FilingCatalogError("Cross-tag flow match lacks prior as-of evidence")
+        evidence.append(
+            {
+                "family": family,
+                "annual_tag": annual.tag,
+                "ytd_tag": ytd.tag,
+                "prior_evidence_fact_ids": list(fact_ids),
+            }
+        )
+    return json.dumps(evidence, sort_keys=True) if evidence else None
+
+
+def _tag_pair(left: str, right: str) -> tuple[str, str]:
+    return (left, right) if left <= right else (right, left)
 
 
 def _derived_fact_id(annual_fact_id: str, ytd_fact_id: str) -> str:
@@ -917,9 +1027,13 @@ def attach_oos_innovations(
 
 
 def audit_target_feature_coverage(
-    targets: pd.DataFrame, history: pd.DataFrame
+    targets: pd.DataFrame,
+    history: pd.DataFrame,
+    config: PilotFilingFeatureConfig | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Join exact target accessions and label every feature-stage failure."""
+    cfg = config or PilotFilingFeatureConfig()
+    cfg.validate()
     if history["filing_accession"].duplicated().any():
         raise FilingCatalogError("Quarterly history contains duplicate filing accessions")
     target_columns = [
@@ -958,6 +1072,7 @@ def audit_target_feature_coverage(
         "cost_fact_id",
         "q4_source_method",
         "ytd_filing_accession",
+        "tag_bridge_evidence",
         "analysis_ready_level",
         "analysis_ready_delta",
         "analysis_ready_innovation_raw",
@@ -1005,6 +1120,35 @@ def audit_target_feature_coverage(
     joined["filing_accession"] = joined["filing_accession"].fillna(joined["accession_number"])
     joined["actual_available_at"] = joined["actual_available_at"].fillna(joined["accepted_at"])
     joined["accession_match"] = joined["filing_accession"].eq(joined["accession_number"])
+    joined["prior_level_events"] = 0
+    joined["prior_delta_events"] = 0
+    joined["prior_standardized_innovations"] = 0
+    history_available_at = pd.to_datetime(history["actual_available_at"], utc=True, errors="coerce")
+    for index, target in joined.iterrows():
+        accepted_at = pd.Timestamp(target["accepted_at"])
+        prior = history.loc[
+            history["company_id"].eq(str(target["company_id"]))
+            & (history_available_at < accepted_at)
+        ]
+        joined.at[index, "prior_level_events"] = int(
+            prior["analysis_ready_level"].astype(bool).sum()
+        )
+        joined.at[index, "prior_delta_events"] = int(
+            prior["analysis_ready_delta"].astype(bool).sum()
+        )
+        joined.at[index, "prior_standardized_innovations"] = int(
+            prior["analysis_ready_innovation_std"].astype(bool).sum()
+        )
+    joined["gross_margin_history_eligible"] = (
+        joined["prior_level_events"].ge(cfg.minimum_prior_level_events_for_applicability)
+        & joined["prior_delta_events"].ge(cfg.minimum_prior_delta_events_for_applicability)
+        & joined["prior_standardized_innovations"].ge(
+            cfg.minimum_prior_standardized_innovations_for_applicability
+        )
+    )
+    joined["gross_margin_applicability_complete_case"] = joined[
+        "gross_margin_history_eligible"
+    ] & joined["feature_status"].eq("complete_case_ready")
     target_features = joined.rename(
         columns={
             "accession_number": "target_accession_number",
@@ -1025,6 +1169,11 @@ def audit_target_feature_coverage(
         "analysis_ready_delta",
         "analysis_ready_innovation_raw",
         "analysis_ready_innovation_std",
+        "prior_level_events",
+        "prior_delta_events",
+        "prior_standardized_innovations",
+        "gross_margin_history_eligible",
+        "gross_margin_applicability_complete_case",
         "feature_status",
     ]
     return target_features, target_features[audit_columns].copy()
@@ -1073,6 +1222,11 @@ def _persist_feature_bundle(
     delta_ready = int(target_features["analysis_ready_delta"].fillna(False).sum())
     raw_ready = int(target_features["analysis_ready_innovation_raw"].fillna(False).sum())
     std_ready = int(target_features["analysis_ready_innovation_std"].fillna(False).sum())
+    applicable = int(target_features["gross_margin_history_eligible"].astype(bool).sum())
+    applicable_complete = int(
+        target_features["gross_margin_applicability_complete_case"].astype(bool).sum()
+    )
+    applicable_coverage = applicable_complete / applicable if applicable else 0.0
     report: dict[str, Any] = {
         "dataset_version": dataset_version,
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -1098,6 +1252,14 @@ def _persist_feature_bundle(
         "target_raw_innovation_ready": raw_ready,
         "target_standardized_innovation_ready": std_ready,
         "target_complete_case_ready": std_ready,
+        "gross_margin_history_eligible_events": applicable,
+        "gross_margin_applicability_complete_events": applicable_complete,
+        "gross_margin_applicability_complete_coverage": applicable_coverage,
+        "gross_margin_applicability_minimum_20_events_pass": applicable_complete >= 20,
+        "gross_margin_applicability_80_percent_coverage_pass": (applicable_coverage >= 0.80),
+        "gross_margin_applicability_ic_gate_pass": (
+            applicable_complete >= 20 and applicable_coverage >= 0.80
+        ),
         "target_feature_status_counts": status_counts,
         "return_ic_minimum_20_events_pass": std_ready >= 20,
         "return_ic_minimum_80_percent_coverage_pass": (
@@ -1106,7 +1268,8 @@ def _persist_feature_bundle(
         "return_signal_conclusion_allowed": False,
         "historical_industry_features_used": False,
         "q4_derivation_contract": (
-            "direct 10-K quarter flow or FY minus strictly earlier original nine-month 10-Q"
+            "direct 10-K quarter flow or FY minus strictly earlier original nine-month 10-Q; "
+            "cross-tag subtraction requires strictly earlier same-period same-value evidence"
         ),
         "forecast_model_version": "gm-pilot-company-history-ols-v1",
         "artifacts": artifacts,
@@ -1171,6 +1334,7 @@ def _history_columns() -> list[str]:
         "ytd_component_fact_id",
         "annual_revenue_fact_id",
         "annual_component_fact_id",
+        "tag_bridge_evidence",
     ]
 
 

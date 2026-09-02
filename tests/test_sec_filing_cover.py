@@ -18,6 +18,8 @@ from sec_data.filing_cover import (
     load_filing_cover_targets,
     parse_cover_facts,
     parse_filing_index,
+    parse_filing_security_evidence,
+    parse_share_class_outstanding_facts,
 )
 
 
@@ -49,6 +51,56 @@ def test_cover_parsers_extract_context_security_and_filing_sic() -> None:
     assert index["sic"] == "3571"
     assert index["sic_description"] == "Electronic Computers"
     assert str(index["instance_document_url"]).endswith("demo-20200331_htm.xml")
+
+    securities = parse_filing_security_evidence(
+        _primary_document(),
+        _index_document(),
+        index_url=(
+            "https://www.sec.gov/Archives/edgar/data/1/"
+            "000000000120000001/0000000001-20-000001-index.html"
+        ),
+        subject_cik="1",
+    )
+    assert len(securities) == 1
+    assert securities[0]["trading_symbol"] == "DEMO"
+    assert securities[0]["tradable_security_mapping_ready"]
+
+
+def test_share_class_outstanding_parser_requires_subject_class_context() -> None:
+    content = b"""<html><body>
+    <xbrli:context id="class-a">
+      <xbrli:entity><xbrli:identifier>0000000001</xbrli:identifier>
+      <xbrli:segment><xbrldi:explicitMember dimension="dei:StatementClassOfStockAxis">
+      demo:CommonClassAMember</xbrldi:explicitMember></xbrli:segment></xbrli:entity>
+      <xbrli:period><xbrli:instant>2025-01-31</xbrli:instant></xbrli:period>
+    </xbrli:context>
+    <xbrli:context id="wrong-subject">
+      <xbrli:entity><xbrli:identifier>0000000002</xbrli:identifier>
+      <xbrli:segment><xbrldi:explicitMember dimension="dei:StatementClassOfStockAxis">
+      demo:CommonClassBMember</xbrldi:explicitMember></xbrli:segment></xbrli:entity>
+      <xbrli:period><xbrli:instant>2025-01-31</xbrli:instant></xbrli:period>
+    </xbrli:context>
+    <ix:nonFraction name="dei:EntityCommonStockSharesOutstanding"
+      contextRef="class-a" scale="3" format="ixt:num-dot-decimal">5,257</ix:nonFraction>
+    <ix:nonFraction name="dei:EntityCommonStockSharesOutstanding"
+      contextRef="wrong-subject" scale="0">99</ix:nonFraction>
+    </body></html>"""
+
+    rows = parse_share_class_outstanding_facts(content, subject_cik="1")
+
+    assert rows == [
+        {
+            "concept": "EntityCommonStockSharesOutstanding",
+            "context_ref": "class-a",
+            "context_entity_cik": "0000000001",
+            "class_member": "demo:CommonClassAMember",
+            "class_dimension": "dei:StatementClassOfStockAxis",
+            "instant": "2025-01-31",
+            "shares_outstanding": 5_257_000,
+            "scale": "3",
+            "format": "ixt:num-dot-decimal",
+        }
+    ]
 
 
 def test_collection_preserves_bytes_before_history_build(tmp_path: Path) -> None:

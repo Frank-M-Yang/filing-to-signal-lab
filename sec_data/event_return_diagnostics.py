@@ -1,4 +1,4 @@
-"""Same-sample diagnostics for the real 28-event return pilot.
+"""Same-sample diagnostics for an auditable real-return event ledger.
 
 The module deliberately separates return accounting from signal research.  It
 can describe the observed event-return ledger and quantify a deliberately biased
@@ -19,10 +19,11 @@ from typing import Any, Final
 
 import numpy as np
 import pandas as pd
+from numpy.typing import NDArray
 
 from sec_data.filing_catalog import FilingCatalogError, load_catalog_table
 
-EVENT_RETURN_DIAGNOSTIC_VERSION: Final[str] = "event-return-diagnostics-v1.1"
+EVENT_RETURN_DIAGNOSTIC_VERSION: Final[str] = "event-return-diagnostics-v1.3-asof-applicability"
 REPRESENTATION_FEATURES: Final[tuple[str, ...]] = (
     "gm_level",
     "gm_delta_yoy",
@@ -37,6 +38,8 @@ class EventReturnDiagnosticConfig:
 
     minimum_feature_events_for_ic: int = 20
     minimum_feature_coverage_ratio: float = 0.80
+    uncertainty_resamples: int = 5000
+    uncertainty_seed: int = 20250827
     version: str = EVENT_RETURN_DIAGNOSTIC_VERSION
 
     def validate(self) -> None:
@@ -45,6 +48,8 @@ class EventReturnDiagnosticConfig:
             raise ValueError("Exploratory IC requires at least ten complete events")
         if not 0.0 < self.minimum_feature_coverage_ratio <= 1.0:
             raise ValueError("Feature coverage ratio must be in (0, 1]")
+        if self.uncertainty_resamples < 1000:
+            raise ValueError("IC uncertainty requires at least 1,000 resamples")
 
 
 @dataclass(frozen=True)
@@ -57,6 +62,7 @@ class EventReturnDiagnosticTables:
     feature_join_audit: pd.DataFrame
     representation_return_sample: pd.DataFrame
     representation_ic: pd.DataFrame
+    representation_ic_uncertainty: pd.DataFrame
     gates: pd.DataFrame
     report: dict[str, Any]
 
@@ -88,8 +94,10 @@ def calculate_event_return_diagnostics(
     counterfactual = _group_diagnostics(events)
     form_diagnostics = _form_diagnostics(events)
     total_events = len(events)
+    applicable_events = int(feature_audit["gross_margin_history_eligible"].sum())
+    all_complete_events = int(feature_audit["representation_features_complete"].sum())
     complete_events = len(feature_sample)
-    complete_ratio = complete_events / total_events if total_events else 0.0
+    complete_ratio = complete_events / applicable_events if applicable_events else 0.0
     minimum_count_pass = complete_events >= cfg.minimum_feature_events_for_ic
     coverage_pass = complete_ratio >= cfg.minimum_feature_coverage_ratio
     exploratory_ic_allowed = minimum_count_pass and coverage_pass
@@ -98,9 +106,15 @@ def calculate_event_return_diagnostics(
         cfg,
         coverage_pass=coverage_pass,
     )
+    representation_ic_uncertainty = _representation_ic_uncertainty(
+        feature_sample,
+        cfg,
+        allowed=exploratory_ic_allowed,
+    )
     gates = _diagnostic_gates(
         events,
         complete_events=complete_events,
+        applicable_events=applicable_events,
         minimum_feature_events=cfg.minimum_feature_events_for_ic,
         minimum_count_pass=minimum_count_pass,
         coverage_pass=coverage_pass,
@@ -156,6 +170,13 @@ def calculate_event_return_diagnostics(
         ),
         "representation_complete_events": complete_events,
         "representation_complete_coverage": complete_ratio,
+        "representation_all_complete_events": all_complete_events,
+        "representation_applicable_events": applicable_events,
+        "representation_applicability_rule_used": bool(
+            representation_panel.get("gross_margin_history_eligible", pd.Series(dtype=bool))
+            .notna()
+            .any()
+        ),
         "exploratory_ic_allowed": exploratory_ic_allowed,
         "signal_effectiveness_conclusion_allowed": False,
         "annualized_performance_computed": False,
@@ -174,6 +195,7 @@ def calculate_event_return_diagnostics(
         feature_join_audit=feature_audit,
         representation_return_sample=feature_sample,
         representation_ic=representation_ic,
+        representation_ic_uncertainty=representation_ic_uncertainty,
         gates=gates,
         report=report,
     )
@@ -235,6 +257,7 @@ def build_event_return_diagnostics(
         "feature_join_audit.parquet": tables.feature_join_audit,
         "representation_return_sample.parquet": tables.representation_return_sample,
         "representation_ic.parquet": tables.representation_ic,
+        "representation_ic_uncertainty.parquet": tables.representation_ic_uncertainty,
         "diagnostic_gates.parquet": tables.gates,
     }
     artifacts: dict[str, dict[str, Any]] = {}
@@ -395,6 +418,12 @@ def _audit_representation_join(
     }
     _require_columns(representation_panel, required, "representation panel")
     representation = representation_panel.copy()
+    applicability_supplied = "gross_margin_history_eligible" in representation.columns
+    if not applicability_supplied:
+        representation["gross_margin_history_eligible"] = True
+    representation["gross_margin_history_eligible"] = (
+        representation["gross_margin_history_eligible"].fillna(False).astype(bool)
+    )
     if (
         representation["filing_accession"].isna().any()
         or representation["filing_accession"].duplicated().any()
@@ -407,6 +436,7 @@ def _audit_representation_join(
         "ticker",
         "filing_accession",
         "actual_available_at",
+        "gross_margin_history_eligible",
         *REPRESENTATION_FEATURES,
     ]
     renamed = representation[keep].rename(
@@ -433,6 +463,9 @@ def _audit_representation_join(
     joined["representation_features_complete"] = (
         joined.loc[:, list(REPRESENTATION_FEATURES)].notna().all(axis="columns")
     )
+    joined["gross_margin_history_eligible"] = (
+        joined["gross_margin_history_eligible"].fillna(False).astype(bool)
+    )
     for feature in REPRESENTATION_FEATURES:
         joined[f"representation_{feature}_ready"] = (
             joined["availability_clock_match"] & joined[feature].notna()
@@ -451,9 +484,15 @@ def _audit_representation_join(
         "feature_join_status",
     ] = "partial_representation"
     joined.loc[
-        joined["availability_clock_match"] & joined["representation_features_complete"],
+        joined["availability_clock_match"]
+        & joined["gross_margin_history_eligible"]
+        & joined["representation_features_complete"],
         "feature_join_status",
     ] = "complete_case_ready"
+    joined.loc[
+        joined["availability_clock_match"] & ~joined["gross_margin_history_eligible"],
+        "feature_join_status",
+    ] = "gross_margin_history_ineligible"
     audit_columns = [
         "target_id",
         "cik",
@@ -468,6 +507,7 @@ def _audit_representation_join(
         "representation_gm_innovation_raw_ready",
         "representation_gm_innovation_std_ready",
         "representation_features_complete",
+        "gross_margin_history_eligible",
         "feature_join_status",
     ]
     audit = joined[audit_columns].copy()
@@ -489,7 +529,11 @@ def _audit_representation_join(
 
 def _group_diagnostics(events: pd.DataFrame) -> pd.DataFrame:
     groups = (
-        ("all_events", "全部 28 个事件（无偏主样本）", pd.Series(True, index=events.index)),
+        (
+            "all_events",
+            f"全部 {len(events)} 个事件（无偏主样本）",
+            pd.Series(True, index=events.index),
+        ),
         (
             "active_at_outcome_cutoff_only",
             "只保留结果截止日仍活跃（故意幸存者偏差）",
@@ -576,10 +620,84 @@ def _representation_ic(
     return pd.DataFrame(rows)
 
 
+def _representation_ic_uncertainty(
+    sample: pd.DataFrame,
+    config: EventReturnDiagnosticConfig,
+    *,
+    allowed: bool,
+) -> pd.DataFrame:
+    rows: list[dict[str, Any]] = []
+    returns = sample["market_excess_return_arithmetic"].to_numpy(dtype=float)
+    for feature_index, feature in enumerate(REPRESENTATION_FEATURES):
+        values = sample[feature].to_numpy(dtype=float)
+        observed = _spearman(values, returns) if allowed else math.nan
+        bootstrap_low = bootstrap_high = permutation_p = loo_low = loo_high = math.nan
+        valid_bootstrap_draws = 0
+        if allowed:
+            rng = np.random.default_rng(config.uncertainty_seed + feature_index)
+            bootstrap_values: list[float] = []
+            for _ in range(config.uncertainty_resamples):
+                draw = rng.integers(0, len(sample), size=len(sample))
+                correlation = _spearman(values[draw], returns[draw])
+                if np.isfinite(correlation):
+                    bootstrap_values.append(correlation)
+            valid_bootstrap_draws = len(bootstrap_values)
+            if bootstrap_values:
+                bootstrap_low, bootstrap_high = np.quantile(
+                    np.asarray(bootstrap_values), [0.025, 0.975]
+                ).tolist()
+            permuted = np.asarray(
+                [
+                    _spearman(values, rng.permutation(returns))
+                    for _ in range(config.uncertainty_resamples)
+                ]
+            )
+            finite_permuted = permuted[np.isfinite(permuted)]
+            if finite_permuted.size:
+                permutation_p = float(
+                    (1 + (np.abs(finite_permuted) >= abs(observed)).sum())
+                    / (1 + finite_permuted.size)
+                )
+            leave_one_out = np.asarray(
+                [
+                    _spearman(np.delete(values, index), np.delete(returns, index))
+                    for index in range(len(sample))
+                ]
+            )
+            finite_loo = leave_one_out[np.isfinite(leave_one_out)]
+            if finite_loo.size:
+                loo_low = float(finite_loo.min())
+                loo_high = float(finite_loo.max())
+        rows.append(
+            {
+                "representation": feature,
+                "events": len(sample),
+                "spearman_ic": observed,
+                "bootstrap_95_low": bootstrap_low,
+                "bootstrap_95_high": bootstrap_high,
+                "permutation_p_two_sided": permutation_p,
+                "leave_one_out_min": loo_low,
+                "leave_one_out_max": loo_high,
+                "resamples_requested": config.uncertainty_resamples,
+                "valid_bootstrap_draws": valid_bootstrap_draws,
+                "status": "exploratory_only" if allowed else "not_computed_insufficient_gate",
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def _spearman(left: NDArray[np.float64], right: NDArray[np.float64]) -> float:
+    left_rank = pd.Series(left).rank(method="average")
+    right_rank = pd.Series(right).rank(method="average")
+    correlation = left_rank.corr(right_rank)
+    return float(correlation) if pd.notna(correlation) else math.nan
+
+
 def _diagnostic_gates(
     events: pd.DataFrame,
     *,
     complete_events: int,
+    applicable_events: int,
     minimum_feature_events: int,
     minimum_count_pass: bool,
     coverage_pass: bool,
@@ -617,9 +735,9 @@ def _diagnostic_gates(
         (
             "ldi_complete_case_coverage",
             complete_events,
-            total,
+            applicable_events,
             coverage_pass,
-            "同一 accession 的 Level/Delta/Innovation 完整覆盖",
+            "公告前历史预合格事件的 Level/Delta/Innovation 完整覆盖",
         ),
         (
             "ldi_minimum_event_count",

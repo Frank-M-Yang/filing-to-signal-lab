@@ -37,51 +37,71 @@ def main() -> int:
         default=Path("data/processed/validation_expansion"),
     )
     parser.add_argument(
+        "--plan-root",
+        type=Path,
+        default=None,
+        help="existing frozen plan to reuse with --features-only",
+    )
+    parser.add_argument(
         "--feature-output-root",
         type=Path,
         default=Path("data/processed/validation_expansion_features"),
     )
-    parser.add_argument(
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
         "--plan-only",
         action="store_true",
         help="freeze the cohort without parsing the local companyfacts ZIP",
     )
-    args = parser.parse_args()
-    scope_root = args.scope_root or _latest_root(
-        Path("data/processed/sec_probability_scope"), "scope_audit_report.json"
+    mode.add_argument(
+        "--features-only",
+        action="store_true",
+        help="reuse --plan-root without selecting or rebuilding a cohort",
     )
+    args = parser.parse_args()
     catalog_root = args.catalog_root or _latest_root(
         Path("data/processed/sec_universe"), "catalog_report.json"
     )
-    reference_root = args.reference_root or _latest_root(
-        Path("data/processed/massive_reference"), "massive_reference_report.json"
-    )
-    pilot_return_root = args.pilot_return_root or _latest_root(
-        Path("data/processed/event_return_ledger"), "event_return_report.json"
-    )
-    longitudinal_return_root = args.longitudinal_return_root or _latest_root(
-        Path("data/processed/longitudinal_event_returns"), "longitudinal_return_report.json"
-    )
-    plan = build_validation_expansion_plan(
-        scope_root,
-        catalog_root,
-        reference_root,
-        [pilot_return_root, longitudinal_return_root],
-        output_root=args.plan_output_root,
-    )
-    print(
-        "VALIDATION EXPANSION PLAN DONE "
-        f"version={plan.report['dataset_version']} "
-        f"issuers={plan.report['cohort_issuers']} "
-        f"events={plan.report['candidate_events']} "
-        f"unobserved={plan.report['unobserved_validation_candidate_events']} "
-        f"reference={plan.report['reference_queries_complete']}/"
-        f"{plan.report['reference_target_rows']} "
-        f"pending={plan.report['reference_queries_pending']} "
-        f"gate={plan.report['planned_validation_size_gate']} "
-        f"output={plan.output_root}",
-        flush=True,
-    )
+    if args.features_only:
+        plan_root = args.plan_root or _latest_root(
+            Path("data/processed/validation_expansion"),
+            "validation_expansion_report.json",
+        )
+    else:
+        scope_root = args.scope_root or _latest_root(
+            Path("data/processed/sec_probability_scope"), "scope_audit_report.json"
+        )
+        reference_root = args.reference_root or _latest_root(
+            Path("data/processed/massive_reference"), "massive_reference_report.json"
+        )
+        pilot_return_root = args.pilot_return_root or _latest_root(
+            Path("data/processed/event_return_ledger"), "event_return_report.json"
+        )
+        longitudinal_return_root = args.longitudinal_return_root or _latest_root(
+            Path("data/processed/longitudinal_event_returns"),
+            "longitudinal_return_report.json",
+        )
+        plan = build_validation_expansion_plan(
+            scope_root,
+            catalog_root,
+            reference_root,
+            [pilot_return_root, longitudinal_return_root],
+            output_root=args.plan_output_root,
+        )
+        plan_root = plan.output_root
+        print(
+            "VALIDATION EXPANSION PLAN DONE "
+            f"version={plan.report['dataset_version']} "
+            f"issuers={plan.report['cohort_issuers']} "
+            f"events={plan.report['candidate_events']} "
+            f"unobserved={plan.report['unobserved_validation_candidate_events']} "
+            f"reference={plan.report['reference_queries_complete']}/"
+            f"{plan.report['reference_target_rows']} "
+            f"pending={plan.report['reference_queries_pending']} "
+            f"gate={plan.report['planned_validation_size_gate']} "
+            f"output={plan.output_root}",
+            flush=True,
+        )
     if args.plan_only:
         return 0
 
@@ -90,7 +110,7 @@ def main() -> int:
             print(f"FEATURE progress={done}/{total} cik={cik}", flush=True)
 
     features = build_validation_expansion_features(
-        plan.output_root,
+        plan_root,
         catalog_root,
         args.companyfacts_snapshot_manifest,
         output_root=args.feature_output_root,
@@ -103,6 +123,9 @@ def main() -> int:
         f"targets={features.report['target_events']} "
         f"unobserved_complete={features.report['unobserved_complete_feature_events']} "
         f"basic_window={features.report['unobserved_complete_inside_basic_price_window']} "
+        f"applicable={features.report['unobserved_applicability_complete_events']}/"
+        f"{features.report['unobserved_history_eligible_events']} "
+        f"market_candidates={features.report['market_price_collection_candidate_events']} "
         f"outcomes_loaded={features.report['outcome_values_loaded']} "
         f"output={features.output_root}",
         flush=True,

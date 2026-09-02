@@ -43,6 +43,12 @@ def main() -> int:
         help="calendar audit; defaults to the latest audit tied to the price audit",
     )
     parser.add_argument(
+        "--cohort-root",
+        type=Path,
+        default=None,
+        help="optional outcome-blind exploratory cohort tied to all upstream manifests",
+    )
+    parser.add_argument(
         "--target-output-root",
         type=Path,
         default=Path("data/market/massive_security_actions/targets"),
@@ -88,6 +94,7 @@ def main() -> int:
         reference_root,
         price_root,
         calendar_root,
+        cohort_root=args.cohort_root,
         output_root=args.target_output_root,
     )
     targets = load_massive_security_actions_targets(plan.output_root)

@@ -63,13 +63,14 @@ def main() -> int:
         representation_artifact_name=args.representation_artifact,
     )
     report = result.report
+    applicability_denominator = report.get("representation_applicable_events", report["events"])
     print(
         "EVENT RETURN DIAGNOSTIC DONE "
         f"version={report['dataset_version']} "
         f"events={report['events']} "
         f"later_delisted={report['later_delisted_after_exit']} "
         f"survivor_inflation_pp={report['survivors_only_mean_inflation_pp']:+.4f} "
-        f"ldi_complete={report['representation_complete_events']}/{report['events']} "
+        f"ldi_complete={report['representation_complete_events']}/{applicability_denominator} "
         f"ic_allowed={report['exploratory_ic_allowed']} "
         f"output={result.output_root}",
         flush=True,

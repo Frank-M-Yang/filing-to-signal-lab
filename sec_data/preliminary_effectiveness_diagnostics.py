@@ -78,6 +78,44 @@ class EffectivenessDiagnosticResult:
     report: dict[str, Any]
 
 
+@dataclass(frozen=True)
+class PrimaryEffectivenessTables:
+    """Reusable primary-horizon inference tables for a frozen complete case."""
+
+    representation_ic: pd.DataFrame
+    incremental_test: pd.DataFrame
+    leave_one_issuer_out: pd.DataFrame
+    issuer_influence: pd.DataFrame
+    quantile_returns: pd.DataFrame
+
+
+def calculate_primary_effectiveness_tables(
+    analysis: pd.DataFrame,
+    config: EffectivenessDiagnosticConfig | None = None,
+) -> PrimaryEffectivenessTables:
+    """Run issuer-cluster inference without cohort-specific robustness rules."""
+    cfg = config or EffectivenessDiagnosticConfig()
+    cfg.validate()
+    _require_columns(
+        analysis,
+        {"cik", "market_excess_return_arithmetic", *FEATURES},
+        "primary effectiveness sample",
+    )
+    complete = analysis.dropna(subset=[*FEATURES, "market_excess_return_arithmetic"]).copy()
+    if len(complete) < cfg.minimum_complete_events:
+        raise FilingCatalogError("Primary effectiveness sample is below the frozen minimum")
+    if complete["cik"].astype(str).nunique() < 3:
+        raise FilingCatalogError("Primary effectiveness inference requires three issuers")
+    bootstrap = _cluster_bootstrap(complete, cfg)
+    return PrimaryEffectivenessTables(
+        representation_ic=_representation_ic(complete, bootstrap, cfg),
+        incremental_test=_incremental_test(complete, bootstrap, cfg),
+        leave_one_issuer_out=_leave_one_issuer_out(complete),
+        issuer_influence=_issuer_influence(complete),
+        quantile_returns=_quantile_returns(complete),
+    )
+
+
 def calculate_effectiveness_diagnostics(
     ledger: pd.DataFrame,
     config: EffectivenessDiagnosticConfig | None = None,

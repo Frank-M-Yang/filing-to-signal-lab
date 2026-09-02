@@ -26,7 +26,7 @@ from sec_data.pilot_filing_features import (
 )
 
 VALIDATION_EXPANSION_VERSION: Final[str] = "validation-expansion-v1"
-VALIDATION_FEATURE_VERSION: Final[str] = "validation-expansion-features-v1"
+VALIDATION_FEATURE_VERSION: Final[str] = "validation-expansion-features-v1.1-asof-applicability"
 
 
 @dataclass(frozen=True)
@@ -595,7 +595,23 @@ def build_validation_expansion_features(
     company_coverage = pd.DataFrame(company_rows)
     unobserved = target_features["evidence_role"].eq("unobserved_validation_candidate")
     complete = target_features["analysis_ready_innovation_std"].fillna(False).astype(bool)
+    history_eligible = target_features["gross_margin_history_eligible"].fillna(False).astype(bool)
+    applicable_complete = (
+        target_features["gross_margin_applicability_complete_case"].fillna(False).astype(bool)
+    )
     basic_window = target_features["within_documented_massive_basic_window"].fillna(False)
+    unobserved_applicable = unobserved & history_eligible
+    unobserved_applicable_complete = unobserved & applicable_complete
+    unobserved_basic_applicable = unobserved_applicable & basic_window
+    unobserved_basic_applicable_complete = unobserved_applicable_complete & basic_window
+    applicable_count = int(unobserved_applicable.sum())
+    applicable_complete_count = int(unobserved_applicable_complete.sum())
+    applicable_coverage = applicable_complete_count / applicable_count if applicable_count else 0.0
+    basic_applicable_count = int(unobserved_basic_applicable.sum())
+    basic_applicable_complete_count = int(unobserved_basic_applicable_complete.sum())
+    basic_applicable_coverage = (
+        basic_applicable_complete_count / basic_applicable_count if basic_applicable_count else 0.0
+    )
     status_counts = target_audit["feature_status"].value_counts().sort_index().to_dict()
     report: dict[str, Any] = {
         "contract_version": VALIDATION_FEATURE_VERSION,
@@ -623,6 +639,17 @@ def build_validation_expansion_features(
         "unobserved_complete_inside_basic_price_window": int(
             (unobserved & complete & basic_window).sum()
         ),
+        "unobserved_history_eligible_events": applicable_count,
+        "unobserved_applicability_complete_events": applicable_complete_count,
+        "unobserved_applicability_complete_coverage": applicable_coverage,
+        "unobserved_basic_window_history_eligible_events": basic_applicable_count,
+        "unobserved_basic_window_applicability_complete_events": (basic_applicable_complete_count),
+        "unobserved_basic_window_applicability_complete_coverage": (basic_applicable_coverage),
+        "unobserved_applicability_minimum_100_events_pass": (applicable_complete_count >= 100),
+        "unobserved_applicability_80_percent_coverage_pass": (applicable_coverage >= 0.80),
+        "market_identity_collection_candidate_events": basic_applicable_count,
+        "market_price_collection_candidate_events": basic_applicable_complete_count,
+        "market_collection_selection_uses_return_values": False,
         "target_feature_status_counts": status_counts,
         "outcome_values_loaded": False,
         "market_returns_loaded": False,

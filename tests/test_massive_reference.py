@@ -17,6 +17,7 @@ from sec_data.massive_reference import (
     build_massive_reference_audit,
     build_massive_reference_target_plan,
     collect_massive_reference_artifacts,
+    collect_massive_symbol_reference_artifacts,
     load_massive_reference_targets,
     parse_massive_ticker_response,
 )
@@ -76,6 +77,44 @@ def test_client_counts_rejected_authentication_request() -> None:
 
     assert caught.value.reason == "authentication_failed"
     assert caught.value.requests_made == 1
+
+
+def test_symbol_fallback_query_enforces_expected_cik_and_preserves_bytes(
+    tmp_path: Path,
+) -> None:
+    client_for_url = MassiveReferenceClient("secret-api-key", sender=_Sender([]))
+    query_url = client_for_url.ticker_symbol_reference_url("DEMO", "2025-01-02", active=True)
+    sender = _Sender([_response(query_url, _ticker_payload())])
+    client = MassiveReferenceClient(
+        "secret-api-key",
+        sender=sender,
+        request_interval_seconds=0.0,
+        sleep=lambda _: None,
+        monotonic=lambda: 0.0,
+    )
+    targets = pd.DataFrame(
+        [
+            {
+                "target_id": "symbol-event-1",
+                "cik": "0000000001",
+                "query_ticker": "DEMO",
+                "query_date": "2025-01-02",
+                "massive_acquisition_order": 1,
+            }
+        ]
+    )
+
+    result = collect_massive_symbol_reference_artifacts(
+        targets,
+        client,
+        raw_root=tmp_path / "raw",
+        limit=1,
+    )
+
+    assert "ticker=DEMO" in query_url
+    assert "cik=" not in query_url
+    assert result.targets_completed == 1
+    assert result.requests_made == 1
 
 
 def test_parser_rejects_wrong_cik_and_preserves_stable_ids() -> None:
@@ -201,6 +240,37 @@ def test_audit_rejects_unique_common_stock_without_stable_id(tmp_path: Path) -> 
     assert sample.loc[0, "event_date_reference_status"] == "missing_provider_security_id"
     assert not sample.loc[0, "event_date_reference_candidate"]
     assert audit.report["event_date_reference_candidates"] == 0
+
+
+def test_completed_empty_query_is_not_reported_as_not_collected(tmp_path: Path) -> None:
+    scope = _write_scope_fixture(tmp_path / "scope")
+    plan = build_massive_reference_target_plan(scope, output_root=tmp_path / "targets")
+    targets = load_massive_reference_targets(plan.output_root)
+    active_url = MassiveReferenceClient("secret-api-key", sender=_Sender([])).ticker_reference_url(
+        "1", "2025-01-02", active=True
+    )
+    inactive_url = MassiveReferenceClient(
+        "secret-api-key", sender=_Sender([])
+    ).ticker_reference_url("1", "2025-01-02", active=False)
+    empty = json.dumps({"status": "OK", "count": 0, "results": []}).encode()
+    client = MassiveReferenceClient(
+        "secret-api-key",
+        sender=_Sender([_response(active_url, empty), _response(inactive_url, empty)]),
+        request_interval_seconds=0.0,
+        sleep=lambda _: None,
+        monotonic=lambda: 0.0,
+    )
+
+    collect_massive_reference_artifacts(targets, client, raw_root=tmp_path / "raw", limit=1)
+    audit = build_massive_reference_audit(
+        plan.output_root,
+        raw_root=tmp_path / "raw",
+        output_root=tmp_path / "processed",
+    )
+    sample = pd.read_parquet(audit.output_root / "sample_massive_reference_audit.parquet")
+
+    assert sample.loc[0, "provider_query_complete"]
+    assert sample.loc[0, "event_date_reference_status"] == "provider_no_cik_match"
 
 
 def _ticker_payload() -> bytes:

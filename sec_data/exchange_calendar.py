@@ -19,8 +19,9 @@ import pandas as pd
 from sec_data.filing_catalog import FilingCatalogError, load_catalog_table
 
 NEW_YORK: Final[ZoneInfo] = ZoneInfo("America/New_York")
-CALENDAR_RULE_VERSION: Final[str] = "us-equity-official-calendar-rules-v1"
-SUPPORTED_EXCHANGES: Final[frozenset[str]] = frozenset({"XNYS", "XNAS"})
+CALENDAR_RULE_VERSION: Final[str] = "us-equity-official-calendar-rules-v4-2022-2026-otcm"
+SUPPORTED_EXCHANGES: Final[frozenset[str]] = frozenset({"XNYS", "XNAS", "XASE", "OTCM"})
+OTC_SESSION_POLICY_SOURCE_ID: Final[str] = "otcmarkets-session-policy"
 
 
 @dataclass(frozen=True)
@@ -84,6 +85,42 @@ def official_calendar_sources() -> tuple[OfficialCalendarSource, ...]:
     """Return the frozen official-document inventory for the pilot period."""
     return (
         OfficialCalendarSource(
+            source_id="nyse-annual-2022",
+            exchange_mic="XNYS",
+            calendar_year=2022,
+            source_role="annual_calendar",
+            url="https://www.nyse.com/publicdocs/ICE_NYSE_2022_Yearly_Trading_Calendar.pdf",
+            media_type="application/pdf",
+            expected_sha256="2c2e63b780c4a373d8d546904ae46c8ba7e8070ad9357d23d2c92749985bb6c9",
+        ),
+        OfficialCalendarSource(
+            source_id="nyse-annual-2023",
+            exchange_mic="XNYS",
+            calendar_year=2023,
+            source_role="annual_calendar",
+            url="https://www.nyse.com/publicdocs/ICE_NYSE_2023_Yearly_Trading_Calendar.pdf",
+            media_type="application/pdf",
+            expected_sha256="3d28b46a7197424c822087fb7117cdf3f303bd9a73f29660525b605f542bcfe2",
+        ),
+        OfficialCalendarSource(
+            source_id="nasdaq-annual-2022",
+            exchange_mic="XNAS",
+            calendar_year=2022,
+            source_role="annual_calendar",
+            url=("https://www.nasdaqtrader.com/content/technicalsupport/2022tradingcalendar.pdf"),
+            media_type="application/pdf",
+            expected_sha256="c886ec149e38d2cc84f33355c600d59d946a270fce6054323df147b4dd50b6ce",
+        ),
+        OfficialCalendarSource(
+            source_id="nasdaq-annual-2023",
+            exchange_mic="XNAS",
+            calendar_year=2023,
+            source_role="annual_calendar",
+            url=("https://www.nasdaqtrader.com/content/technicalsupport/2023tradingcalendar.pdf"),
+            media_type="application/pdf",
+            expected_sha256="3781aa7ec98e429b39c9b1cbdb3677043b8ba622084b8c9d5e10fd7836d9a13b",
+        ),
+        OfficialCalendarSource(
             source_id="nyse-annual-2024",
             exchange_mic="XNYS",
             calendar_year=2024,
@@ -118,6 +155,33 @@ def official_calendar_sources() -> tuple[OfficialCalendarSource, ...]:
             url=("https://www.nasdaqtrader.com/content/technicalsupport/2025tradingcalendar.pdf"),
             media_type="application/pdf",
             expected_sha256="fb761082d449ef76461d2ca8448ccebb79862a0acd124fad2e914469c9086037",
+        ),
+        OfficialCalendarSource(
+            source_id="nyse-annual-2026",
+            exchange_mic="XNYS",
+            calendar_year=2026,
+            source_role="annual_calendar",
+            url=("https://www.nyse.com/publicdocs/nyse/ICE_NYSE_2026_Yearly_Trading_Calendar.pdf"),
+            media_type="application/pdf",
+            expected_sha256="70f5577eb43e60a9dbbecaae3cec23d0f02028c05c7f175013bb3e97816d394f",
+        ),
+        OfficialCalendarSource(
+            source_id="nasdaq-annual-2026",
+            exchange_mic="XNAS",
+            calendar_year=2026,
+            source_role="annual_calendar",
+            url="https://www.nasdaq.com/trading-calendar",
+            media_type="application/pdf",
+            expected_sha256="2c0caeb2513eed4990c01551fad9b0b0cd0049818ba5d561dbb61bdb017abeb8",
+        ),
+        OfficialCalendarSource(
+            source_id=OTC_SESSION_POLICY_SOURCE_ID,
+            exchange_mic="OTCM",
+            calendar_year=0,
+            source_role="venue_hours_and_holiday_policy",
+            url=("https://www.otcmarkets.com/files/OTC%20Link%20ECN%20FIX%20Specification.pdf"),
+            media_type="application/pdf",
+            expected_sha256="04be3a90ca9ba6f39759902aa83dcd7db6ea2b9e9112cd557859ac4719e278dc",
         ),
         OfficialCalendarSource(
             source_id="nyse-carter-closure-2025",
@@ -315,6 +379,28 @@ def build_exchange_calendar_audit(
     return ExchangeCalendarAuditResult(target.resolve(), report)
 
 
+def load_preserved_official_calendar_sources(
+    raw_root: Path = Path("data/market/exchange_calendar"),
+) -> pd.DataFrame:
+    """Load every hash-verified official calendar source snapshot."""
+    return _load_all_official_sources(raw_root)
+
+
+def build_historical_exchange_sessions(
+    start: date,
+    end: date,
+    sources: pd.DataFrame,
+    exchanges: set[str],
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Construct timestamped sessions from preserved official source evidence."""
+    unsupported = sorted(exchanges.difference(SUPPORTED_EXCHANGES))
+    if unsupported:
+        raise FilingCatalogError(f"Unsupported exchange MICs: {unsupported}")
+    if start > end:
+        raise FilingCatalogError("Exchange calendar start follows its end")
+    return _build_official_sessions(start, end, sources, exchanges)
+
+
 def _build_official_sessions(
     start: date,
     end: date,
@@ -322,6 +408,9 @@ def _build_official_sessions(
     exchanges: set[str],
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     source_lookup = sources.set_index("source_id")["sha256"].astype(str).to_dict()
+    otc_policy_hash = source_lookup.get(OTC_SESSION_POLICY_SOURCE_ID)
+    if "OTCM" in exchanges and otc_policy_hash is None:
+        raise FilingCatalogError("Missing OTC Markets session-policy source")
     session_rows: list[dict[str, Any]] = []
     exception_rows: list[dict[str, Any]] = []
     for exchange_mic in sorted(exchanges):
@@ -351,6 +440,13 @@ def _build_official_sessions(
                         "description": description,
                         "source_id": source_id,
                         "source_snapshot_sha256": source_hash,
+                        "schedule_basis_exchange_mic": _schedule_basis_exchange(exchange_mic),
+                        "venue_policy_source_id": (
+                            OTC_SESSION_POLICY_SOURCE_ID if exchange_mic == "OTCM" else None
+                        ),
+                        "venue_policy_source_sha256": (
+                            otc_policy_hash if exchange_mic == "OTCM" else None
+                        ),
                     }
                 )
             for session_date, description in sorted(early.items()):
@@ -364,6 +460,13 @@ def _build_official_sessions(
                         "description": description,
                         "source_id": annual_id,
                         "source_snapshot_sha256": annual_hash,
+                        "schedule_basis_exchange_mic": _schedule_basis_exchange(exchange_mic),
+                        "venue_policy_source_id": (
+                            OTC_SESSION_POLICY_SOURCE_ID if exchange_mic == "OTCM" else None
+                        ),
+                        "venue_policy_source_sha256": (
+                            otc_policy_hash if exchange_mic == "OTCM" else None
+                        ),
                     }
                 )
             year_start = max(start, date(calendar_year, 1, 1))
@@ -385,6 +488,13 @@ def _build_official_sessions(
                         "calendar_timezone": "America/New_York",
                         "source_id": annual_id,
                         "source_snapshot_sha256": annual_hash,
+                        "schedule_basis_exchange_mic": _schedule_basis_exchange(exchange_mic),
+                        "venue_policy_source_id": (
+                            OTC_SESSION_POLICY_SOURCE_ID if exchange_mic == "OTCM" else None
+                        ),
+                        "venue_policy_source_sha256": (
+                            otc_policy_hash if exchange_mic == "OTCM" else None
+                        ),
                         "rule_version": CALENDAR_RULE_VERSION,
                     }
                 )
@@ -511,6 +621,29 @@ def _align_events_to_sessions(
 
 def _closed_dates(calendar_year: int) -> dict[date, str]:
     values: dict[int, tuple[tuple[str, str], ...]] = {
+        2022: (
+            ("2022-01-17", "Martin Luther King Jr. Day"),
+            ("2022-02-21", "Washington's Birthday"),
+            ("2022-04-15", "Good Friday"),
+            ("2022-05-30", "Memorial Day"),
+            ("2022-06-20", "Juneteenth National Independence Day observed"),
+            ("2022-07-04", "Independence Day"),
+            ("2022-09-05", "Labor Day"),
+            ("2022-11-24", "Thanksgiving Day"),
+            ("2022-12-26", "Christmas Day observed"),
+        ),
+        2023: (
+            ("2023-01-02", "New Year's Day observed"),
+            ("2023-01-16", "Martin Luther King Jr. Day"),
+            ("2023-02-20", "Washington's Birthday"),
+            ("2023-04-07", "Good Friday"),
+            ("2023-05-29", "Memorial Day"),
+            ("2023-06-19", "Juneteenth National Independence Day"),
+            ("2023-07-04", "Independence Day"),
+            ("2023-09-04", "Labor Day"),
+            ("2023-11-23", "Thanksgiving Day"),
+            ("2023-12-25", "Christmas Day"),
+        ),
         2024: (
             ("2024-01-01", "New Year's Day"),
             ("2024-01-15", "Martin Luther King Jr. Day"),
@@ -536,6 +669,18 @@ def _closed_dates(calendar_year: int) -> dict[date, str]:
             ("2025-11-27", "Thanksgiving Day"),
             ("2025-12-25", "Christmas Day"),
         ),
+        2026: (
+            ("2026-01-01", "New Year's Day"),
+            ("2026-01-19", "Martin Luther King Jr. Day"),
+            ("2026-02-16", "Washington's Birthday"),
+            ("2026-04-03", "Good Friday"),
+            ("2026-05-25", "Memorial Day"),
+            ("2026-06-19", "Juneteenth National Independence Day"),
+            ("2026-07-03", "Independence Day observed"),
+            ("2026-09-07", "Labor Day"),
+            ("2026-11-26", "Thanksgiving Day"),
+            ("2026-12-25", "Christmas Day"),
+        ),
     }
     try:
         return {date.fromisoformat(value): label for value, label in values[calendar_year]}
@@ -545,6 +690,11 @@ def _closed_dates(calendar_year: int) -> dict[date, str]:
 
 def _early_close_dates(calendar_year: int) -> dict[date, str]:
     values: dict[int, tuple[tuple[str, str], ...]] = {
+        2022: (("2022-11-25", "Day after Thanksgiving early close"),),
+        2023: (
+            ("2023-07-03", "Independence Day early close"),
+            ("2023-11-24", "Day after Thanksgiving early close"),
+        ),
         2024: (
             ("2024-07-03", "Independence Day early close"),
             ("2024-11-29", "Day after Thanksgiving early close"),
@@ -554,6 +704,10 @@ def _early_close_dates(calendar_year: int) -> dict[date, str]:
             ("2025-07-03", "Independence Day early close"),
             ("2025-11-28", "Day after Thanksgiving early close"),
             ("2025-12-24", "Christmas Eve early close"),
+        ),
+        2026: (
+            ("2026-11-27", "Day after Thanksgiving early close"),
+            ("2026-12-24", "Christmas Eve early close"),
         ),
     }
     try:
@@ -565,12 +719,18 @@ def _early_close_dates(calendar_year: int) -> dict[date, str]:
 
 
 def _annual_source_id(exchange_mic: str, calendar_year: int) -> str:
-    prefix = "nyse" if exchange_mic == "XNYS" else "nasdaq"
+    prefix = "nyse" if exchange_mic in {"XNYS", "XASE"} else "nasdaq"
     return f"{prefix}-annual-{calendar_year}"
 
 
+def _schedule_basis_exchange(exchange_mic: str) -> str:
+    if exchange_mic in {"XNYS", "XASE"}:
+        return "XNYS"
+    return "XNAS"
+
+
 def _carter_source_id(exchange_mic: str) -> str:
-    prefix = "nyse" if exchange_mic == "XNYS" else "nasdaq"
+    prefix = "nyse" if exchange_mic in {"XNYS", "XASE"} else "nasdaq"
     return f"{prefix}-carter-closure-2025"
 
 
@@ -696,6 +856,9 @@ def _session_columns() -> list[str]:
         "calendar_timezone",
         "source_id",
         "source_snapshot_sha256",
+        "schedule_basis_exchange_mic",
+        "venue_policy_source_id",
+        "venue_policy_source_sha256",
         "rule_version",
     ]
 
@@ -708,6 +871,9 @@ def _exception_columns() -> list[str]:
         "description",
         "source_id",
         "source_snapshot_sha256",
+        "schedule_basis_exchange_mic",
+        "venue_policy_source_id",
+        "venue_policy_source_sha256",
     ]
 
 

@@ -23,7 +23,9 @@ from sec_data.massive_reference import (
     parse_massive_ticker_response,
 )
 
-MASSIVE_DELISTING_PARSER_VERSION: Final[str] = "massive-delisting-outcome-parser-v2"
+MASSIVE_DELISTING_PARSER_VERSION: Final[str] = (
+    "massive-delisting-outcome-parser-v3-security-aliases"
+)
 
 
 @dataclass(frozen=True)
@@ -452,6 +454,74 @@ def build_massive_delisting_audit(
     return MassiveDelistingAuditResult(target.resolve(), report)
 
 
+def load_collected_massive_listing_status(
+    targets: pd.DataFrame,
+    *,
+    raw_root: Path = Path("data/market/massive_delisting"),
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Parse preserved listing-status snapshots for compatible formal targets."""
+    required = {"outcome_target_id", "cik", "outcome_cutoff_date"}
+    missing = sorted(required.difference(targets.columns))
+    if missing:
+        raise FilingCatalogError(f"Compatible delisting targets lack columns: {missing}")
+    observations: list[dict[str, Any]] = []
+    rejections: list[dict[str, Any]] = []
+    completion_rows: list[dict[str, Any]] = []
+    for row in targets.itertuples(index=False):
+        outcome_target_id = str(row.outcome_target_id)
+        completion = _load_target_completion(raw_root, outcome_target_id)
+        if completion is None:
+            continue
+        completion_rows.append(
+            {
+                "outcome_target_id": outcome_target_id,
+                "active_query_complete": True,
+                "inactive_query_complete": completion.get("inactive_query") is not None,
+                "completed_at": str(completion.get("completed_at", "")),
+            }
+        )
+        query_documents = [completion["active_query"]]
+        if completion.get("inactive_query") is not None:
+            query_documents.append(completion["inactive_query"])
+        for query in query_documents:
+            for snapshot_path in query["snapshots"]:
+                snapshot = _load_snapshot(Path(snapshot_path))
+                parsed, rejected, _ = parse_massive_ticker_response(
+                    Path(snapshot.path).read_bytes(),
+                    expected_cik=str(row.cik),
+                    target_id=outcome_target_id,
+                    query_active=snapshot.query_active,
+                    as_of_date=str(row.outcome_cutoff_date),
+                    source_sha256=snapshot.sha256,
+                )
+                for item in parsed:
+                    item["outcome_target_id"] = item.pop("target_id")
+                observations.extend(parsed)
+                rejections.extend(
+                    {
+                        "outcome_target_id": item["target_id"],
+                        "query_active": snapshot.query_active,
+                        "source_occurrence": item["source_occurrence"],
+                        "reason": item["reason"],
+                        "source_sha256": item["source_sha256"],
+                    }
+                    for item in rejected
+                )
+    return (
+        pd.DataFrame(observations, columns=_observation_columns()),
+        pd.DataFrame(rejections, columns=_rejection_columns()),
+        pd.DataFrame(
+            completion_rows,
+            columns=[
+                "outcome_target_id",
+                "active_query_complete",
+                "inactive_query_complete",
+                "completed_at",
+            ],
+        ),
+    )
+
+
 def _collect_status_query(
     client: MassiveReferenceClient,
     raw_root: Path,
@@ -597,42 +667,63 @@ def _build_outcome_tables(
         if not target_rejections.empty:
             status = "listing_status_parse_rejection"
             missing_reason = "listing_status_parse_rejection"
-        elif len(active) == 1 and inactive.empty:
-            row = active.iloc[0]
-            if not _provider_state_is(row["provider_active"], True) or pd.notna(
-                row["delisted_utc"]
-            ):
+        elif not active.empty:
+            active_semantic_conflict = active.apply(
+                lambda row: (
+                    not _provider_state_is(row["provider_active"], True)
+                    or pd.notna(row["delisted_utc"])
+                ),
+                axis=1,
+            ).any()
+            if active_semantic_conflict:
                 status = "active_record_semantic_conflict"
                 missing_reason = "active_record_semantic_conflict"
             else:
+                row = _preferred_ticker_alias(active, str(target["selected_ticker"]))
                 status = "active_at_outcome_cutoff"
                 ready = active_at_cutoff = True
                 observed_ticker = str(row["ticker"])
                 source_sha256 = str(row["source_sha256"])
                 missing_reason = "not_applicable_active_through_outcome_cutoff"
-        elif active.empty and len(inactive) == 1:
-            row = inactive.iloc[0]
-            observed_ticker = str(row["ticker"])
-            source_sha256 = str(row["source_sha256"])
-            delisted_utc = _normalized_delisted_utc(row["delisted_utc"])
-            exit_date = _parse_date(str(target["formal_exit_session_date"]))
-            if not _provider_state_is(row["provider_active"], False):
+        elif not inactive.empty:
+            inactive_semantic_conflict = inactive.apply(
+                lambda row: not _provider_state_is(row["provider_active"], False),
+                axis=1,
+            ).any()
+            dated_inactive = inactive.copy()
+            dated_inactive["_normalized_delisted_utc"] = dated_inactive["delisted_utc"].map(
+                _normalized_delisted_utc
+            )
+            dated_inactive = dated_inactive[
+                dated_inactive["_normalized_delisted_utc"].notna()
+            ].copy()
+            if inactive_semantic_conflict:
                 status = "inactive_record_semantic_conflict"
                 missing_reason = "inactive_record_semantic_conflict"
-            elif delisted_utc is None:
+            elif dated_inactive.empty:
                 status = "inactive_record_missing_last_trade_date"
                 missing_reason = "provider_inactive_without_delisted_utc"
-            elif _parse_timestamp(delisted_utc).date() > exit_date:
-                status = "later_delisted_after_formal_exit"
-                ready = later_delisted = True
-                missing_reason = "not_applicable_delisting_after_formal_exit"
             else:
-                status = "delisted_on_or_before_formal_exit_terminal_value_required"
-                delisted_before_exit = True
-                missing_reason = "provider_does_not_supply_delisting_return_or_terminal_value"
-        elif len(active) > 1 or len(inactive) > 1 or (not active.empty and not inactive.empty):
-            status = "ambiguous_listing_status"
-            missing_reason = "multiple_conflicting_listing_status_records"
+                dated_inactive["_delisted_at"] = dated_inactive["_normalized_delisted_utc"].map(
+                    _parse_timestamp
+                )
+                latest_delisted_at = dated_inactive["_delisted_at"].max()
+                latest_aliases = dated_inactive[
+                    dated_inactive["_delisted_at"].eq(latest_delisted_at)
+                ]
+                row = _preferred_ticker_alias(latest_aliases, str(target["selected_ticker"]))
+                observed_ticker = str(row["ticker"])
+                source_sha256 = str(row["source_sha256"])
+                delisted_utc = str(row["_normalized_delisted_utc"])
+                exit_date = _parse_date(str(target["formal_exit_session_date"]))
+                if latest_delisted_at.date() > exit_date:
+                    status = "later_delisted_after_formal_exit"
+                    ready = later_delisted = True
+                    missing_reason = "not_applicable_delisting_after_formal_exit"
+                else:
+                    status = "delisted_on_or_before_formal_exit_terminal_value_required"
+                    delisted_before_exit = True
+                    missing_reason = "provider_does_not_supply_delisting_return_or_terminal_value"
         audit.at[index, "listing_outcome_status"] = status
         audit.at[index, "outcome_ticker"] = observed_ticker
         audit.at[index, "delisted_utc"] = delisted_utc
@@ -839,6 +930,18 @@ def _write_failure(raw_root: Path, outcome_target_id: str, reason: str, detail: 
         ),
         encoding="utf-8",
     )
+
+
+def _preferred_ticker_alias(records: pd.DataFrame, preferred_ticker: str) -> pd.Series[Any]:
+    candidates = records
+    preferred = records[records["ticker"].eq(preferred_ticker)]
+    if not preferred.empty:
+        candidates = preferred
+    return candidates.sort_values(
+        ["last_updated_utc", "ticker", "source_occurrence"],
+        na_position="first",
+        kind="stable",
+    ).iloc[-1]
 
 
 def _normalized_delisted_utc(value: Any) -> str | None:

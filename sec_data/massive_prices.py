@@ -500,6 +500,75 @@ def build_massive_price_audit(
     return MassivePriceAuditResult(target.resolve(), report)
 
 
+def load_collected_massive_daily_bars(
+    targets: pd.DataFrame,
+    *,
+    raw_root: Path = Path("data/market/massive_prices"),
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Parse preserved snapshots for arbitrary compatible price-target rows.
+
+    The helper exposes only validated unadjusted bars, parser rejections, and
+    target completion metadata.  It does not calculate candidate or realized
+    returns.
+    """
+    required = {
+        "price_target_id",
+        "selected_ticker",
+        "price_window_start",
+        "price_window_end",
+    }
+    missing = sorted(required.difference(targets.columns))
+    if missing:
+        raise FilingCatalogError(f"Massive compatible price targets lack columns: {missing}")
+    observations: list[dict[str, Any]] = []
+    rejections: list[dict[str, Any]] = []
+    completion_rows: list[dict[str, Any]] = []
+    for row in targets.itertuples(index=False):
+        price_target_id = str(row.price_target_id)
+        completion = _load_target_completion(raw_root, price_target_id)
+        if completion is None:
+            continue
+        completion_rows.append(
+            {
+                "price_target_id": price_target_id,
+                "ticker": str(row.selected_ticker),
+                "status": str(completion.get("status", "")),
+                "bar_count": int(completion["query"].get("bar_count", 0)),
+                "rejection_count": int(completion["query"].get("rejection_count", 0)),
+                "page_count": int(completion["query"].get("page_count", 0)),
+                "completed_at": str(completion.get("completed_at", "")),
+            }
+        )
+        for snapshot_path in completion["query"]["snapshots"]:
+            snapshot = _load_snapshot(Path(snapshot_path))
+            parsed, page_rejections, _ = parse_massive_daily_bars(
+                Path(snapshot.path).read_bytes(),
+                expected_ticker=str(row.selected_ticker),
+                price_target_id=price_target_id,
+                window_start=str(row.price_window_start),
+                window_end=str(row.price_window_end),
+                source_sha256=snapshot.sha256,
+            )
+            observations.extend(parsed)
+            rejections.extend(page_rejections)
+    return (
+        pd.DataFrame(observations, columns=_bar_columns()),
+        pd.DataFrame(rejections, columns=_rejection_columns()),
+        pd.DataFrame(
+            completion_rows,
+            columns=[
+                "price_target_id",
+                "ticker",
+                "status",
+                "bar_count",
+                "rejection_count",
+                "page_count",
+                "completed_at",
+            ],
+        ),
+    )
+
+
 def _selected_reference_sources(
     candidates: pd.DataFrame, observations: pd.DataFrame
 ) -> pd.DataFrame:

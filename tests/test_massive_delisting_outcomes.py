@@ -73,7 +73,32 @@ def test_delisting_before_formal_exit_keeps_terminal_gate_closed(tmp_path: Path)
     assert result["report"]["pilot_delisting_outcome_gate"] is False
 
 
-def _run_fixture(tmp_path: Path, *, inactive_last_trade: str) -> dict[str, object]:
+def test_ticker_aliases_resolve_at_the_share_class_level(tmp_path: Path) -> None:
+    result = _run_fixture(
+        tmp_path,
+        inactive_last_trade="2025-06-30T00:00:00Z",
+        include_ticker_aliases=True,
+    )
+    sample = result["sample"]
+
+    active = sample[sample["selected_ticker"].eq("LIVE")].iloc[0]
+    inactive = sample[sample["selected_ticker"].eq("OLD")].iloc[0]
+    assert active["active_exact_matches"] == 1
+    assert active["inactive_exact_matches"] == 0
+    assert active["listing_outcome_status"] == "active_at_outcome_cutoff"
+    assert active["delisting_outcome_ready"]
+    assert inactive["inactive_exact_matches"] == 2
+    assert inactive["outcome_ticker"] == "OLD"
+    assert inactive["listing_outcome_status"] == "later_delisted_after_formal_exit"
+    assert inactive["delisting_outcome_ready"]
+
+
+def _run_fixture(
+    tmp_path: Path,
+    *,
+    inactive_last_trade: str,
+    include_ticker_aliases: bool = False,
+) -> dict[str, object]:
     actions_root, calendar_root = _write_upstream_fixtures(tmp_path)
     plan = build_massive_delisting_target_plan(
         actions_root,
@@ -95,11 +120,20 @@ def _run_fixture(tmp_path: Path, *, inactive_last_trade: str) -> dict[str, objec
         [
             _status_payload("LIVE", "BBG001LIVE12", active=True),
             _empty_payload(),
-            _status_payload(
-                "OLD",
-                "BBG001OLD123",
-                active=False,
-                delisted_utc=inactive_last_trade,
+            (
+                _status_alias_payload(
+                    [
+                        ("OLD", "BBG001OLD123", inactive_last_trade),
+                        ("OLDW", "BBG001OLD123", None),
+                    ]
+                )
+                if include_ticker_aliases
+                else _status_payload(
+                    "OLD",
+                    "BBG001OLD123",
+                    active=False,
+                    delisted_utc=inactive_last_trade,
+                )
             ),
         ]
     )
@@ -243,6 +277,31 @@ def _status_payload(
 
 def _empty_payload() -> bytes:
     return json.dumps({"status": "OK", "results": []}).encode()
+
+
+def _status_alias_payload(rows: list[tuple[str, str, str | None]]) -> bytes:
+    return json.dumps(
+        {
+            "status": "OK",
+            "results": [
+                {
+                    "active": False,
+                    "cik": "0000000002",
+                    "ticker": ticker,
+                    "name": f"{ticker} Corp",
+                    "market": "stocks",
+                    "locale": "us",
+                    "type": "CS",
+                    "primary_exchange": "XNAS",
+                    "currency_name": "usd",
+                    "share_class_figi": security_id,
+                    "composite_figi": "BBG000COMP02",
+                    "delisted_utc": delisted_utc,
+                }
+                for ticker, security_id, delisted_utc in rows
+            ],
+        }
+    ).encode()
 
 
 def _write_manifest(root: Path) -> None:

@@ -23,7 +23,7 @@ from sec_data.client import normalize_cik
 from sec_data.filing_catalog import FilingCatalogError, load_catalog_table
 
 MASSIVE_TICKERS_URL: Final[str] = "https://api.massive.com/v3/reference/tickers"
-MASSIVE_PARSER_VERSION: Final[str] = "massive-pit-reference-parser-v2"
+MASSIVE_PARSER_VERSION: Final[str] = "massive-pit-reference-parser-v3-empty-status"
 MASSIVE_HISTORY_START: Final[date] = date(2003, 9, 10)
 _RETRYABLE_STATUSES: Final[frozenset[int]] = frozenset({429, 500, 502, 503, 504})
 _FIGI: Final[re.Pattern[str]] = re.compile(r"BBG[A-Z0-9]{9}")
@@ -176,6 +176,26 @@ class MassiveReferenceClient:
         query = urlencode(
             {
                 "cik": normalized_cik,
+                "date": query_date.isoformat(),
+                "active": str(active).lower(),
+                "order": "asc",
+                "limit": "1000",
+                "sort": "ticker",
+            }
+        )
+        return f"{MASSIVE_TICKERS_URL}?{query}"
+
+    def ticker_symbol_reference_url(self, ticker: str, as_of_date: str, *, active: bool) -> str:
+        """Build a deterministic secret-free ticker/date reference URL."""
+        normalized_ticker = _normalized_ticker(ticker)
+        if normalized_ticker is None:
+            raise MassiveConfigurationError("Massive ticker query symbol is invalid")
+        query_date = _parse_date(as_of_date)
+        if query_date < MASSIVE_HISTORY_START:
+            raise MassiveConfigurationError("Massive ticker history begins on 2003-09-10")
+        query = urlencode(
+            {
+                "ticker": normalized_ticker,
                 "date": query_date.isoformat(),
                 "active": str(active).lower(),
                 "order": "asc",
@@ -428,6 +448,98 @@ def collect_massive_reference_artifacts(
                     raw_root=raw_root,
                     target_id=target_id,
                     cik=str(row.cik),
+                    as_of_date=str(row.query_date),
+                    active=False,
+                )
+                requests_made += inactive[1]
+                reused += inactive[2]
+                queries["inactive"] = inactive[0]
+                status = (
+                    "inactive_match" if inactive[0]["record_count"] > 0 else "no_provider_match"
+                )
+            _write_target_completion(
+                raw_root,
+                target_id=target_id,
+                cik=str(row.cik),
+                as_of_date=str(row.query_date),
+                status=status,
+                queries=queries,
+            )
+            completed += 1
+        except MassiveRequestError as exc:
+            failed += 1
+            requests_made += exc.requests_made
+            _write_failure(raw_root, target_id, exc.reason, str(exc))
+            if exc.reason in {"authentication_failed", "entitlement_denied"}:
+                blocking_reason = exc.reason
+                break
+        if progress is not None:
+            progress(number, len(pending), target_id)
+    return MassiveCollectionResult(
+        selected_targets=len(pending),
+        targets_completed=completed,
+        targets_failed=failed,
+        requests_made=requests_made,
+        snapshots_reused=reused,
+        blocking_reason=blocking_reason,
+    )
+
+
+def collect_massive_symbol_reference_artifacts(
+    targets: pd.DataFrame,
+    client: MassiveReferenceClient,
+    *,
+    raw_root: Path,
+    limit: int = 5,
+    progress: Callable[[int, int, str], None] | None = None,
+) -> MassiveCollectionResult:
+    """Collect outcome-blind ticker/date fallbacks while enforcing the expected CIK."""
+    required = {
+        "target_id",
+        "cik",
+        "query_ticker",
+        "query_date",
+        "massive_acquisition_order",
+    }
+    missing = required.difference(targets.columns)
+    if missing:
+        raise FilingCatalogError(f"Massive symbol targets lack columns: {sorted(missing)}")
+    if limit < 1:
+        raise MassiveConfigurationError("Massive collection limit must be positive")
+    ordered = targets.sort_values("massive_acquisition_order")
+    pending = [
+        row
+        for row in ordered.itertuples(index=False)
+        if not _valid_target_completion(raw_root, str(row.target_id))
+    ][:limit]
+    completed = 0
+    failed = 0
+    requests_made = 0
+    reused = 0
+    blocking_reason: str | None = None
+    for number, row in enumerate(pending, start=1):
+        target_id = str(row.target_id)
+        try:
+            active = _collect_symbol_reference_query(
+                client,
+                raw_root=raw_root,
+                target_id=target_id,
+                cik=str(row.cik),
+                ticker=str(row.query_ticker),
+                as_of_date=str(row.query_date),
+                active=True,
+            )
+            requests_made += active[1]
+            reused += active[2]
+            queries = {"active": active[0]}
+            status = "active_match" if active[0]["record_count"] > 0 else "active_no_match"
+            if active[0]["record_count"] == 0:
+                inactive = _collect_symbol_reference_query(
+                    client,
+                    raw_root=raw_root,
+                    target_id=target_id,
+                    cik=str(row.cik),
+                    ticker=str(row.query_ticker),
                     as_of_date=str(row.query_date),
                     active=False,
                 )
@@ -766,6 +878,77 @@ def _collect_reference_query(
     return completion, requests_made, reused
 
 
+def _collect_symbol_reference_query(
+    client: MassiveReferenceClient,
+    *,
+    raw_root: Path,
+    target_id: str,
+    cik: str,
+    ticker: str,
+    as_of_date: str,
+    active: bool,
+) -> tuple[dict[str, Any], int, int]:
+    existing = _load_query_completion(raw_root, target_id, active)
+    if existing is not None:
+        return existing, 0, len(existing["snapshots"])
+    url: str | None = client.ticker_symbol_reference_url(ticker, as_of_date, active=active)
+    snapshots: list[str] = []
+    record_count = 0
+    requests_made = 0
+    reused = 0
+    page_number = 0
+    while url is not None:
+        page_number += 1
+        if page_number > 20:
+            raise MassiveRequestError("Massive pagination exceeded 20 pages", reason="pagination")
+        query_id = _stable_hash(
+            {
+                "target_id": target_id,
+                "ticker": ticker,
+                "active": active,
+                "as_of_date": as_of_date,
+                "requested_url": url,
+            }
+        )
+        snapshot = _existing_snapshot(raw_root, query_id, url)
+        if snapshot is None:
+            response = client.get(url)
+            snapshot = _preserve_response(
+                raw_root,
+                target_id=target_id,
+                query_id=query_id,
+                query_active=active,
+                as_of_date=as_of_date,
+                page_number=page_number,
+                response=response,
+            )
+            requests_made += response.requests_made
+        else:
+            reused += 1
+        observations, _, next_url = parse_massive_ticker_response(
+            Path(snapshot.path).read_bytes(),
+            expected_cik=cik,
+            target_id=target_id,
+            query_active=active,
+            as_of_date=as_of_date,
+            source_sha256=snapshot.sha256,
+        )
+        record_count += len(observations)
+        snapshots.append(str(_snapshot_manifest_path(raw_root, snapshot)))
+        url = next_url
+    completion = {
+        "query_active": active,
+        "query_ticker": ticker,
+        "as_of_date": as_of_date,
+        "record_count": record_count,
+        "page_count": len(snapshots),
+        "pagination_complete": True,
+        "snapshots": snapshots,
+    }
+    _write_query_completion(raw_root, target_id, active, completion)
+    return completion, requests_made, reused
+
+
 def _preserve_response(
     raw_root: Path,
     *,
@@ -950,6 +1133,10 @@ def _reference_coverage_audit(
     audit["historical_symbol_interval_ready"] = False
     audit["final_price_identity_ready"] = False
     if observations.empty:
+        audit.loc[
+            audit["provider_query_complete"].astype(bool),
+            "event_date_reference_status",
+        ] = "provider_no_cik_match"
         return audit
     for index, target in audit.iterrows():
         group = observations.loc[observations["target_id"].eq(target["target_id"])].copy()
