@@ -66,7 +66,82 @@ def test_streamlit_app_renders_without_exception() -> None:
     else:
         assert any("信号尚未成立，偏差已经可以计量" in item.value for item in app.markdown)
         assert any(metric.value == "49" and metric.label == "完整事件" for metric in app.metric)
-    assert len(app.get("plotly_chart")) == 4
+    event_return_charts = len(app.get("plotly_chart"))
+    assert event_return_charts in {4, 5, 6}
+    if event_return_charts >= 5:
+        assert any(
+            metric.value == "32 / 38" and metric.label == "同事件完整 L/D/I"
+            for metric in app.metric
+        )
+
+    app.radio[0].set_value("成果 06 · 管理层指引 Innovation")
+    app.run()
+
+    assert not app.exception
+    assert any("市场预期，不再只是去年同期" in item.value for item in app.markdown)
+    assert any(metric.value == "79.5%" and metric.label == "误差改善" for metric in app.metric)
+    assert any(
+        "诚实的描述性观察" in item.value or "收益诊断尚未执行" in item.value for item in app.warning
+    )
+
+    app.radio[0].set_value("成果 07 · 前向一致预期账本")
+    app.run()
+
+    assert not app.exception
+    assert any("从今天开始，保存市场当时知道什么" in item.value for item in app.markdown)
+    assert any(metric.value == "37" and metric.label == "前向财季快照" for metric in app.metric)
+    assert any(metric.value == "通过" and metric.label == "Revision Gate" for metric in app.metric)
+    prospective_root = (
+        app_path.parent / "data" / "processed" / "prospective_market_innovation_preregistration"
+    )
+    if prospective_root.exists():
+        assert any(metric.value == "37" and metric.label == "v3 注册事件" for metric in app.metric)
+        assert any(
+            metric.value == "37/37" and metric.label == "v3 快照覆盖" for metric in app.metric
+        )
+        assert any("不再回看 O3" in item.value for item in app.success)
+    assert len(app.get("plotly_chart")) == 1
+
+    app.radio[0].set_value("成果 08 · 前向 Innovation 流水线")
+    app.run()
+
+    assert not app.exception
+    assert any("从“市场预期”走到“真正意外”" in item.value for item in app.markdown)
+    assert any(metric.value == "0" and metric.label == "Raw Innovation" for metric in app.metric)
+    assert any("时间顺序正确" in item.value for item in app.info)
+    assert len(app.get("plotly_chart")) == 1
+
+    app.radio[0].set_value("成果 09 · Conditional Drift")
+    app.run()
+
+    assert not app.exception
+    assert any("信息出现以后，市场反应够不够" in item.value for item in app.markdown)
+    conditional_root = app_path.parent / "data" / "processed" / "conditional_drift_study"
+    if conditional_root.exists():
+        assert any(
+            metric.value == "35" and metric.label == "完整同事件样本" for metric in app.metric
+        )
+        assert len(app.get("plotly_chart")) == 4
+        assert any("历史开发诊断" in item.value for item in app.warning)
+        assert any("完整 v2 被淘汰" in item.value for item in app.error)
+        forward_root = (
+            app_path.parent / "data" / "processed" / "conditional_drift_forward_candidate"
+        )
+        if forward_root.exists():
+            assert any(
+                metric.value == "16" and metric.label == "盲态预先评分" for metric in app.metric
+            )
+            assert any("没有读取结果收益" in item.value for item in app.success)
+        holdout_root = (
+            app_path.parent / "data" / "processed" / "conditional_drift_holdout_evaluation"
+        )
+        if holdout_root.exists():
+            assert any(
+                metric.value == "-0.106" and metric.label == "O3 留出 IC" for metric in app.metric
+            )
+            assert any("外部结果否定了当前候选" in item.value for item in app.error)
+    else:
+        assert any("本地尚无 Conditional Drift 产物" in item.value for item in app.info)
 
     app.radio[0].set_value("SEC 真实数据试验台")
     app.run()

@@ -4,7 +4,8 @@
     "representation": "ldi-pit-v1-0cb6ab453c6535d9",
     "forecast_tournament": "gm-forecast-v2-675735a5687a7fd1",
     "revision_robustness": "revision-robustness-v2-9c615c9c359202b9",
-    "longitudinal_effectiveness": "preliminary-effectiveness-diagnostic-v1-ec29d989f4f879f1"
+    "longitudinal_effectiveness": "preliminary-effectiveness-diagnostic-v1-ec29d989f4f879f1",
+    "revenue_guidance": "revenue-guidance-tournament-v1-704bd72dab06653a"
   },
   "representation": {
     "core_companies": 82,
@@ -123,6 +124,25 @@
       "After repair": 0.044695
     },
     "verdict": "effectiveness_not_established"
+  },
+  "revenue_guidance": {
+    "events": 35,
+    "issuers": 13,
+    "eligible_candidate_events": 372,
+    "exact_quarter_coverage": 0.09408602150537634,
+    "guidance_mape": 0.028103151699084953,
+    "seasonal_mape": 0.1372942866921647,
+    "relative_improvement": 0.7953072019515522,
+    "event_win_rate": 0.7714285714285715,
+    "cluster_bootstrap_ci": [-0.15292895746208746, -0.0677913641630402],
+    "minimum_leave_one_issuer_out_improvement": 0.7611096964131352,
+    "forecast_gate_passed": true,
+      "authorized_return_events": 23,
+      "authorized_return_issuers": 8,
+      "positive_innovation_events": 20,
+      "negative_innovation_events": 3,
+      "descriptive_spearman_ic": -0.00691699604743083,
+      "return_diagnostic_performed": false
   },
   "evidence_boundary": "Aggregate frozen diagnostics only. No event-level SEC or provider market data are redistributed in the public repository."
 }

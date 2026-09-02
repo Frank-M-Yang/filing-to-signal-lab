@@ -14,13 +14,25 @@ Filing-to-Signal Lab investigates a falsifiable question:
 > difference between newly disclosed information and the expectation formed immediately before
 > the filing? How much do hindsight revisions and historical-data biases distort the answer?
 
-> **Research Preview — 2026-08-27:** the point-in-time data, bias-audit, event-return, and first
+> **Research Preview — 2026-08-28:** the point-in-time data, bias-audit, event-return, and first
 > model-ready feature pipelines are operational. The return effectiveness of a standalone
 > gross-margin Innovation signal has **not** been established. This repository is an educational
 > research system, not investment advice, a stock-selection model, or a validated trading
 > strategy.
 
 ### Current empirical result
+
+A new external-expectation experiment provides the project's first strong positive forecast
+result. On 35 exact-quarter revenue-guidance events from 13 issuers, prior management guidance
+achieves **2.81% MAPE**, versus **13.73%** for a strictly point-in-time prior-year same-quarter
+baseline—a **79.53% relative improvement**. The event win rate is 77.14%, the issuer-clustered
+APE-difference interval is fully below zero, and the improvement remains at least 76.11% after
+leaving out any one issuer. This is conditional forecast evidence, not alpha: exact comparable
+guidance covers only 9.41% of the 372 candidate events. The outcome-blind expansion now provides
+23 authorized returns from eight issuers; their descriptive rank correlation is -0.0069, but the
+formal return gate is withheld because issuer breadth and the three-event negative tail are
+insufficient. See [Point-in-Time Management Guidance as an Expectation Model](docs/revenue_guidance_innovation_v1.md)
+and the [first return diagnostic](docs/revenue_guidance_return_diagnostic_v1.md).
 
 The first return study froze 58 candidate filing events before observing their returns. The final
 complete-case sample contains 49 events from 15 issuers, each with Level, Delta, Raw Innovation,
@@ -58,6 +70,89 @@ loading returns. SEC reconstruction produces 1,074 complete filing-feature event
 unobserved issuers; only 319 also fall inside the currently documented Basic price-history
 window. The bottleneck is therefore measurable: both issuer breadth and longer price history are
 still required. See [Unseen Validation Expansion v1](docs/validation_expansion_v1.md).
+
+A separate forward-only consensus ledger began on 2026-08-29. Its first immutable capture covers
+20/20 core issuers and 37 future quarterly revenue estimates. The SEC monitor covers the same 20
+issuers, but no target-period filing has yet been accepted; therefore Revision Delta, quarterly
+actuals, and Innovation correctly remain empty. The pipeline now supports exact-accession direct
+quarterly facts and strict 10-K Q4 derivation as FY minus an earlier original 10-Q nine-month fact.
+Run `uv run python -m scripts.run_forward_research_daily` to rebuild the credential-free local
+state, or see [the daily pipeline contract](docs/forward_daily_pipeline_v1.md).
+
+The daily pipeline now also emits an immutable prospective event state machine. It records one
+current state and a two-clock transition trail for every frozen event, names the reason an event is
+waiting or rejected, and fails if an event moves backwards across daily snapshots. The current
+37/37 events are `consensus_revision_ready`; no paper or live position is authorized. See
+[Prospective Event State Machine v1](docs/prospective_event_state_machine_v1.md).
+
+An outcome-free consensus-quality layer now separates numeric revisions from provider-structure
+changes. Of 37 frozen events, 33 are currently clean, two MCK periods require review, and the NVDA
+and WMT 2026-10-31 periods are quarantined. All 37 remain observable, but only the 33 clean events
+can progress into downstream Innovation or paper-decision states. See
+[Prospective Consensus Quality v1](docs/prospective_consensus_quality_v1.md).
+
+The first cash-only shadow policy is now preregistered on the same 37 still-unobserved events. A
+Raw Revenue Innovation of at least +1% maps to a 2%-weight buy intention, at most -1% maps to exit
+or cash, and the middle band does not trade. Gross invested weight is capped at 20%, shorting and
+leverage are disabled, and the v3 timing and cost rules are retained. The policy-aware ledger still
+creates no order until calendar, price, cost, cash, and portfolio evidence pass. See
+[Shadow Trading Policy v1](docs/shadow_trading_policy_v1.md) and
+[Policy-Aware Shadow Order Ledger v2](docs/shadow_order_ledger_v2.md).
+
+A point-in-time market-evidence collector and cash-constrained paper allocator now sit after that
+ledger. The 37 events map to 20 registration-time security candidates, but acceptance-date identity,
+official calendar, unadjusted price, cost, split, and dividend evidence must all be observed before
+the second official session opens. Exact provider bytes are preserved under SHA-256 before parsing.
+The paper account starts at USD 100,000, uses whole shares, and retains
+the 20% gross/no-short/no-leverage limits. No target filing has yet been accepted, so queries,
+intentions, candidates, positions, and returns correctly remain zero. See
+[Shadow Market Evidence and Portfolio Allocator v1](docs/shadow_market_and_portfolio_v1.md).
+
+Market-Innovation v3 is now preregistered on that untouched forward ledger. It freezes 37 future
+company-quarter events from 20 issuers across six period-ends, with no actual or return value
+loaded. The primary score is reported revenue relative to the last analyst revenue consensus
+observable before SEC acceptance; Reaction is diagnostic rather than part of the score. The 16
+failed Conditional Drift holdout events are permanently firewalled, and both O1 and O3 are retired.
+Formal return evaluation requires at least 30 complete events, 15 issuers, and eight Innovations on
+each side of zero. A registry-aware readiness ledger now covers 37/37 events and 20 SEC issuers;
+it continues consensus capture after fiscal period-end and stops only at each event's SEC
+acceptance. See [Prospective Market-Innovation v3](docs/prospective_market_innovation_v3.md).
+
+Conditional Drift Study v1 now joins State, Delta, Innovation, and the market reaction observable
+before the formal second-session-open entry on the same events. It produces gross and explicit
+10/25/50-bps cost-adjusted 5-, 20-, and 60-session labels. Thirty-five events from 15 issuers have
+the complete same-event vector; only 17 and 14 events receive point-in-time development forecasts
+at five and 20 sessions because training labels must mature before each prediction. Reaction and
+Innovation rank the later 20-session outcomes differently, but all events are historical
+training-only and the unobserved-validation gate remains closed. These are development diagnostics,
+not alpha evidence. See [Conditional Drift Study v1](docs/conditional_drift_study_v1.md).
+
+The first optimization round rejects a broad feature expansion. Decomposing Reaction and adding
+every v2 feature reduces the 20-session development IC by 0.163 and worsens MAE. A much narrower
+Innovation–Reaction alignment block improves rank correlation by 0.027 at five sessions and 0.035
+at 20 sessions; its 20-session leave-one-issuer-out IC remains positive, but only 14 development
+predictions exist. Alignment-only is therefore frozen as a low-confidence candidate for future
+external validation, while the full v2 specification is discarded. See
+[Conditional Drift Optimization v2](docs/conditional_drift_optimization_v2.md).
+
+That candidate is now operationally frozen. The model bundle records the exact feature order,
+scaler parameters, Ridge coefficients, intercept, and final training-label cutoff. Of 63
+post-cutoff complete filing events, 47 are quarantined because outcomes already exist locally.
+The remaining 16 were scored from outcome-free market and pre-entry Reaction features; no holdout
+metric or P&L has been computed. Only 7/16 lie fully inside the development feature range and two
+are severe extrapolations, so the covariate-overlap, external-validation, and live-trading gates
+remain closed. See the
+[Conditional Drift Forward Candidate v1](docs/conditional_drift_forward_candidate_v1.md).
+
+The preregistered temporal evaluation is now complete, and the candidate did not validate. On the
+exact 16 pre-scored events, Alignment-only has a 20-session Spearman IC of **-0.106**, versus
+**-0.074** for the challenger; the incremental IC is **-0.032**, with issuer-clustered 95%
+interval **[-0.367, +0.212]**. Its top-minus-bottom tertile spread is **-13.50 percentage points**,
+and only 1/7 frozen verdict checks passes. Endpoint review confirms that the two >50% tail returns
+are continuous 20-session, non-OTC price paths without split/dividend events. The verdict is
+`candidate_effectiveness_not_established`; these 16 outcomes are now permanently observed and
+will not be reused as validation. See the
+[Conditional Drift Temporal Holdout Evaluation v1](docs/conditional_drift_holdout_evaluation_v1.md).
 
 ### Research design
 
@@ -211,6 +306,11 @@ docs/                      # Protocols, results, calibration, and limitations
    current Basic price window retains only 319, so the project expands the frozen SEC sample and
    seeks longer price history instead of weakening the model gates.
 
+9. **Management-guidance expectation.** On 35 exact-quarter revenue-guidance events, prior
+   guidance reduces MAPE from 13.73% to 2.81% relative to the PIT seasonal baseline. All forecast
+   gates pass, including issuer-cluster and leave-one-issuer-out robustness. The separate return
+   gate remains closed at 12 events / 7 issuers, so no IC or alpha claim is made.
+
 Detailed milestone documents are linked from [docs/](docs/).
 
 ### Backtest conventions
@@ -321,11 +421,21 @@ Filing-to-Signal Lab 研究一个可被证伪的问题：
 > 市场究竟在定价企业所处的状态、状态的变化，还是新信息——即新披露信息与公告前一刻
 > 状态依赖预期之间的差？事后修订数据和历史数据偏差又会怎样扭曲答案？
 
-> **Research Preview — 2026-08-27：** 点时数据、偏差审计、事件收益和第一版训练就绪
+> **Research Preview — 2026-08-28：** 点时数据、偏差审计、事件收益和第一版训练就绪
 > 特征管线已经可以运行，但单一毛利率 Innovation 信号的收益有效性**尚未建立**。
 > 本仓库是研究与教育系统，不是投资建议、选股模型或已经验证的交易策略。
 
 ### 当前实证结果
+
+新的外部预期实验给出了项目目前第一个较强的正面预测结果。在 13 家发行人的 35 个精确同季度
+收入指引事件上，既往管理层指引的 MAPE 为 **2.81%**，严格点时的去年同季度基准为
+**13.73%**，相对改善 **79.53%**。逐事件胜率为 77.14%，发行人聚类的 APE 差区间完全低于
+零；依次剔除任何一家发行人后，改善仍至少为 76.11%。但这只是有条件的预测证据，不是
+alpha：严格可比指引只覆盖 372 个候选事件的 9.41%。无结果选样的扩展现已得到 8 家发行人的
+23 个授权收益，描述性秩相关为 -0.0069；但发行人广度和仅 3 个事件的负向尾部不足，因此正式
+收益 Gate 仍未打开。详见
+[Point-in-Time Management Guidance as an Expectation Model](docs/revenue_guidance_innovation_v1.md)
+和[第一轮收益诊断](docs/revenue_guidance_return_diagnostic_v1.md)。
 
 第一轮真实收益研究在观察收益前冻结了 58 个候选财报事件。最终共同样本包含 15 家发行人
 的 49 个事件，每个事件都同时拥有 Level、Delta、Raw Innovation、Standardized
@@ -356,6 +466,77 @@ Innovation 和 20 个交易日市场超额收益。
 SEC 重建后有 87 家未观察发行人的 1,074 个事件具备完整财报特征，但其中只有 319 个同时
 落入当前记录的 Basic 行情历史窗口。瓶颈因此已经量化：仍需要扩大公司覆盖并取得更长的
 历史行情。详见 [Unseen Validation Expansion v1](docs/validation_expansion_v1.md)。
+
+另一条完全前向的一致预期账本从 2026-08-29 开始。第一次不可变快照覆盖 20/20 家核心公司
+和 37 条未来季度收入预期；SEC 观察层也覆盖同样 20 家公司，但目标期间财报尚未被 SEC
+接受，因此 Revision Delta、季度实际值和 Innovation 正确地保持为空。流水线现已支持精确
+accession 的直接季度事实，以及用全年值减去此前原始 10-Q 九个月累计值来严格推导 10-K 的
+Q4。运行 `uv run python -m scripts.run_forward_research_daily` 可在不联网的情况下重建当前
+本地状态，方法见[日常流水线协议](docs/forward_daily_pipeline_v1.md)。
+
+每日流水线现在还会生成不可变的前瞻事件状态机：它为每个冻结事件保存一个当前状态和同时包含
+生效时点、实际观察时点的转换轨迹，明确记录等待或拒绝原因，并在事件跨日倒退时直接失败。
+当前 37/37 个事件均处于 `consensus_revision_ready`，状态机没有授权任何模拟或真实仓位。详见
+[Prospective Event State Machine v1](docs/prospective_event_state_machine_v1.md)。
+
+一层不读取收益的一致预期质量审计现已把数值修订与供应商结构变化分开。37 个冻结事件中，当前
+33 个干净、MCK 两个财季需要复核、NVDA 与 WMT 的 2026-10-31 财季被隔离。全部事件仍会继续
+观察，但只有 33 个干净事件能够进入后续 Innovation 或模拟决策状态。详见
+[Prospective Consensus Quality v1](docs/prospective_consensus_quality_v1.md)。
+
+第一版仅现金影子交易政策已经在同一批 37 个尚未观察结果的事件上预注册：Raw Revenue
+Innovation 至少 +1% 时生成 2% 权重的买入意图，至多 -1% 时退出或保持现金，中间区间不交易；
+总投入限制为 20%，禁止卖空和杠杆，并沿用 v3 的时间与成本规则。政策感知账本在日历、价格、
+成本、现金和组合证据通过前仍不会创建订单。详见
+[Shadow Trading Policy v1](docs/shadow_trading_policy_v1.md)和
+[Policy-Aware Shadow Order Ledger v2](docs/shadow_order_ledger_v2.md)。
+
+政策账本之后现在增加了点时市场证据采集审计和现金约束模拟组合分配器。37 个事件能映射到 20 个
+注册时证券候选，但在第二个正式交易日开盘前，必须重新验证 acceptance 时点身份、官方交易日历、
+未复权价格、成本、拆股和分红证据；供应商原始响应在解析前按 SHA-256 不可变保存。模拟账户以
+100,000 美元起始、只使用整数股，并继续执行总投入 20%、
+禁止卖空和杠杆的限制。当前没有目标财报被 SEC 接受，因此查询、意图、订单候选、仓位和收益均
+保持为零。详见
+[Shadow Market Evidence and Portfolio Allocator v1](docs/shadow_market_and_portfolio_v1.md)。
+
+Market-Innovation v3 已经在这套未观察前向账本上完成预注册：20 家发行人的 37 个未来公司—财季
+事件、6 个目标期末已经冻结，注册时没有加载任何实际值或收益。主信号固定为“实际收入相对于
+SEC acceptance 前最后一次可验证分析师收入一致预期的偏离”；Reaction 只作诊断，不进入主
+信号。失败的 16 个 Conditional Drift 留出事件被永久隔离，O1 与 O3 均已退休。正式收益检验
+至少要求 30 个完整事件、15 家发行人，且正负 Innovation 各不少于 8 个。详见
+[Prospective Market-Innovation v3](docs/prospective_market_innovation_v3.md)。注册表驱动的就绪账本
+现已覆盖 37/37 个事件和 20 家 SEC 发行人；一致预期采集不会在财季末停止，而会持续到每个
+事件各自的 SEC acceptance。
+
+Conditional Drift Study v1 现已把 State、Delta、Innovation 和正式第二交易日开盘入场前
+能够观察到的市场 Reaction 合并到同一事件，并生成 5 / 20 / 60 日毛收益和显式扣除
+10 / 25 / 50 bps 往返成本后的标签。15 家发行人的 35 个事件拥有完整同事件输入；由于每次
+预测前训练标签必须已经成熟，5 日和 20 日分别只有 17 和 14 个事件得到点时开发预测。
+Reaction 与 Innovation 对后续 20 日结果给出了不同排序，但所有事件仍是 historical
+training-only，未见样本验证闸门继续关闭，因此这只是开发诊断，不是 alpha 证据。详见
+[Conditional Drift Study v1](docs/conditional_drift_study_v1.md)。
+
+第一轮优化明确淘汰了“多堆特征”的方案：拆分 Reaction 并加入全部 v2 特征后，20 日开发期
+IC 相对基线下降 0.163，MAE 也恶化。更窄的 Innovation–Reaction 方向一致/背离项在 5 日和
+20 日分别提高秩相关 0.027 和 0.035，逐一剔除发行人后 20 日 IC 仍为正；但有效开发预测只有
+14 个。因此项目只把 Alignment-only 冻结为低置信度外部验证候选，完整 v2 被淘汰。详见
+[Conditional Drift Optimization v2](docs/conditional_drift_optimization_v2.md)。
+
+这个候选现在已经完成可执行冻结：特征顺序、标准化参数、Ridge 系数、截距和最后训练标签
+截止时间全部写入不可变模型包。63 个训练截止日之后的完整财报事件中，47 个因为本地已经
+生成收益而被永久隔离；剩余 16 个事件仅用不含结果列的市场状态与入场前 Reaction 完成了
+预先打分，尚未计算任何留出样本指标或盈亏。只有 7/16 完全落在开发样本特征范围内，另有
+2 个严重外推，因此协变量重叠、外部验证和实盘闸门仍然关闭。详见
+[Conditional Drift Forward Candidate v1](docs/conditional_drift_forward_candidate_v1.md)。
+
+预注册时间留出检验现已完成，候选没有通过。对严格预先打分的 16 个事件，Alignment-only 的
+20 日 Spearman IC 为 **-0.106**，基线为 **-0.074**；增量 IC 为 **-0.032**，发行人聚类
+95% 区间为 **[-0.367, +0.212]**。候选 Top–Bottom 三分位差为 **-13.50 个百分点**，七项
+冻结闸门只通过一项。端点复核确认两个超过 50% 的尾部收益来自连续 20 个交易日、非 OTC、
+且没有拆股或分红的价格路径，并非简单端点错配。最终结论为
+`candidate_effectiveness_not_established`；这 16 个结果从现在起永久转为已观察证据，不会再
+被重复当作验证样本。详见
+[Conditional Drift Temporal Holdout Evaluation v1](docs/conditional_drift_holdout_evaluation_v1.md)。
 
 ### 研究设计
 
@@ -492,6 +673,11 @@ docs/                      # 协议、结果、校准与限制
 8. **未观察验证样本扩展。** 2022–2025 年的无收益选择登记表包含 2,503 个新候选事件。
    仅使用 SEC 数据可得到 87 家未观察发行人的 1,074 个完整事件；当前 Basic 行情窗口只
    保留 319 个，因此项目选择扩大冻结样本并寻找更长行情，而不是降低模型门槛。
+
+9. **管理层指引 expectation。** 在 35 个精确同季度收入指引事件上，既往管理层指引把
+   MAPE 从点时季节性基准的 13.73% 降至 2.81%。发行人聚类和留一发行人稳健性等预测 Gate
+   全部通过；独立收益样本已扩大到 23 个事件 / 8 家发行人。描述性 Spearman 为 -0.0069，
+   但负向 Innovation 只有 3 个，正式推断 Gate 仍未通过，因此不宣称 alpha。
 
 各阶段详细文件见 [docs/](docs/)。
 
