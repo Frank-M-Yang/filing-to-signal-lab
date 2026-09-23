@@ -1,0 +1,20 @@
+{
+  "version": "release-clock-evidence-v1",
+  "selection": "Two named unresolved cases already in the frozen 30-event audit. No sample replacement or return-based selection.",
+  "sources": [
+    {
+      "ticker": "MBUU",
+      "cik": "0001590976",
+      "release_accession": "0001590976-24-000099",
+      "url": "https://www.globenewswire.com/news-release/2024/10/31/2972468/0/en/malibu-boats-inc-announces-first-quarter-fiscal-2025-results.html",
+      "kind": "issuer_distributed_newswire_release"
+    },
+    {
+      "ticker": "USNA",
+      "cik": "0000896264",
+      "release_accession": "0000896264-25-000119",
+      "url": "https://www.businesswire.com/news/home/20250422312631/en/",
+      "kind": "issuer_distributed_newswire_release"
+    }
+  ]
+}

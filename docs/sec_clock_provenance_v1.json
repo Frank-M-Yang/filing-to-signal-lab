@@ -1,0 +1,25 @@
+{
+  "version": "sec-clock-provenance-v1",
+  "plan_root": "data/processed/sec_disclosure_audit/sec-disclosure-plan-v1-1eec2da69f3b8405",
+  "plan_manifest_sha256": "7c5b553f953bba99eab261173181cbc33f57db685df31a2570a8cbebc71e0cfb",
+  "followup_root": "data/processed/sec_disclosure_followup/sec-disclosure-followup-v1-2a4cc124c0c3c820",
+  "followup_manifest_sha256": "d8a042a64687b2c4109f5808424dc84b3c03097729610ab3860e3e6638bea645",
+  "submissions_zip": "data/sec/bulk/raw/submissions/b3/submissions-b35d0137f6b748b50154781a105bc549859d8d144269ffb5c419428d2ea2653e.zip",
+  "submissions_sha256": "b35d0137f6b748b50154781a105bc549859d8d144269ffb5c419428d2ea2653e",
+  "raw_root": "data/sec/clock_provenance",
+  "existing_index_root": "data/sec/validation_filing_evidence",
+  "existing_indexes": [
+    {
+      "manifest": "data/sec/validation_filing_evidence/snapshots/d44d489eafcd7ec1bf9bd4aa75eaaf45cd7c91c6c4c1bb22f93453b7640a8dbb/index-afeee78484c78114d2f83431d21f90539437ed8bec43439a7caba1993c4b5b50.json",
+      "sha256": "2f6bf130ab4b3df9c63a3960c6b34aa4558e575985b15d67fbb29bfc648e8afa"
+    },
+    {
+      "manifest": "data/sec/validation_filing_evidence/snapshots/d4671a3591ff67b5a8d869c8580e12c67546151f185165c13af90346d11dec29/index-a11bc8cfcd6a1a02af1a36b21f5787932c78a3f95652c765f00fc04057673dd7.json",
+      "sha256": "82f92b4407d95381d5c80cd94ac43a27e528db68a48f1cdbd0c6f06b007ac519"
+    }
+  ],
+  "boundary_padding_days": 1,
+  "apply_to_catalog": false,
+  "model_fitting_allowed": false,
+  "return_values_allowed": false
+}

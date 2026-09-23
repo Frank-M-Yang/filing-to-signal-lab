@@ -1,0 +1,20 @@
+{
+  "version": "release-clock-evidence-v1",
+  "selection": "Same two frozen events; a wire-distributed Nasdaq copy and an indexed language route. No proxy circumvention, credentials or sample replacement.",
+  "sources": [
+    {
+      "ticker": "USNA",
+      "cik": "0000896264",
+      "release_accession": "0000896264-25-000119",
+      "url": "https://www.nasdaq.com/press-release/usana-health-sciences-reports-first-quarter-2025-results-and-reiterates-full-year",
+      "kind": "issuer_distributed_newswire_copy"
+    },
+    {
+      "ticker": "MBUU",
+      "cik": "0001590976",
+      "release_accession": "0001590976-24-000099",
+      "url": "https://www.globenewswire.com/en/news-release/2024/10/31/2972468/0/en/malibu-boats-inc-announces-first-quarter-fiscal-2025-results.html",
+      "kind": "issuer_distributed_newswire_release"
+    }
+  ]
+}

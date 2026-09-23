@@ -1,0 +1,15 @@
+{
+  "version": "sec-clock-layer-v1",
+  "provenance_root": "data/processed/sec_clock_provenance/sec-clock-provenance-v1-592c2532bcafa921",
+  "provenance_manifest_sha256": "b829fa149553687ea79389e8a8deaafbcb6adf3ff8045646c329ec2f003447ff",
+  "provenance_plan_root": "data/processed/sec_clock_provenance/sec-clock-provenance-plan-v1-ababdc1792b980c8",
+  "provenance_plan_manifest_sha256": "4628469ef94d19dd9bd55741c51100b39ac9d7ec20eb4d75102ae6f1db45e3d3",
+  "calendar_root": "data/processed/validation_calendar_adapter/validation-calendar-adapter-v1-33b7a8924e6688fc",
+  "calendar_manifest_sha256": "9a6c75646c2c4b4af225816aaf5918e2ddc12cfea9b9e56212494a77ebe04906",
+  "holding_sessions": 20,
+  "numeric_absolute_tolerance": 1e-10,
+  "replay_fixed_specification": true,
+  "overwrite_originals": false,
+  "return_values_allowed": false,
+  "model_admission": false
+}

@@ -1,0 +1,42 @@
+{
+  "version": "event-admission-audit-v1",
+  "frozen_event_count": 316,
+  "market_config": "docs/publisher_market_rebuild_v1.json",
+  "market_config_sha256": "21e1df0e73f4b3a84df66ab540deb59dd55d14d8b6bb589e31caa78cef5a36bf",
+  "rebuild_root": "data/processed/publisher_market_rebuild/publisher-market-rebuild-v1-e4c35b28afd81283",
+  "rebuild_manifest_sha256": "02df62be6585a800b2ca08be145cba4ccd862c8642d130b9ef008b557fe5b67d",
+  "chronology_root": "data/processed/publication_chronology/publication-chronology-v1-5a9f8c8a1cabe103",
+  "chronology_manifest_sha256": "d5e6eef89fe6bfedff4ef301dc2f089bef6cdd03564e02021521928e3caa05a0",
+  "capture_root": "data/raw/release_clock/release-clock-snapshots-v1-4e72669751e85de5",
+  "capture_manifest_sha256": "36904ce99eb0abe856cdc84eeecf1dcc49252f4820f53f763c8a05688b9c4fc3",
+  "priority_events": [
+    "8d8b059473de27a381d17a57b4ee314460388362a9be1e731ddfe114560be71b",
+    "d68f49d6eef67e786866a50669ccfa24b8fb26f92573e0fa0abba31d553fe525",
+    "5071974e1fb5c7762c864dc7bd3c2fe7beb21f1b5a2814cca78af9193f4cfd05"
+  ],
+  "liquidity": {
+    "lookback_sessions": 20,
+    "minimum_print_coverage": 0.8,
+    "reference_position_notional_usd": 10000.0,
+    "maximum_median_dollar_volume_participation": 0.01
+  },
+  "market_clock_policy": "previous_New_York_date_sessions_only",
+  "network_allowed": false,
+  "forward_price_values_allowed": false,
+  "returns_allowed": false,
+  "model_admission": false,
+  "trading_admission": false,
+  "sample_reselection_allowed": false,
+  "unverified_discovery_leads": [
+    {
+      "ticker": "MBUU",
+      "release_accession": "0001590976-24-000099",
+      "url": "https://www.globenewswire.com/news-release/2024/10/31/2972468/0/en/malibu-boats-inc-announces-first-quarter-fiscal-2025-results.html",
+      "displayed_clock_literal": "October 31, 2024 07:00 ET",
+      "discovery_method": "web_page_inspection_only",
+      "raw_response_preserved": false,
+      "eligible_for_clock_upgrade": false,
+      "next_check": "Preserve exact response bytes, match quarter/revenue/gross-profit cells, then review timestamp semantics and historical availability."
+    }
+  ]
+}

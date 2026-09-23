@@ -1,0 +1,43 @@
+{
+  "version": "event-admission-audit-v1",
+  "frozen_event_count": 316,
+  "market_config": "docs/mbuu_publisher_market_rebuild_v1.json",
+  "market_config_sha256": "4cdcd85aaf7b0b09869c1cd1a29a94214a058b2970598bdd0924cced6618da58",
+  "rebuild_root": "data/processed/mbuu_publisher_market_rebuild/publisher-market-rebuild-v1-37bff80509794be4",
+  "rebuild_manifest_sha256": "38e1ede3267dbd0e6b11067e41b44fb03cb542e075e8c1e660217cd9298fc0e1",
+  "chronology_root": "data/processed/mbuu_publication_chronology/publication-chronology-v1-eb079b09ad8ce674",
+  "chronology_manifest_sha256": "aaccc98926771730ed947751f48f2df1a8bbc469d85444a2e17f0bdaebd5859d",
+  "capture_root": "data/raw/release_clock/release-clock-snapshots-v1-8ecd7fd6bbd0e970",
+  "capture_manifest_sha256": "b2e197b9997b3a8a3c3a34e737ac0bdd3c1ba0c05affdb4c502056a28d07af32",
+  "priority_events": [
+    "5071974e1fb5c7762c864dc7bd3c2fe7beb21f1b5a2814cca78af9193f4cfd05",
+    "d68f49d6eef67e786866a50669ccfa24b8fb26f92573e0fa0abba31d553fe525",
+    "8d8b059473de27a381d17a57b4ee314460388362a9be1e731ddfe114560be71b"
+  ],
+  "liquidity": {
+    "lookback_sessions": 20,
+    "minimum_print_coverage": 0.8,
+    "reference_position_notional_usd": 10000,
+    "maximum_median_dollar_volume_participation": 0.01
+  },
+  "market_clock_policy": "previous_New_York_date_sessions_only",
+  "network_allowed": false,
+  "forward_price_values_allowed": false,
+  "returns_allowed": false,
+  "model_admission": false,
+  "trading_admission": false,
+  "sample_reselection_allowed": false,
+  "unverified_discovery_leads": [
+    {
+      "ticker": "MBUU",
+      "release_accession": "0001590976-24-000099",
+      "url": "https://www.globenewswire.com/news-release/2024/10/31/2972468/0/en/malibu-boats-inc-announces-first-quarter-fiscal-2025-results.html",
+      "displayed_clock_literal": "October 31, 2024 07:00 ET",
+      "discovery_method": "web_page_inspection_only",
+      "raw_response_preserved": false,
+      "eligible_for_clock_upgrade": false,
+      "next_check": "Preserve exact response bytes, match quarter/revenue/gross-profit cells, then review timestamp semantics and historical availability."
+    }
+  ],
+  "scope": "Independent MBUU publisher-label sensitivity. Verified Nasdaq copy does not certify earliest dissemination or promote the unresolved direct-wire lead. Do not splice this history into the USNA/UFPT joint replay."
+}

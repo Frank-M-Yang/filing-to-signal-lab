@@ -1,0 +1,17 @@
+{
+  "version": "sec-disclosure-audit-v1",
+  "sample_size": 30,
+  "selection_salt": "sec-disclosure-audit-v1-20260920",
+  "market_root": "data/processed/validation_market_state/validation-market-state-v1-3dd23180dad33629",
+  "market_manifest_sha256": "130bd1922986edfcadc3e33d06f9c4346b45ded8968dd6cedf0ebce69f979765",
+  "feature_root": "data/processed/validation_expansion_features/validation-expansion-features-v1.1-asof-applicability-73e06c6a4caa8c9f",
+  "feature_manifest_sha256": "4ff731059fb21d6c406d9fdee25c48008bbed8a6357e2080a21cc8230cc17b23",
+  "catalog_root": "data/processed/sec_universe/sec-filing-catalog-v2-e863ecb81e963c7d",
+  "catalog_manifest_sha256": "36524f4f3edfecffd6dda08d8449f45c613c8987e0a20d61fe7b80c332fc8a18",
+  "companyfacts_zip": "data/sec/bulk/raw/companyfacts/dc/companyfacts-dcebecc7f2d58f71566336ac6cf19d0e1daea1792f3555426b760f6ffcef0590.zip",
+  "companyfacts_sha256": "dcebecc7f2d58f71566336ac6cf19d0e1daea1792f3555426b760f6ffcef0590",
+  "cached_submission_roots": ["data/sec/guidance_evidence", "data/sec/disclosure_audit"],
+  "sample_replacement_allowed": false,
+  "return_values_allowed": false,
+  "model_fitting_allowed": false
+}

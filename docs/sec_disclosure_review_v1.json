@@ -1,0 +1,55 @@
+{
+  "version": "sec-disclosure-manual-review-v1",
+  "purpose": "Review the first three cached releases in frozen sample order; no outcomes consulted. These are availability upper bounds, not verified first-public times.",
+  "reviews": [
+    {
+      "cik": "0000737758",
+      "period_end": "2025-01-31",
+      "release_accession": "0000737758-25-000030",
+      "submission_sha256": "35814e2efc12b4cf82e6da059bcb7e21d4d1a160a46ffe1c477028e29855721f",
+      "exhibit_filename": "ttc03062025exhibit991.htm",
+      "exhibit_sha256": "ea46be2059052db7db140c4d97ae72c7f6821658eb135a7e6207ba217f9b7e80",
+      "period_anchor": "Three Months Ended January 31, 2025 February 2, 2024",
+      "unit_anchor": "(Dollars and shares in millions, except per-share data)",
+      "accounting_basis": "GAAP",
+      "scale": 1000000,
+      "cells": [
+        {"metric": "revenue", "display_value": "995.0", "text_anchor": "Net sales $ 995.0 $ 1,001.9"},
+        {"metric": "gross_profit", "display_value": "335.6", "text_anchor": "Gross profit 335.6 344.5"},
+        {"metric": "operating_cash_flow", "display_value": "(48.6)", "text_anchor": "Net cash used in operating activities (48.6) (92.2)"}
+      ]
+    },
+    {
+      "cik": "0000896264",
+      "period_end": "2025-03-29",
+      "release_accession": "0000896264-25-000119",
+      "submission_sha256": "059935ba9fd34661f627ee3910371c6a0480159f6f18a0c21504985cbe2a2108",
+      "exhibit_filename": "q12025earningsreleaseex991.htm",
+      "exhibit_sha256": "49cac6d74d4f0e3768b62d6c24db848f510ba2d497d04ce3e2d0c6a118daa4be",
+      "period_anchor": "Quarter Ended March 29, 2025 March 30, 2024",
+      "unit_anchor": "(in thousands, except per share data)",
+      "accounting_basis": "GAAP",
+      "scale": 1000,
+      "cells": [
+        {"metric": "revenue", "display_value": "249,539", "text_anchor": "Net sales $ 249,539 $ 227,800"},
+        {"metric": "gross_profit", "display_value": "197,094", "text_anchor": "Gross profit 197,094 184,731"}
+      ]
+    },
+    {
+      "cik": "0001590976",
+      "period_end": "2024-09-30",
+      "release_accession": "0001590976-24-000099",
+      "submission_sha256": "007ad91897bb09ea542ce114eb55b308160c721cfddf7d2d66df48819dd136fb",
+      "exhibit_filename": "exhibit991-q12025earningre.htm",
+      "exhibit_sha256": "6fbf597c2a6d71a6150f789a4199050f8c63488854225455976bb95dff0f9ff0",
+      "period_anchor": "Three Months Ended September 30, 2024 2023",
+      "unit_anchor": "(Dollars In Thousands)",
+      "accounting_basis": "GAAP",
+      "scale": 1000,
+      "cells": [
+        {"metric": "revenue", "display_value": "171,580", "text_anchor": "Net Sales $ 171,580 $ 255,830"},
+        {"metric": "gross_profit", "display_value": "28,209", "text_anchor": "Gross Profit $ 28,209 $ 56,794"}
+      ]
+    }
+  ]
+}

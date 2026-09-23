@@ -1,0 +1,167 @@
+{
+  "version": "sec-disclosure-followup-v1",
+  "selection": "All twelve submissions collected in the preceding download batch, kept in frozen sample order. No return values consulted; no replacement. Earlier three table reviews are rechecked under corrected clock semantics.",
+  "plan_root": "data/processed/sec_disclosure_audit/sec-disclosure-plan-v1-1eec2da69f3b8405",
+  "plan_manifest_sha256": "7c5b553f953bba99eab261173181cbc33f57db685df31a2570a8cbebc71e0cfb",
+  "audit_root": "data/processed/sec_disclosure_audit/sec-disclosure-audit-v1-65b7f0b7641e158d",
+  "audit_manifest_sha256": "83f8a8fdf471cd032b9a377bea1109d92ccf7a9defec1a4d8cbdd345fabe3c11",
+  "prior_review_path": "docs/sec_disclosure_review_v1.json",
+  "prior_review_sha256": "c749caeb3b9605eadfd7e309c4e02f90614ca582335f973a926cdf7a7ca16780",
+  "documents": [
+    {
+      "cik": "0001170010", "period_end": "2025-08-31", "release_accession": "0001170010-25-000115",
+      "submission_sha256": "a98f2e63a3232bc25be065da67bfd07b6c93f72dde10f21f4a07bbb2c96910e2",
+      "exhibit_filename": "q2fy26earningsrelease.htm", "exhibit_sha256": "be1705157c18ce0bc189befd02ad05be4d1a83a1d0422368883aa18ca95f9373",
+      "kind": "earnings_release", "anchors": ["CARMAX REPORTS SECOND QUARTER FISCAL YEAR 2026 RESULTS", "second quarter ended August 31, 2025"],
+      "notes": "Use current-year three-month GAAP column, not six-month column or gross profit per vehicle. Original revenue tag ambiguity remains unresolved; CFO table is six months."
+    },
+    {
+      "cik": "0001045810", "period_end": "2024-07-28", "release_accession": "0001045810-24-000262",
+      "submission_sha256": "db42b5781e17180f62c26797d07dd312a8d9ee0ed8c957ca678deb0b4b9d87a1",
+      "exhibit_filename": "q2fy25pr.htm", "exhibit_sha256": "a05b809ca53531eb5ad61435e66a0d1b1f16296fde37725e649453929a9849ea",
+      "kind": "earnings_release", "anchors": ["NVIDIA Announces Financial Results for Second Quarter Fiscal 2025", "second quarter ended July 28, 2024"],
+      "notes": "GAAP income statement and GAAP cash-flow statement, first three-month column. Direct quarter CFO 14,489 million differs from the existing cross-filing YTD candidate 14,488 million. Rounding or revision explanation is unproven."
+    },
+    {
+      "cik": "0001552275", "period_end": "2025-06-30", "release_accession": "0001552275-25-000055",
+      "submission_sha256": "c321702ab0f8fe31be0452efffcd5e0c5f3869381a9643d4995a74fd98427330",
+      "exhibit_filename": "ex991-sundistributionannou.htm", "exhibit_sha256": "4f2252d6206d2a745229c0f80c1e221e1400e1385ea4c0e75ecd2c717dea3d5b",
+      "kind": "distribution", "anchors": ["Sunoco LP Announces a 1.25% Increase in Quarterly Distribution"],
+      "notes": "Quarterly distribution is not quarterly earnings or GAAP operating cash flow. Keep document in inventory; do not use its earlier clock for earnings actuals."
+    },
+    {
+      "cik": "0001552275", "period_end": "2025-06-30", "release_accession": "0001552275-25-000059",
+      "submission_sha256": "2ee894e37b68277523d38f2d6f53b91cb505508a17a4b3f6eea8532bb8dbc84b",
+      "exhibit_filename": "ex991sunerq22025.htm", "exhibit_sha256": "a7a8344135f4f784b8078f47113ab8c32ad415a4ce5ab1a1546b4b80eb1e9a83",
+      "kind": "earnings_release", "anchors": ["Sunoco LP Reports Second Quarter 2025 Financial and Operating Results"],
+      "notes": "GAAP operations table only. Distributable Cash Flow and adjusted EBITDA are not GAAP operating cash flow; no substitution."
+    },
+    {
+      "cik": "0001163302", "period_end": "2025-03-31", "release_accession": "0001104659-25-032901",
+      "submission_sha256": "5afb4e9bfa7b62b930b34dd52ce4df2578f4ca07c1b2ffaee40c6a0c734e65ff",
+      "exhibit_filename": "tm2511787d1_ex99-1.htm", "exhibit_sha256": "9b0e30ac43e01a44c0141e0be5a4ee5dc83fbd44101799d1efc6b4c22d608292",
+      "kind": "acquisition", "anchors": ["Review of Proposed United States Steel Corporation Acquisition"],
+      "notes": "Acquisition-review memorandum, not a quarterly earnings release. Raw header/catalog clock conflict also requires quarantine."
+    },
+    {
+      "cik": "0001163302", "period_end": "2025-03-31", "release_accession": "0001163302-25-000028",
+      "submission_sha256": "9ced1ae5e96e7c0776d569c8a65dccfc9bda34076f7d7e3604b45afbf841933a",
+      "exhibit_filename": "ex99p1er250501.htm", "exhibit_sha256": "3ae910108d39570634fb803321dd1e0501c4f6044d5afe1a6ab191abde71198f",
+      "kind": "earnings_release", "anchors": ["United States Steel Corporation Reports First Quarter 2025 Results"],
+      "notes": "GAAP quarter net loss and CFO match original facts; parent and consolidated income numerically agree with zero NCI in this quarter. Clock conflict prevents clock admission. Revenue ambiguity remains unresolved."
+    },
+    {
+      "cik": "0000931148", "period_end": "2025-03-31", "release_accession": "0000931148-25-000069",
+      "submission_sha256": "124b90cdb332c160c0345cb08d56a5ef8fe1a0e7ecfb777fa4b755b83fbb7772",
+      "exhibit_filename": "exhibit991pressrelease-nys.htm", "exhibit_sha256": "9e01db18d647701ee8a665cbda3534886220404ad597945f84b2d6793b630553",
+      "kind": "listing", "anchors": ["GrafTech Receives Continued Listing Standards Notice from NYSE"],
+      "notes": "Listing compliance notice, not earnings. Do not treat notice as immediate delisting or use its date as actual availability."
+    },
+    {
+      "cik": "0000712515", "period_end": "2024-12-31", "release_accession": "0000712515-25-000007",
+      "submission_sha256": "f104ce96b4620b946ce20a9c85920c902777d9bfb5fccbfbf33e3b82cf1d44ad",
+      "exhibit_filename": "exhibit991pressrelease2025.htm", "exhibit_sha256": "91a36375ff09bf66ed5023473f6660830abeb82efc36e50ec82121e68da52438",
+      "kind": "preliminary_results",
+      "anchors": ["Electronic Arts Pre-Announces Preliminary Q3 FY25 Results", "GAAP net revenue to be approximately $1.883 billion", "the preliminary results set forth in this release are estimates"],
+      "notes": "Material earlier information exists before the February results release. Approximate preliminary revenue is not promoted to final actual even though its rounded number agrees; bookings are not revenue. Conference-call time is not publication time."
+    },
+    {
+      "cik": "0000914156", "period_end": "2025-09-30", "release_accession": "0001628280-25-048260",
+      "submission_sha256": "6ad96b256f8852ec44b9638e2aecaf68d072e25b458e6e285f03af09bed1bb23",
+      "exhibit_filename": "ufpt-20251104x8kxexx991.htm", "exhibit_sha256": "d6b9057086618faddafff54944892dd812c94d5281133746b48dc25596c283df",
+      "kind": "earnings_release", "anchors": ["UFP Technologies Announces Strong Q3 2025 Results", "third quarter ended September 30, 2025"],
+      "notes": "Current-year three-month GAAP table, not adjusted EPS or nine-month results. Filename date differs from release date; do not infer publication from filename or conference call."
+    },
+    {
+      "cik": "0000794619", "period_end": "2025-10-31", "release_accession": "0000794619-25-000113",
+      "submission_sha256": "76ecfaf3f8d13f4c43088a48b980735b937048b3573ab78dd04097c1c4b2f044",
+      "exhibit_filename": "ex991202510318k.htm", "exhibit_sha256": "dc307292e3ffdb406e742bf116d1375ab11ed86594bb4283ae5cb92ae850c70a",
+      "kind": "earnings_release", "anchors": ["AMERICAN WOODMARK CORPORATION ANNOUNCES SECOND QUARTER RESULTS"],
+      "notes": "Current-year three-month GAAP table. Cash flow headline is rounded quarter data, detailed cash-flow statement six months; neither is silently used as exact quarterly original CFO."
+    },
+    {
+      "cik": "0001466258", "period_end": "2025-09-30", "release_accession": "0001628280-25-047261",
+      "submission_sha256": "c0b9d04c0c4d6bf8b075eac1827c49d10f6165a584812a20a93c40fab2e4624e",
+      "exhibit_filename": "exhibit991-q32025earningsr.htm", "exhibit_sha256": "cc7cb91954d8f9f4be11cc2bbc85e3c260272c862cc7a371c7fd6c607c904317",
+      "kind": "earnings_release", "anchors": ["Trane Technologies Reports Strong Third Quarter Results"],
+      "notes": "Table 1: consolidated net earnings 850.8 million versus parent-attributable 847.6 million. Headline cash flow is continuing operations YTD, not total single-quarter CFO. Do not combine scopes."
+    },
+    {
+      "cik": "0000063908", "period_end": "2025-09-30", "release_accession": "0000063908-25-000057",
+      "submission_sha256": "4ae42bb4d779e50afce18769ee2a223563f2164f387e67ac2200c53bc0287ef4",
+      "exhibit_filename": "exhibit991-9302025.htm", "exhibit_sha256": "b69fee9ab4f37ccf9a5089b4e7491037601e8b16f9b75cbeba0fc55ef7be35b7",
+      "kind": "earnings_release", "anchors": ["McDONALD'S REPORTS THIRD QUARTER 2025 RESULTS"],
+      "notes": "Use GAAP total revenue and net income for quarter, not systemwide sales, comparable-sales growth or nine-month column. Rounded components need not sum to rounded totals."
+    }
+  ],
+  "metric_reviews": [
+    {
+      "release_accession": "0001170010-25-000115", "accounting_basis": "GAAP", "scale": 1000,
+      "period_anchor": "Three Months Ended August 31 Six Months Ended August 31 (In thousands except per share data) 2025", "unit_anchor": "(In thousands except per share data)",
+      "cells": [
+        {"metric": "gross_profit", "display_value": "717,666", "text_anchor": "GROSS PROFIT 717,666 10.9 760,467 10.8"},
+        {"metric": "net_income", "display_value": "95,378", "text_anchor": "NET EARNINGS $ 95,378 1.4 $ 132,809 1.9"}
+      ]
+    },
+    {
+      "release_accession": "0001045810-24-000262", "accounting_basis": "GAAP", "scale": 1000000,
+      "period_anchor": "Three Months Ended Six Months Ended July 28, July 30, July 28, July 30, 2024 2023 2024 2023", "unit_anchor": "(In millions, except per share data)",
+      "cells": [
+        {"metric": "revenue", "display_value": "30,040", "text_anchor": "Revenue $ 30,040 $ 13,507 $ 56,084 $ 20,699"},
+        {"metric": "gross_profit", "display_value": "22,574", "text_anchor": "Gross profit 22,574 9,462 42,979 14,110"},
+        {"metric": "net_income", "display_value": "16,599", "text_anchor": "Net income $ 16,599 $ 6,188 $ 31,480 $ 8,232"},
+        {"metric": "operating_cash_flow", "display_value": "14,489", "text_anchor": "Net cash provided by operating activities 14,489 6,348 29,833 9,259", "scope_note": "Direct consolidated quarter cash flow in release; original companyfacts has only YTD. The cross-filing difference disagrees by USD 1 million. No rounding correction or admission."}
+      ]
+    },
+    {
+      "release_accession": "0001552275-25-000059", "accounting_basis": "GAAP", "scale": 1000000,
+      "period_anchor": "Three Months Ended June 30, Six Months Ended June 30, 2025 2024 2025 2024", "unit_anchor": "(Dollars in millions, except per unit data)",
+      "cells": [
+        {"metric": "revenue", "display_value": "5,390", "text_anchor": "REVENUES $ 5,390 $ 6,174 $ 10,569 $ 11,673"},
+        {"metric": "net_income", "display_value": "86", "text_anchor": "NET INCOME $ 86 $ 501 $ 293 $ 731"}
+      ]
+    },
+    {
+      "release_accession": "0001163302-25-000028", "accounting_basis": "GAAP", "scale": 1000000,
+      "period_anchor": "Three Months Ended March 31, (Dollars in millions, except per share amounts) 2025 2024", "unit_anchor": "(Dollars in millions, except per share amounts)",
+      "cells": [
+        {"metric": "net_income", "display_value": "(116)", "text_anchor": "Net (loss) earnings attributable to United States Steel Corporation $ (116) $ 171", "scope_note": "Parent value; consolidated amount happens to agree in this quarter because NCI earnings are zero."},
+        {"metric": "operating_cash_flow", "display_value": "(374)", "text_anchor": "Net cash used in operating activities (374) (28)", "scope_note": "GAAP consolidated three-month operating cash flow, not free cash flow."}
+      ]
+    },
+    {
+      "release_accession": "0001628280-25-048260", "accounting_basis": "GAAP", "scale": 1000,
+      "period_anchor": "Three Months Ended Nine Months Ended September 30, September 30, 2025 2024 2025 2024", "unit_anchor": "(in thousands, except per share data)",
+      "cells": [
+        {"metric": "revenue", "display_value": "154,558", "text_anchor": "Net sales $ 154,558 $ 145,165 $ 453,882 $ 360,351"},
+        {"metric": "gross_profit", "display_value": "42,747", "text_anchor": "Gross profit 42,747 41,523 128,442 104,637"},
+        {"metric": "net_income", "display_value": "16,383", "text_anchor": "Net income $ 16,383 $ 16,361 $ 50,747 $ 42,606"}
+      ]
+    },
+    {
+      "release_accession": "0000794619-25-000113", "accounting_basis": "GAAP", "scale": 1000,
+      "period_anchor": "Operating Results Three Months Ended Six Months Ended October 31, October 31, 2025 2024 2025 2024", "unit_anchor": "(in thousands, except share data)",
+      "cells": [
+        {"metric": "revenue", "display_value": "394,637", "text_anchor": "Net sales $ 394,637 $ 452,482 $ 797,683 $ 911,610"},
+        {"metric": "gross_profit", "display_value": "59,903", "text_anchor": "Gross profit 59,903 85,711 127,393 178,577"},
+        {"metric": "net_income", "display_value": "6,097", "text_anchor": "Net income $ 6,097 $ 27,686 $ 20,692 $ 57,319"}
+      ]
+    },
+    {
+      "release_accession": "0001628280-25-047261", "accounting_basis": "GAAP", "scale": 1000000,
+      "period_anchor": "For the quarter For the nine months ended September 30, ended September 30, 2025 2024 2025 2024", "unit_anchor": "(In millions, except per share amounts)",
+      "cells": [
+        {"metric": "revenue", "display_value": "5,742.5", "text_anchor": "Net revenues $ 5,742.5 $ 5,441.2 $ 16,177.4 $ 14,964.2"},
+        {"metric": "net_income", "display_value": "847.6", "text_anchor": "Net earnings attributable to Trane Technologies plc $ 847.6 $ 772.0 $ 2,327.3 $ 1,963.6", "scope_note": "Parent-attributable net income; consolidated income is USD 850.8 million. Continuing operations and total operations also differ. Not compatible by assumption with consolidated CFO."}
+      ]
+    },
+    {
+      "release_accession": "0000063908-25-000057", "accounting_basis": "GAAP", "scale": 1000000,
+      "period_anchor": "Quarters Ended September 30, 2025 2024", "unit_anchor": "Dollars and shares in millions, except per share data",
+      "cells": [
+        {"metric": "revenue", "display_value": "7,078", "text_anchor": "TOTAL REVENUES 7,078 6,873 204 3"},
+        {"metric": "net_income", "display_value": "2,278", "text_anchor": "NET INCOME $ 2,278 $ 2,255 $ 23 1 %"}
+      ]
+    }
+  ]
+}

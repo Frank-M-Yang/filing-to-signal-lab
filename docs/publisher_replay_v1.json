@@ -1,0 +1,14 @@
+{
+  "version": "publisher-replay-v1",
+  "chronology_root": "data/processed/publication_chronology/publication-chronology-v1-5a9f8c8a1cabe103",
+  "chronology_manifest_sha256": "d5e6eef89fe6bfedff4ef301dc2f089bef6cdd03564e02021521928e3caa05a0",
+  "chronology_plan_root": "data/processed/publication_chronology/publication-chronology-plan-v1-b50c82efa9433ecd",
+  "chronology_plan_manifest_sha256": "d9f32b193c8e155bfcfe0bb137d5cdf97d80c69d60e522069cfe3e9fdfe6a29f",
+  "clock_plan_root": "data/processed/sec_clock_layer/sec-clock-layer-plan-v1-928a5cfafbd30887",
+  "clock_plan_manifest_sha256": "99c2d9590a791ff605724cf01bbde11d3a2db57315f655ffea24375ae4953a9c",
+  "source_id": "ufpt_wirecopy",
+  "return_values_allowed": false,
+  "model_admission": false,
+  "overwrite_originals": false,
+  "numeric_absolute_tolerance": 1e-10
+}

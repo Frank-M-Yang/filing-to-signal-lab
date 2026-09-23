@@ -1,0 +1,21 @@
+{
+  "version": "release-clock-evidence-v1",
+  "selection": "Alternative primary sources for the same three frozen risk cases; issuer pages complement failed wire downloads. No outcome-based replacement.",
+  "sources": [
+    {
+      "ticker": "USNA", "cik": "0000896264", "release_accession": "0000896264-25-000119",
+      "url": "https://www.businesswire.com/news/home/20250422312631/en/",
+      "kind": "issuer_distributed_newswire_release"
+    },
+    {
+      "ticker": "MBUU", "cik": "0001590976", "release_accession": "0001590976-24-000099",
+      "url": "https://malibuboatsinc.com/investor-information/earnings-news/news-details/2024/Malibu-Boats-Inc.-Announces-First-Quarter-Fiscal-2025-Results/default.aspx",
+      "kind": "issuer_ir_release"
+    },
+    {
+      "ticker": "UFPT", "cik": "0000914156", "release_accession": "0001628280-25-048260",
+      "url": "https://ufpt.com/news/ufp-technologies-announces-strong-q3-2025-results/",
+      "kind": "issuer_ir_release"
+    }
+  ]
+}

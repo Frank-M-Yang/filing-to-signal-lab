@@ -1,0 +1,31 @@
+{
+  "version": "joint-publisher-replay-v1",
+  "base_replay_config": "docs/usna_publisher_replay_v1.json",
+  "base_replay_config_sha256": "7d8eabfcaf1e6a9ce6b6cd8206e59f34b32b706b901317037ca0b753fd314782",
+  "frozen_event_count": 316,
+  "numeric_absolute_tolerance": 1e-10,
+  "endpoint_policy": "all_four_corners_two_publisher_minutes",
+  "network_allowed": false,
+  "forward_price_values_allowed": false,
+  "returns_allowed": false,
+  "model_admission": false,
+  "trading_admission": false,
+  "overwrite_originals": false,
+  "sample_reselection_allowed": false,
+  "cases": [
+    {
+      "source_id": "usna_wirecopy",
+      "admission_config": "docs/usna_event_admission_v1.json",
+      "admission_config_sha256": "6f5b8f4e280a5a7a66103a90004a4669511fa69b0db4d21517887a9cb86f66af",
+      "admission_root": "data/processed/usna_event_admission/event-admission-audit-v1-98b27cfe1f6a152e",
+      "admission_manifest_sha256": "76e71ceaaf03674ba72de4f7ea1211637465a7fd4553f73828f5c15fa114a86f"
+    },
+    {
+      "source_id": "ufpt_wirecopy",
+      "admission_config": "docs/event_admission_audit_v1.json",
+      "admission_config_sha256": "3fa4f1c32541f20c21512cb2f630035b818f2102aacdc3a25fba29295f745ac1",
+      "admission_root": "data/processed/event_admission/event-admission-audit-v1-c9e7e16f4dff2ba8",
+      "admission_manifest_sha256": "0a0df8c7434decd09304f665fcd8272c263d0a69f720edbacf4a5b7e18d5b39b"
+    }
+  ]
+}

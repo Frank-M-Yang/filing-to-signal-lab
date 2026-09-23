@@ -1,0 +1,21 @@
+{
+  "version": "release-clock-evidence-v1",
+  "selection": "Three pre-existing timing-risk cases in the fixed thirty-event review; not selected using returns. Other events remain in the review queue.",
+  "sources": [
+    {
+      "ticker": "USNA", "cik": "0000896264", "release_accession": "0000896264-25-000119",
+      "url": "https://ir.usana.com/news-events/press-releases/detail/781/usana-health-sciences-reports-first-quarter-2025-results",
+      "kind": "issuer_ir_release"
+    },
+    {
+      "ticker": "MBUU", "cik": "0001590976", "release_accession": "0001590976-24-000099",
+      "url": "https://www.globenewswire.com/en/news-release/2024/10/31/2972468/0/en/malibu-boats-inc-announces-first-quarter-fiscal-2025-results.html",
+      "kind": "issuer_distributed_newswire_release"
+    },
+    {
+      "ticker": "UFPT", "cik": "0000914156", "release_accession": "0001628280-25-048260",
+      "url": "https://www.globenewswire.com/news-release/2025/11/03/3179823/0/en/UFP-Technologies-Announces-Strong-Q3-2025-Results.html",
+      "kind": "issuer_distributed_newswire_release"
+    }
+  ]
+}

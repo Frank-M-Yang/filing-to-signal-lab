@@ -1,0 +1,16 @@
+{
+  "version": "publisher-replay-v1",
+  "chronology_root": "data/processed/mbuu_publication_chronology/publication-chronology-v1-eb079b09ad8ce674",
+  "chronology_manifest_sha256": "aaccc98926771730ed947751f48f2df1a8bbc469d85444a2e17f0bdaebd5859d",
+  "chronology_plan_root": "data/processed/mbuu_publication_chronology/publication-chronology-plan-v1-4791df67d6da01d0",
+  "chronology_plan_manifest_sha256": "4d29d362213ae3e67af2848e0a31552e492ba9d42ab2c62c0d60fdec60fc3855",
+  "clock_plan_root": "data/processed/sec_clock_layer/sec-clock-layer-plan-v1-928a5cfafbd30887",
+  "clock_plan_manifest_sha256": "99c2d9590a791ff605724cf01bbde11d3a2db57315f655ffea24375ae4953a9c",
+  "source_id": "mbuu_wirecopy",
+  "return_values_allowed": false,
+  "model_admission": false,
+  "overwrite_originals": false,
+  "numeric_absolute_tolerance": 1e-10,
+  "write_readout": false,
+  "market_review_policy": "selected_target"
+}

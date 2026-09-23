@@ -1,0 +1,9 @@
+{
+  "version": "release-clock-evidence-v1",
+  "selection": "One full-text press release explicitly linked from the saved UFPT issuer page; the issuer page has only rounded headline numbers.",
+  "sources": [{
+    "ticker": "UFPT", "cik": "0000914156", "release_accession": "0001628280-25-048260",
+    "url": "https://www.nasdaq.com/press-release/ufp-technologies-announces-strong-q3-2025-results-2025-11-03",
+    "kind": "issuer_linked_newswire_copy"
+  }]
+}

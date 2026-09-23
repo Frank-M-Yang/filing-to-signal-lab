@@ -1,0 +1,27 @@
+{
+  "version": "sec-execution-migration-v1",
+  "execution_root": "data/processed/validation_execution_plan/validation-execution-plan-v1-outcome-blind-eaacbcfc18875f76",
+  "execution_manifest_sha256": "653ebd1d9d9f8db839a9b6ab621a6cb4a2805b620cce817ff218cf967822f554",
+  "clock_root": "data/processed/sec_clock_layer/sec-clock-layer-v1-fceec0176d64c32a",
+  "clock_manifest_sha256": "374dc6f9964ee8f4e497527f5510d18bf2998dc6fb5e288038b7b1da0672de6d",
+  "followup_root": "data/processed/sec_disclosure_followup/sec-disclosure-followup-v1-2a4cc124c0c3c820",
+  "followup_manifest_sha256": "d8a042a64687b2c4109f5808424dc84b3c03097729610ab3860e3e6638bea645",
+  "release_snapshots_root": "data/raw/release_clock/release-clock-snapshots-v1-f288852c48ae5605",
+  "release_snapshots_manifest_sha256": "efd10c38c7da36a8ad8347a7388c998f2bc64ef682c8e57f8050284fca4cad51",
+  "release_sources_config": "docs/release_clock_sources_v1.json",
+  "release_sources_config_sha256": "a912aa33c321ca94f81bafc1548b56986f5205f9d816a901a1057706c7618b9f",
+  "publisher_reviews": [{
+    "ticker": "USNA", "cik": "0000896264", "release_accession": "0000896264-25-000119",
+    "period_start": "2024-12-29", "period_end": "2025-03-29",
+    "snapshot_sha256": "64418a85fe30b3c95123b8bc28f4e3514af9d828ef17a1bf5b53876688978090",
+    "context_anchors": ["USANA Health Sciences", "March 29, 2025 March 30, 2024", "in thousands"],
+    "time_literal": "2025-04-22 16:05:00",
+    "cells": [
+      {"metric": "revenue", "value_usd": 249539000, "anchor": "Net sales $ 249,539 $ 227,800"},
+      {"metric": "gross_profit", "value_usd": 197094000, "anchor": "Gross profit 197,094 184,731"}
+    ]
+  }],
+  "overwrite_originals": false,
+  "return_values_allowed": false,
+  "model_admission": false
+}

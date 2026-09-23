@@ -1,0 +1,43 @@
+{
+  "version": "event-admission-audit-v1",
+  "frozen_event_count": 316,
+  "market_config": "docs/usna_publisher_market_rebuild_v1.json",
+  "market_config_sha256": "3d13eb4453b830c429d00c3b7e8d420f65bbdc88fd4743cf22f82fa302965743",
+  "rebuild_root": "data/processed/usna_publisher_market_rebuild/publisher-market-rebuild-v1-6a50c6aeb815d71c",
+  "rebuild_manifest_sha256": "9b83cff7803a9f098208ad1f6382838cb6eda78804052792b9ed78266f1ab4dd",
+  "chronology_root": "data/processed/publication_chronology/publication-chronology-v1-7dfa3c511ae850c4",
+  "chronology_manifest_sha256": "998547d6b64c55d0216db5900ae78d30c748e30232f5b436748918f96a095316",
+  "capture_root": "data/raw/release_clock/release-clock-snapshots-v1-879b570c57bb4b91",
+  "capture_manifest_sha256": "2e029c8e046fbeaf84699f9a06be8a7527f6138265cad47bd7cdd60dcf6f600e",
+  "priority_events": [
+    "d68f49d6eef67e786866a50669ccfa24b8fb26f92573e0fa0abba31d553fe525",
+    "8d8b059473de27a381d17a57b4ee314460388362a9be1e731ddfe114560be71b",
+    "5071974e1fb5c7762c864dc7bd3c2fe7beb21f1b5a2814cca78af9193f4cfd05"
+  ],
+  "liquidity": {
+    "lookback_sessions": 20,
+    "minimum_print_coverage": 0.8,
+    "reference_position_notional_usd": 10000,
+    "maximum_median_dollar_volume_participation": 0.01
+  },
+  "market_clock_policy": "previous_New_York_date_sessions_only",
+  "network_allowed": false,
+  "forward_price_values_allowed": false,
+  "returns_allowed": false,
+  "model_admission": false,
+  "trading_admission": false,
+  "sample_reselection_allowed": false,
+  "unverified_discovery_leads": [
+    {
+      "ticker": "MBUU",
+      "release_accession": "0001590976-24-000099",
+      "url": "https://www.globenewswire.com/news-release/2024/10/31/2972468/0/en/malibu-boats-inc-announces-first-quarter-fiscal-2025-results.html",
+      "displayed_clock_literal": "October 31, 2024 07:00 ET",
+      "discovery_method": "web_page_inspection_only",
+      "raw_response_preserved": false,
+      "eligible_for_clock_upgrade": false,
+      "next_check": "Preserve exact response bytes, match quarter/revenue/gross-profit cells, then review timestamp semantics and historical availability."
+    }
+  ],
+  "scope": "Independent USNA publisher-label sensitivity; not a joint USNA/UFPT history and not a replacement for the earlier UFPT audit."
+}

@@ -1,0 +1,15 @@
+{
+  "version": "publisher-replay-v1",
+  "chronology_root": "data/processed/publication_chronology/publication-chronology-v1-7dfa3c511ae850c4",
+  "chronology_manifest_sha256": "998547d6b64c55d0216db5900ae78d30c748e30232f5b436748918f96a095316",
+  "chronology_plan_root": "data/processed/publication_chronology/publication-chronology-plan-v1-533deded7d7e6058",
+  "chronology_plan_manifest_sha256": "5acaa25074fd24a59c43a583943eb7c8b5b9d6c0ec0a4b7f8b79ade058978949",
+  "clock_plan_root": "data/processed/sec_clock_layer/sec-clock-layer-plan-v1-928a5cfafbd30887",
+  "clock_plan_manifest_sha256": "99c2d9590a791ff605724cf01bbde11d3a2db57315f655ffea24375ae4953a9c",
+  "source_id": "usna_wirecopy",
+  "return_values_allowed": false,
+  "model_admission": false,
+  "overwrite_originals": false,
+  "numeric_absolute_tolerance": 1e-10,
+  "write_readout": false
+}

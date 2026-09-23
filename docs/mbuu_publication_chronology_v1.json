@@ -1,0 +1,232 @@
+{
+  "version": "publication-chronology-v1",
+  "migration_root": "data/processed/sec_execution_migration/sec-execution-migration-v1-451324302522784a",
+  "migration_manifest_sha256": "2672e137314c9d49d1a0bc7e831a3c23990c821283cac0701e1da943e25ce339",
+  "followup_root": "data/processed/sec_disclosure_followup/sec-disclosure-followup-v1-2a4cc124c0c3c820",
+  "followup_manifest_sha256": "d8a042a64687b2c4109f5808424dc84b3c03097729610ab3860e3e6638bea645",
+  "clock_root": "data/processed/sec_clock_layer/sec-clock-layer-v1-fceec0176d64c32a",
+  "clock_manifest_sha256": "374dc6f9964ee8f4e497527f5510d18bf2998dc6fb5e288038b7b1da0672de6d",
+  "calendar_root": "data/processed/validation_execution_plan/validation-execution-plan-v1-outcome-blind-eaacbcfc18875f76",
+  "calendar_manifest_sha256": "653ebd1d9d9f8db839a9b6ab621a6cb4a2805b620cce817ff218cf967822f554",
+  "max_offset_hours_if_unknown": 14,
+  "overwrite_originals": false,
+  "return_values_allowed": false,
+  "model_admission": false,
+  "batches": [
+    {
+      "root": "data/raw/release_clock/release-clock-snapshots-v1-f288852c48ae5605",
+      "manifest_sha256": "efd10c38c7da36a8ad8347a7388c998f2bc64ef682c8e57f8050284fca4cad51",
+      "config": "docs/release_clock_sources_v1.json",
+      "config_sha256": "a912aa33c321ca94f81bafc1548b56986f5205f9d816a901a1057706c7618b9f"
+    },
+    {
+      "root": "data/raw/release_clock/release-clock-snapshots-v1-17f2d307f99a9eb5",
+      "manifest_sha256": "3e5fabecaeb733b09647c2d0f0b7d0c4bc79b06108f50ae4a60eafc3d718b0ca",
+      "config": "docs/release_clock_sources_followup_v1.json",
+      "config_sha256": "1d0c0e76b8a257bed80da81e1ecbe8152a6e29793e6662c7e65926cd6e6a09ab"
+    },
+    {
+      "root": "data/raw/release_clock/release-clock-snapshots-v1-b117481c6911d213",
+      "manifest_sha256": "bf6a433e835a160e5e1e5c37697b5b71b4c11ea1f7902756b414cb48b090cc1c",
+      "config": "docs/release_clock_linked_source_v1.json",
+      "config_sha256": "860a181bfaf913f32f427fafba2a14803708a727f83701e1e053cea37b97378f"
+    },
+    {
+      "root": "data/raw/release_clock/release-clock-snapshots-v1-ac01e4b843d1cf2e",
+      "manifest_sha256": "71a23791886bead1e17e33ae5f459ae2215cd5de2df80449485d55b5c6615d9e",
+      "config": "docs/admission_clock_sources_v1.json",
+      "config_sha256": "66445d01ba23cd21ea0e6d2e9dced5ad271fd96098fa6e7edbb8c4e29603734b"
+    },
+    {
+      "root": "data/raw/release_clock/release-clock-snapshots-v1-879b570c57bb4b91",
+      "manifest_sha256": "2e029c8e046fbeaf84699f9a06be8a7527f6138265cad47bd7cdd60dcf6f600e",
+      "config": "docs/admission_clock_sources_followup_v1.json",
+      "config_sha256": "a6fa7b26d0b22f5d05cab8f5796819801f84567b065f5655ec99473c0a205205"
+    },
+    {
+      "root": "data/raw/release_clock/release-clock-snapshots-v1-8ecd7fd6bbd0e970",
+      "manifest_sha256": "b2e197b9997b3a8a3c3a34e737ac0bdd3c1ba0c05affdb4c502056a28d07af32",
+      "config": "docs/mbuu_clock_sources_v1.json",
+      "config_sha256": "5fb47e5a25124d9fab8425150d8ffda0bbc3de281e5e4eeae812d04787c226e7"
+    }
+  ],
+  "reviews": [
+    {
+      "source_id": "usna_ir",
+      "ticker": "USNA",
+      "cik": "0000896264",
+      "release_accession": "0000896264-25-000119",
+      "url": "https://ir.usana.com/news-events/press-releases/detail/781/usana-health-sciences-reports-first-quarter-2025-results",
+      "snapshot_sha256": "64418a85fe30b3c95123b8bc28f4e3514af9d828ef17a1bf5b53876688978090",
+      "period_start": "2024-12-29",
+      "period_end": "2025-03-29",
+      "context_anchors": [
+        "USANA Health Sciences",
+        "March 29, 2025 March 30, 2024",
+        "in thousands"
+      ],
+      "content_scope": "full_financial_table",
+      "clock_kind": "time_datetime",
+      "clock_literal": "2025-04-22 16:05:00",
+      "cells": [
+        {
+          "metric": "revenue",
+          "value_usd": 249539000,
+          "anchor": "Net sales $ 249,539 $ 227,800"
+        },
+        {
+          "metric": "gross_profit",
+          "value_usd": 197094000,
+          "anchor": "Gross profit 197,094 184,731"
+        }
+      ]
+    },
+    {
+      "source_id": "mbuu_ir",
+      "ticker": "MBUU",
+      "cik": "0001590976",
+      "release_accession": "0001590976-24-000099",
+      "url": "https://malibuboatsinc.com/investor-information/earnings-news/news-details/2024/Malibu-Boats-Inc.-Announces-First-Quarter-Fiscal-2025-Results/default.aspx",
+      "snapshot_sha256": "beaca63a1ce0e98501f243fa0596b7686b232125258f784ec7011dfe7db72e5b",
+      "period_start": "2024-07-01",
+      "period_end": "2024-09-30",
+      "context_anchors": [
+        "MALIBU BOATS, INC. AND SUBSIDIARIES",
+        "(In thousands, except share and per share data)",
+        "Three Months Ended September 30, 2024 2023"
+      ],
+      "content_scope": "full_financial_table",
+      "clock_kind": "visible_date",
+      "clock_literal": "October 31, 2024",
+      "reported_date": "2024-10-31",
+      "clock_anchor": "Malibu Boats, Inc. Announces First Quarter Fiscal 2025 Results October 31, 2024 LOUDON",
+      "cells": [
+        {
+          "metric": "revenue",
+          "value_usd": 171580000,
+          "anchor": "Net sales $ 171,580 $ 255,830"
+        },
+        {
+          "metric": "gross_profit",
+          "value_usd": 28209000,
+          "anchor": "Gross profit 28,209 56,794"
+        }
+      ]
+    },
+    {
+      "source_id": "ufpt_ir",
+      "ticker": "UFPT",
+      "cik": "0000914156",
+      "release_accession": "0001628280-25-048260",
+      "url": "https://ufpt.com/news/ufp-technologies-announces-strong-q3-2025-results/",
+      "snapshot_sha256": "ae321fad7fcb25c8f3080f847c7bde9f7f4086d5a81e602bd1136e4d0d3d5c48",
+      "period_start": "2025-07-01",
+      "period_end": "2025-09-30",
+      "context_anchors": [
+        "UFP Technologies Announces Strong Q3 2025 Results",
+        "third quarter ended September 30, 2025",
+        "Click here to view the full press release with detailed financial information."
+      ],
+      "content_scope": "rounded_summary",
+      "clock_kind": "jsonld_datePublished",
+      "clock_literal": "2025-11-03T21:35:57+00:00",
+      "cells": []
+    },
+    {
+      "source_id": "ufpt_wirecopy",
+      "ticker": "UFPT",
+      "cik": "0000914156",
+      "release_accession": "0001628280-25-048260",
+      "url": "https://www.nasdaq.com/press-release/ufp-technologies-announces-strong-q3-2025-results-2025-11-03",
+      "snapshot_sha256": "d4b08ed97f6f0b217ebe88f795d3f9affb8d7e5557fa4cea6510c4f040984aa9",
+      "linked_from_source_id": "ufpt_ir",
+      "period_start": "2025-07-01",
+      "period_end": "2025-09-30",
+      "context_anchors": [
+        "UFP Technologies Announces Strong Q3 2025 Results",
+        "(in thousands, except per share data)(Unaudited)",
+        "Three Months Ended Nine Months Ended September 30, September 30, 2025 2024 2025 2024"
+      ],
+      "content_scope": "full_financial_table",
+      "clock_kind": "visible_EST_minute",
+      "clock_literal": "Nov 3, 2025 4:08pm EST",
+      "clock_anchor": "Published Nov 3, 2025 4:08pm EST linkedin",
+      "cells": [
+        {
+          "metric": "revenue",
+          "value_usd": 154558000,
+          "anchor": "Net sales $ 154,558 $ 145,165 $ 453,882 $ 360,351"
+        },
+        {
+          "metric": "gross_profit",
+          "value_usd": 42747000,
+          "anchor": "Gross profit 42,747 41,523 128,442 104,637"
+        }
+      ]
+    },
+    {
+      "source_id": "usna_wirecopy",
+      "ticker": "USNA",
+      "cik": "0000896264",
+      "release_accession": "0000896264-25-000119",
+      "url": "https://www.nasdaq.com/press-release/usana-health-sciences-reports-first-quarter-2025-results-and-reiterates-full-year",
+      "snapshot_sha256": "6845bebc69692c655ceba97cd9a8aff04395db890522d0ea5bd995f69b77b9eb",
+      "period_start": "2024-12-29",
+      "period_end": "2025-03-29",
+      "context_anchors": [
+        "USANA Health Sciences Reports First Quarter 2025 Results and Reiterates Full-Year Outlook",
+        "CONDENSED CONSOLIDATED STATEMENTS OF OPERATIONS (in thousands, except per share data) (unaudited) Quarter Ended March 29, 2025 March 30, 2024",
+        "https://www.businesswire.com/news/home/20250422312631/en/"
+      ],
+      "content_scope": "full_financial_table",
+      "clock_kind": "visible_EDT_minute",
+      "clock_literal": "Apr 22, 2025 4:05pm EDT",
+      "clock_anchor": "Published Apr 22, 2025 4:05pm EDT linkedin",
+      "cells": [
+        {
+          "metric": "revenue",
+          "value_usd": 249539000,
+          "anchor": "Net sales $ 249,539 $ 227,800"
+        },
+        {
+          "metric": "gross_profit",
+          "value_usd": 197094000,
+          "anchor": "Gross profit 197,094 184,731"
+        }
+      ]
+    },
+    {
+      "source_id": "mbuu_wirecopy",
+      "ticker": "MBUU",
+      "cik": "0001590976",
+      "release_accession": "0001590976-24-000099",
+      "url": "https://www.nasdaq.com/press-release/malibu-boats-inc-announces-first-quarter-fiscal-2025-results-2024-10-31",
+      "snapshot_sha256": "d46116d4006eeffbab4741e1d02217bf8e3c51e6a0cf3a690ea0705383009f4c",
+      "period_start": "2024-07-01",
+      "period_end": "2024-09-30",
+      "context_anchors": [
+        "Malibu Boats, Inc. Announces First Quarter Fiscal 2025 Results",
+        "(GLOBE NEWSWIRE) -- Malibu Boats, Inc.",
+        "Source: Malibu Boats, Inc.",
+        "MALIBU BOATS, INC. AND SUBSIDIARIES Condensed Consolidated Statements of Operations and Comprehensive (Loss) Income (Unaudited) (In thousands, except share and per share data) Three Months Ended September 30, 2024 2023"
+      ],
+      "content_scope": "full_financial_table",
+      "clock_kind": "visible_EDT_minute",
+      "clock_literal": "Oct 31, 2024 7:00am EDT",
+      "clock_anchor": "Published Oct 31, 2024 7:00am EDT linkedin",
+      "cells": [
+        {
+          "metric": "revenue",
+          "value_usd": 171580000,
+          "anchor": "Net sales $ 171,580 $ 255,830"
+        },
+        {
+          "metric": "gross_profit",
+          "value_usd": 28209000,
+          "anchor": "Gross profit 28,209 56,794"
+        }
+      ]
+    }
+  ],
+  "write_readout": false
+}

@@ -1,0 +1,13 @@
+{
+  "version": "release-clock-evidence-v1",
+  "selection": "One issuer-distributed GlobeNewswire copy on Nasdaq for the existing frozen MBUU timing-risk event. No sample replacement, credentials, return access or first-public certification.",
+  "sources": [
+    {
+      "ticker": "MBUU",
+      "cik": "0001590976",
+      "release_accession": "0001590976-24-000099",
+      "url": "https://www.nasdaq.com/press-release/malibu-boats-inc-announces-first-quarter-fiscal-2025-results-2024-10-31",
+      "kind": "issuer_distributed_newswire_copy"
+    }
+  ]
+}
