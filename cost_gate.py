@@ -1,12 +1,12 @@
-"""Phase-0 cost and liquidity gate for the small-cap execution universe.
+"""Execution-cost and liquidity gate for event-study candidates.
 
-This module is the referee that decides, *before any signal research*, which
-candidate names are even tradable and how large a gross edge a signal must
-clear to survive execution costs.  It is pure computation: it downloads no
-data, needs no credentials, and reads no return outcomes.
+This module decides, *before any signal is evaluated*, which candidate names
+are tradable under explicit research assumptions and how large a gross edge a
+signal would need to clear execution costs.  It is pure computation: it
+downloads no data, needs no credentials, and reads no return outcomes.
 
-Control-theory framing (see docs/small_cap_pead_pivot_v1.md, section 5.1):
-execution is a control input and cost is the plant's cost response.  The
+Control-theory framing: execution is a control input and cost is the
+plant's cost response.  The
 liquidity floor is a *controllability boundary* -- a name is controllable only
 if a reference position can be entered and exited without cost consuming the
 edge.  While the traded notional stays far below available dollar volume, the

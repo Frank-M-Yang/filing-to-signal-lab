@@ -1,4 +1,4 @@
-"""Phase-0 cost/liquidity gate tests."""
+"""Execution-cost and liquidity gate tests."""
 
 import pandas as pd
 import pytest
