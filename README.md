@@ -60,6 +60,12 @@ All 316 execution candidates are retained: 174 have joint financial/market metad
 coverage, **zero are admitted to a new return study**. UFPT's old market cutoff is
 post-release and must be rebuilt. No returns are recomputed or trading authorized.
 
+A rule-based [first-public clock](docs/first_public_clock_v1.md) shows the release-timing gap is
+structural, not an edge case. Across 262,940 original periodic reports, 33.7% of 10-Qs and 62.5%
+of 10-Ks follow an Item 2.02 earnings 8-K by at least three days. Under the same date-based
+execution contract, 113 of the 316 frozen execution events (35.8%) change entry date, 33 by at
+least ten sessions. Clocks remain proxies; no prices or returns are loaded and admission stays closed.
+
 A new external-expectation experiment provides the project's first strong positive forecast
 result. On 35 exact-quarter revenue-guidance events from 13 issuers, prior management guidance
 achieves **2.81% MAPE**, versus **13.73%** for a strictly point-in-time prior-year same-quarter
@@ -508,6 +514,11 @@ UFPT已取得完整财务表和带时区的发布标签，其时间比重建预�
 UFPT训练集剔除21条晚于发布标签的记录，负向Innovation仅小幅变化，但执行窗口改变。
 316个执行候选事件全部保留，174个具有财报/市场共同元数据覆盖，**新收益实验准入仍为0**。
 UFPT旧市场特征含发布后行情，已列入重建队列；本轮未重算收益，也不授权交易。
+
+基于规则的[首次公开时钟](docs/first_public_clock_v1.md)表明，发布时间差是结构性问题而非个案。
+在26.3万份原始定期报告中，33.7%的10-Q和62.5%的10-K比财报8-K（Item 2.02）晚至少三天。在同一份
+日期制执行契约下，316个冻结执行事件中有113个（35.8%）入场日改变，其中33个晚了至少10个交易日。
+时钟仍是代理；未加载价格或收益，准入门保持关闭。
 
 新的外部预期实验给出了项目目前第一个较强的正面预测结果。在 13 家发行人的 35 个精确同季度
 收入指引事件上，既往管理层指引的 MAPE 为 **2.81%**，严格点时的去年同季度基准为
