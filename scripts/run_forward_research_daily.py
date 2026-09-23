@@ -17,6 +17,10 @@ from prospective_consensus_quality import (
     ProspectiveConsensusQualityResult,
     build_prospective_consensus_quality,
 )
+from prospective_consensus_review import (
+    ConsensusReviewResult,
+    build_prospective_consensus_review,
+)
 from prospective_event_state_machine import (
     ProspectiveEventStateMachineResult,
     build_prospective_event_state_machine,
@@ -25,6 +29,7 @@ from prospective_market_innovation_readiness import (
     ProspectiveMarketInnovationReadinessResult,
     build_prospective_market_innovation_readiness,
 )
+from sec_data.alpha_vantage_budget import AlphaVantageRequestBudget
 from sec_data.alpha_vantage_consensus import (
     AlphaVantageConsensusClient,
     build_alpha_vantage_live_audit,
@@ -72,6 +77,7 @@ def main() -> int:
     parser.add_argument("--collect-sec", action="store_true")
     parser.add_argument("--collect-market", action="store_true")
     parser.add_argument("--consensus-limit", type=int, default=20)
+    parser.add_argument("--alpha-external-requests-today", type=int, default=0)
     parser.add_argument("--sec-limit", type=int, default=20)
     parser.add_argument("--consensus-request-interval", type=float, default=12.1)
     parser.add_argument("--sec-request-interval", type=float, default=0.25)
@@ -102,7 +108,11 @@ def main() -> int:
     consensus_plan = build_alpha_vantage_live_plan(args.core_asset_root)
     if args.collect_consensus:
         alpha_client = AlphaVantageConsensusClient(
-            alpha_key, request_interval_seconds=args.consensus_request_interval
+            alpha_key,
+            request_interval_seconds=args.consensus_request_interval,
+            request_budget=AlphaVantageRequestBudget(
+                external_requests_today=args.alpha_external_requests_today,
+            ),
         )
         consensus_collection = collect_alpha_vantage_live_snapshots(
             pd.read_parquet(consensus_plan.output_root / "alpha_vantage_live_targets.parquet"),
@@ -116,7 +126,8 @@ def main() -> int:
             f"selected={consensus_collection.selected_targets} "
             f"completed={consensus_collection.completed_targets} "
             f"failed={consensus_collection.failed_targets} "
-            f"requests={consensus_collection.requests_made}",
+            f"requests={consensus_collection.requests_made} "
+            f"blocked={consensus_collection.blocking_reason}",
             flush=True,
         )
     consensus_audit = build_alpha_vantage_live_audit(
@@ -185,6 +196,7 @@ def main() -> int:
         actual_audit.output_root,
     )
     consensus_quality: ProspectiveConsensusQualityResult | None = None
+    consensus_review: ConsensusReviewResult | None = None
     event_state_machine: ProspectiveEventStateMachineResult | None = None
     shadow_trading_policy: ShadowTradingPolicyResult | None = None
     shadow_order_ledger: ShadowOrderLedgerResult | None = None
@@ -205,6 +217,9 @@ def main() -> int:
             )
         )
         consensus_quality = build_prospective_consensus_quality(v3_readiness.output_root)
+        consensus_review = build_prospective_consensus_review(
+            consensus_quality.output_root, v3_readiness.output_root
+        )
         event_state_machine = build_prospective_event_state_machine(
             v3_readiness.output_root,
             actual_audit.output_root,
@@ -282,6 +297,11 @@ def main() -> int:
         "prospective_consensus_quality": (
             _stage(consensus_quality.output_root, consensus_quality.report)
             if consensus_quality is not None
+            else {"status": "not_preregistered"}
+        ),
+        "prospective_consensus_review": (
+            _stage(consensus_review.output_root, consensus_review.report)
+            if consensus_review is not None
             else {"status": "not_preregistered"}
         ),
         "prospective_event_state_machine": (
@@ -377,6 +397,9 @@ def main() -> int:
             f"{shadow_market_audit.report['planned_queries']}"
         )
     )
+    review_promotions = (
+        0 if consensus_review is None else consensus_review.report["quality_promotions"]
+    )
     print(
         "FORWARD DAILY RUN DONE "
         f"capture_dates={consensus_panel.report['capture_dates']} "
@@ -386,6 +409,7 @@ def main() -> int:
         f"innovations={innovation.report['raw_innovation_ready_events']} "
         f"v3_registry={v3_status} "
         f"consensus_quality={quality_status} "
+        f"review_promotions={review_promotions} "
         f"event_states={state_status} "
         f"shadow_policy={shadow_policy_status} "
         f"shadow_decisions={shadow_status} "

@@ -38,7 +38,7 @@ Only `clean` is admitted downstream in v1.
 These thresholds are explicit calibration assumptions. They were not selected
 from return outcomes and cannot be silently relaxed.
 
-## Current result
+## Initial result (2026-08-31)
 
 Across the 37 frozen v3 events after three independent capture dates:
 
@@ -51,6 +51,16 @@ Across the 37 frozen v3 events after three independent capture dates:
   changed.
 
 This is a data-quality result, not evidence of positive or negative returns.
+
+## Latest result and non-promoting review (2026-09-14)
+
+After five capture dates, 25 events are clean, nine require review and three
+are quarantined. The new aggregate membership review preserves these statuses.
+Eight of the nine latest review comparisons do not rule out composition-only
+changes under explicit, unverified nesting/averaging assumptions; none is
+released. Current admitted capacity is 25 events / 14 issuers, below the frozen
+formal 30-event / 15-issuer minimum. See
+[Consensus Membership Review v1](prospective_consensus_review_v1.md).
 
 ## Outputs
 
@@ -66,4 +76,3 @@ This is a data-quality result, not evidence of positive or negative returns.
 uv run python -m scripts.build_prospective_consensus_quality `
   --readiness-root <prospective-readiness-root>
 ```
-

@@ -1,0 +1,28 @@
+{
+  "version": "consensus-source-trial-v1",
+  "selection_cutoff_at": "2026-08-01T00:00:00+00:00",
+  "quarters_per_issuer": 2,
+  "perspective_days_before_period_end": [30, 7],
+  "selection_rule": "First six issuers by the frozen original plan order plus four preidentified definition/calendar cases; latest two distinct original 10-Q report periods in each pinned metadata snapshot accepted before cutoff. Not necessarily consecutive quarters or a representative sample.",
+  "source_plan_root": "data/market/alpha_vantage_consensus/targets/alpha-vantage-live-consensus-plan-v1-top20-539581398605ae41",
+  "source_plan_manifest_sha256": "68f5f0bc07f5e607eb2d102c52b369c25b66b2789160665d23348a8970ff9040",
+  "issuers": [
+    {"ticker": "AMZN", "cik": "0001018724", "role": "original_plan_first_six", "submissions_sha256": "d455c298f19310fcf582da5337bf370a84e3a273107a93f2ea540624391dab43"},
+    {"ticker": "WMT", "cik": "0000104169", "role": "original_plan_first_six", "submissions_sha256": "4c5dafec1191508edb5b735aeb7224c2b2f6d6136c90d3cbca7cb9c2a94d0953"},
+    {"ticker": "UNH", "cik": "0000731766", "role": "original_plan_first_six", "submissions_sha256": "3ca90927667650245f1f201f2912d6529add826098be1ab8a5e08d0ce3a04841"},
+    {"ticker": "AAPL", "cik": "0000320193", "role": "original_plan_first_six", "submissions_sha256": "705a5cb6e9c7b8b2490a0cdac53645cbfbfe6401e4042c36717eeecf5c175d9c"},
+    {"ticker": "MCK", "cik": "0000927653", "role": "original_plan_first_six", "submissions_sha256": "a6bd7c8057839e6aa24e2c5d106f6406e5f96cbf77121e241f92f39e042d9176"},
+    {"ticker": "GOOGL", "cik": "0001652044", "role": "original_plan_first_six", "submissions_sha256": "f07010855a929e2007a4a88af904b612b250ea97c70c1d0faef479ec0c03b635"},
+    {"ticker": "PSX", "cik": "0001534701", "role": "definition_stress_case", "submissions_sha256": "d6a0773a04dbd86028a898e7be6a52a1622af3451b7b4ff183abddd9895d0b15"},
+    {"ticker": "MPC", "cik": "0001510295", "role": "definition_stress_case", "submissions_sha256": "e2964a7215df5bd7fd8ff0e28424fad273900f1de62448077e54b0e93b27065c"},
+    {"ticker": "SNEX", "cik": "0000913760", "role": "definition_stress_case", "submissions_sha256": "3942571dea4a59e7e58cccdd92b0e77a3510b91ecc63a70a82324958cd62f964"},
+    {"ticker": "DELL", "cik": "0001571996", "role": "calendar_stress_case", "submissions_sha256": "1458f9935e361eb36cd204c3e47538c445ae2993e4bcd05638fd2326b01a00bd"}
+  ],
+  "providers": ["factset_estimates_pit_consensus", "lseg_ibes_point_in_time"],
+  "public_document_manifests": [
+    "data/market/consensus_source_trial/public_docs/factset_methodology/e9d060703b858d2627f8f5167afeed5438627951ce46554be83981d05465e1ed/manifest.json",
+    "data/market/consensus_source_trial/public_docs/factset_distribution/b46141f83f568c55aad436c6011f746f93e570b95dd71f39b3ed2220972d3f1e/manifest.json",
+    "data/market/consensus_source_trial/public_docs/lseg_pit_overview/62e7b9622550c5f69901d432c8b14f163ada5a158ba91574d22824b41d8b738a/manifest.json",
+    "data/market/consensus_source_trial/public_docs/lseg_actuals/0923c09900c5992a1db5b0761e61d06d701773a3aa055dd8a8ac80fd37781b29/manifest.json"
+  ]
+}

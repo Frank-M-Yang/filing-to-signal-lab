@@ -1,0 +1,35 @@
+{
+  "review_version": "alpha-vantage-definition-review-v1",
+  "reviewed_at": "2026-09-19T22:39:03.505412+00:00",
+  "endpoint": "EARNINGS_ESTIMATES",
+  "review_method": "manual_read_of_endpoint_section_and_support_page_not_keyword_inference",
+  "sources": [
+    {
+      "url": "https://www.alphavantage.co/documentation/#earnings-estimates",
+      "sha256": "f5fd59ae917f2cb1f1a595ed58bffa94f30414066290094c6a7601cc15973f2e",
+      "bytes": 1059140,
+      "local_path": "data/market/consensus_provider_definitions/public_docs/documentation/f5fd59ae917f2cb1f1a595ed58bffa94f30414066290094c6a7601cc15973f2e/response.html"
+    },
+    {
+      "url": "https://www.alphavantage.co/support/",
+      "sha256": "f1fc880fb2116f072d72724f825af4bddff33007d4be4925c639210aaf1d9378",
+      "bytes": 23670,
+      "local_path": "data/market/consensus_provider_definitions/public_docs/support/f1fc880fb2116f072d72724f825af4bddff33007d4be4925c639210aaf1d9378/response.html"
+    }
+  ],
+  "documented_endpoint_scope": "Annual and quarterly EPS/revenue aggregates, analyst counts and revision history; this does not establish revenue-specific revision timestamps.",
+  "unresolved_definitions": [
+    "revenue_currency",
+    "revenue_scale",
+    "revenue_accounting_scope",
+    "fiscal_period_mapping",
+    "row_update_timestamp_semantics",
+    "refresh_schedule_and_latency",
+    "analyst_membership_and_weighting",
+    "revenue_revision_history_and_vintage_retrieval"
+  ],
+  "absence_interpretation": "Not established in these reviewed sources; not proof the provider has no such information.",
+  "vendor_response_received": false,
+  "formal_model_admission": false,
+  "changes_frozen_policy": false
+}

@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from sec_data.alpha_vantage_budget import AlphaVantageRequestBudget
 from sec_data.alpha_vantage_consensus import (
     AlphaVantageConsensusClient,
     build_alpha_vantage_live_audit,
@@ -39,6 +40,7 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=20)
     parser.add_argument("--request-interval", type=float, default=12.1)
     parser.add_argument("--collect", action="store_true")
+    parser.add_argument("--external-requests-today", type=int, default=0)
     args = parser.parse_args()
     if args.collect and args.request_interval < 12.0:
         parser.error("--request-interval must be at least 12 seconds")
@@ -54,7 +56,13 @@ def main() -> int:
         if not api_key:
             parser.error("ALPHA_VANTAGE_API_KEY is required with --collect")
         client = AlphaVantageConsensusClient(
-            api_key, request_interval_seconds=args.request_interval
+            api_key,
+            request_interval_seconds=args.request_interval,
+            request_budget=AlphaVantageRequestBudget(
+                state_root=args.raw_root.parent / "alpha_vantage_request_budget",
+                legacy_raw_root=args.raw_root,
+                external_requests_today=args.external_requests_today,
+            ),
         )
 
         def show_progress(done: int, total: int, target_id: str) -> None:

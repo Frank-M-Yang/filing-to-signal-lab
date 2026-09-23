@@ -17,6 +17,8 @@ from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 import httpx
 import pandas as pd
 
+from sec_data.alpha_vantage_budget import AlphaVantageBudgetError, AlphaVantageRequestBudget
+from sec_data.alpha_vantage_privacy import sanitize_alpha_vantage_body
 from sec_data.client import normalize_cik
 from sec_data.filing_catalog import FilingCatalogError
 
@@ -62,7 +64,7 @@ class AlphaVantageLiveConfig:
 
 @dataclass(frozen=True)
 class AlphaVantageResponse:
-    """Exact response bytes and secret-free transport metadata."""
+    """Response evidence; credential-redacted error bodies are explicitly labelled."""
 
     requested_url: str
     response_url: str
@@ -70,6 +72,9 @@ class AlphaVantageResponse:
     fetched_at: datetime
     status_code: int
     headers: dict[str, str]
+    wire_sha256: str | None = None
+    wire_bytes: int | None = None
+    credentials_redacted: bool = False
 
 
 @dataclass(frozen=True)
@@ -104,6 +109,7 @@ class AlphaVantageConsensusClient:
         sleep: Callable[[float], None] = time.sleep,
         monotonic: Callable[[], float] = time.monotonic,
         now: Callable[[], datetime] = lambda: datetime.now(timezone.utc),
+        request_budget: AlphaVantageRequestBudget | None = None,
     ) -> None:
         normalized = api_key.strip()
         if len(normalized) < 8 or re.search(r"\s", normalized):
@@ -117,12 +123,21 @@ class AlphaVantageConsensusClient:
         self.sleep = sleep
         self.monotonic = monotonic
         self.now = now
+        self.request_budget = request_budget
         self._last_request_started: float | None = None
 
     def get_earnings_estimates(self, ticker: str) -> AlphaVantageResponse:
-        """Fetch one current estimates snapshot and redact the API key from metadata."""
+        """Fetch a current snapshot, filtering credential echoes before any persistence."""
         symbol = _ticker(ticker)
         self._throttle()
+        if self.request_budget is not None:
+            with self.request_budget.request(symbol) as reservation:
+                response = self._get_earnings_estimates(symbol)
+                self.request_budget.record_response(reservation, response.content)
+                return response
+        return self._get_earnings_estimates(symbol)
+
+    def _get_earnings_estimates(self, symbol: str) -> AlphaVantageResponse:
         response = self.sender.get(
             ALPHA_VANTAGE_URL,
             params={
@@ -134,13 +149,20 @@ class AlphaVantageConsensusClient:
             timeout=self.timeout_seconds,
         )
         public_query = urlencode({"function": "EARNINGS_ESTIMATES", "symbol": symbol})
+        safe = sanitize_alpha_vantage_body(response.content, self._api_key)
         return AlphaVantageResponse(
             requested_url=_secret_free_url(f"{ALPHA_VANTAGE_URL}?{public_query}"),
             response_url=_secret_free_url(str(response.url)),
-            content=response.content,
+            content=safe.content,
             fetched_at=self.now(),
             status_code=response.status_code,
-            headers={key.lower(): value for key, value in response.headers.items()},
+            headers={
+                key.lower(): value.replace(self._api_key, "[REDACTED]")
+                for key, value in response.headers.items()
+            },
+            wire_sha256=safe.wire_sha256,
+            wire_bytes=safe.wire_bytes,
+            credentials_redacted=safe.credentials_redacted,
         )
 
     def _throttle(self) -> None:
@@ -305,43 +327,61 @@ def collect_alpha_vantage_live_snapshots(
     requests_made = 0
     blocking_reason: str | None = None
     for number, row in enumerate(pending, start=1):
-        response = client.get_earnings_estimates(str(row.ticker))
+        try:
+            response = client.get_earnings_estimates(str(row.ticker))
+        except AlphaVantageBudgetError as exc:
+            blocking_reason = str(exc)
+            break
+        except httpx.HTTPError:
+            # The shared budget already charged this uncertain attempt. Never
+            # print an exception URL that could contain its query-string key.
+            requests_made += 1
+            failed += 1
+            blocking_reason = "transport_failure"
+            break
         requests_made += 1
+        response_day = response.fetched_at.astimezone(timezone.utc).date()
         manifest_path = _preserve_response(
             raw_root,
             target_id=str(row.live_consensus_target_id),
             cik=str(row.cik),
             ticker=str(row.ticker),
-            capture_date=day,
+            capture_date=response_day,
             response=response,
         )
         status = alpha_vantage_response_status(response.content, response.status_code)
         if status == "ok":
             completion = {
                 "live_consensus_target_id": str(row.live_consensus_target_id),
-                "capture_date": day.isoformat(),
+                "capture_date": response_day.isoformat(),
                 "ticker": str(row.ticker),
                 "snapshot_manifest": str(manifest_path.resolve()),
                 "completed_at": datetime.now(timezone.utc).isoformat(),
             }
             _write_json_immutable(
-                _completion_path(raw_root, day, str(row.live_consensus_target_id)), completion
+                _completion_path(raw_root, response_day, str(row.live_consensus_target_id)),
+                completion,
             )
             completed += 1
         else:
             failed += 1
             _write_failure(
                 raw_root,
-                day,
+                response_day,
                 str(row.live_consensus_target_id),
                 status,
                 manifest_path,
             )
             if status in {"rate_limited", "premium_endpoint_or_invalid_key"}:
-                blocking_reason = status
+                blocking_reason = alpha_vantage_provider_reason(
+                    response.content, response.status_code
+                )
                 break
         if progress is not None:
             progress(number, len(pending), str(row.live_consensus_target_id))
+        if response_day != day:
+            blocking_reason = "utc_day_changed_restart_collection"
+            break
     return AlphaVantageCollectionResult(
         selected_targets=len(pending),
         completed_targets=completed,
@@ -352,7 +392,7 @@ def collect_alpha_vantage_live_snapshots(
 
 
 def alpha_vantage_response_status(content: bytes, status_code: int) -> str:
-    """Classify a preserved response without exposing its values."""
+    """Retain legacy envelope labels so immutable historical manifests stay valid."""
     if not 200 <= status_code < 300:
         return f"http_{status_code}"
     try:
@@ -368,6 +408,21 @@ def alpha_vantage_response_status(content: bytes, status_code: int) -> str:
     if "Error Message" in document:
         return "provider_error"
     return "ok" if isinstance(document.get("estimates"), list) else "bad_schema"
+
+
+def alpha_vantage_provider_reason(content: bytes, status_code: int) -> str:
+    """Refine Information envelopes without mistaking a quota message for a bad key."""
+    status = alpha_vantage_response_status(content, status_code)
+    if status != "premium_endpoint_or_invalid_key":
+        return status
+    message = str(json.loads(content).get("Information", "")).lower()
+    if any(term in message for term in ("rate limit", "call frequency", "requests per day")):
+        return "rate_limited"
+    if "invalid" in message and "key" in message:
+        return "authentication_failed"
+    if "premium" in message:
+        return "premium_required"
+    return "provider_information"
 
 
 def parse_alpha_vantage_live_response(
@@ -547,6 +602,12 @@ def _preserve_response(
         "fetched_at": response.fetched_at.isoformat(),
         "sha256": sha256,
         "bytes": len(response.content),
+        "wire_sha256": response.wire_sha256 or sha256,
+        "wire_bytes": response.wire_bytes
+        if response.wire_bytes is not None
+        else len(response.content),
+        "credentials_redacted": response.credentials_redacted,
+        "original_wire_body_retained": not response.credentials_redacted,
         "path": str(raw_path.resolve()),
         "response_headers": {
             key: value

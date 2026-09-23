@@ -9,13 +9,14 @@ The daily runner executes the forward research layers in a fixed order:
 5. collect accession-level companyfacts for detected original filings;
 6. build raw and strictly standardized revenue Innovation features;
 7. classify provider structure and analyst-coverage contamination;
-8. resolve every frozen event through the prospective event state machine;
-9. load the outcome-blind, cash-only shadow trading policy;
-10. append one policy-aware shadow decision and blocking reason per event;
-11. plan acceptance-gated identity, price, split, and dividend evidence;
-12. preserve and audit acceptance-gated identity, price, split, and dividend
+8. append a non-promoting aggregate membership review with conditional bounds;
+9. resolve every frozen event through the prospective event state machine;
+10. load the outcome-blind, cash-only shadow trading policy;
+11. append one policy-aware shadow decision and blocking reason per event;
+12. plan acceptance-gated identity, price, split, and dividend evidence;
+13. preserve and audit acceptance-gated identity, price, split, and dividend
     responses; and
-13. apply cash, gross, issuer, concurrency, and pre-entry clock limits to any
+14. apply cash, gross, issuer, concurrency, and pre-entry clock limits to any
     fully evidenced shadow intention.
 
 The v3 registry-aware layer continues to admit live consensus snapshots after a
@@ -33,6 +34,12 @@ The consensus-quality layer keeps every observation but admits only `clean`
 events downstream. Review and quarantined events remain visible in the state
 ledger and cannot silently become Innovation or paper-trade candidates. See
 `docs/prospective_consensus_quality_v1.md`.
+
+The separate aggregate membership review tests whether net count changes could
+explain a mean revision under explicit nested-panel assumptions. It never
+changes quality/admission or fills missing observation dates. Downstream states
+still consume the original quality ledger. See
+`docs/prospective_consensus_review_v1.md`.
 
 The first shadow policy freezes a +/-1% materiality band, cash-only positive
 signal actions, 2% event/issuer weights, 20% maximum invested weight, second
