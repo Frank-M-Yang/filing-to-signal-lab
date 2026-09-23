@@ -1,0 +1,89 @@
+{
+  "version": "mbuu-market-history-repair-plan-v1",
+  "scope": "Offline follow-up checklist only, not a collector configuration or authorization to splice providers. MBUU financial replay remains independent of the earlier USNA/UFPT joint history.",
+  "validation_event_id": "5071974e1fb5c7762c864dc7bd3c2fe7beb21f1b5a2814cca78af9193f4cfd05",
+  "cik": "0001590976",
+  "ticker": "MBUU",
+  "security_id": "BBG005PXTR61",
+  "announcement_at": "2024-10-31T11:00:00Z",
+  "rebuild_root": "data/processed/mbuu_publisher_market_rebuild/publisher-market-rebuild-v1-37bff80509794be4",
+  "rebuild_manifest_sha256": "38e1ede3267dbd0e6b11067e41b44fb03cb542e075e8c1e660217cd9298fc0e1",
+  "required_market_sessions": 61,
+  "first_required_session": "2024-08-06",
+  "last_required_session": "2024-10-30",
+  "missing_canonical_sessions": {
+    "MBUU": [
+      "2024-08-06",
+      "2024-08-07",
+      "2024-08-08",
+      "2024-08-09",
+      "2024-08-12",
+      "2024-08-13",
+      "2024-08-14",
+      "2024-08-15",
+      "2024-08-16",
+      "2024-08-19",
+      "2024-08-20",
+      "2024-08-21",
+      "2024-08-22",
+      "2024-08-23",
+      "2024-08-26",
+      "2024-08-27"
+    ],
+    "SPY": [
+      "2024-08-06",
+      "2024-08-07",
+      "2024-08-08",
+      "2024-08-09",
+      "2024-08-12",
+      "2024-08-13",
+      "2024-08-14",
+      "2024-08-15",
+      "2024-08-16",
+      "2024-08-19",
+      "2024-08-20",
+      "2024-08-21",
+      "2024-08-22",
+      "2024-08-23",
+      "2024-08-26",
+      "2024-08-27"
+    ]
+  },
+  "failed_interval_checks": [
+    "identity_interval",
+    "issuer_actions_interval",
+    "issuer_price_query_interval",
+    "benchmark_query_interval"
+  ],
+  "cache_discovery": {
+    "scope": "40 processed bar/price Parquet tables discovered by filename; only ticker/date metadata inspected. Not an exhaustive search of raw files.",
+    "duplicate_snapshots_are_not_independent_sources": true,
+    "secondary_candidate": {
+      "root": "data/processed/validation_liquidity_fallback/validation-liquidity-fallback-audit-v2-positive-volume-c887768dd9e9a5bc",
+      "manifest_sha256": "44a88da940ba0508889a03fe0b7d1f2bba7ae0621df68705ad82872923b79674",
+      "artifact": "validation_liquidity_fallback_bars.parquet",
+      "artifact_sha256": "1233b15eb3fac809bd1d716ac9c04a6d07fa39cb75da311896cd2b43ece26cc9",
+      "ticker": "MBUU",
+      "missing_dates_present": 16,
+      "source_tier": "Yahoo Chart liquidity fallback; price/source semantics not yet validated for market features",
+      "eligible_for_automatic_splicing": false
+    },
+    "spy_candidate_found": false
+  },
+  "next_checks": [
+    "Verify cached MBUU raw snapshot, identity and unadjusted-price semantics before reuse.",
+    "Validate overlap against the pinned canonical source from 2024-08-28; retain conflicts rather than silently choosing one.",
+    "Obtain or locate SPY pre-event bars for the missing sessions with equivalent source and adjustment checks.",
+    "Extend MBUU security identity and corporate-action evidence, plus SPY action/query coverage, to 2024-08-06.",
+    "Rebuild the unchanged 13-feature block and 61-session audit; do not shorten lookbacks or replace the event.",
+    "After market checks, jointly replay MBUU/USNA/UFPT before any common-sample return experiment."
+  ],
+  "network_allowed": false,
+  "numeric_prices_loaded_by_cache_discovery": false,
+  "forward_price_values_allowed": false,
+  "returns_allowed": false,
+  "model_admission": false,
+  "trading_admission": false,
+  "sample_reselection_allowed": false,
+  "first_public_certified": false
+}

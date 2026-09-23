@@ -1,0 +1,23 @@
+{
+  "version": "mbuu-source-sensitivity-v1",
+  "repair_plan": "docs/mbuu_market_history_repair_v1.json",
+  "repair_plan_sha256": "c4ad5650e84fd3a0555ad804b4686323ae50c6c40c9bf174d411bf1172830e69",
+  "market_config": "docs/mbuu_publisher_market_rebuild_v1.json",
+  "market_config_sha256": "4cdcd85aaf7b0b09869c1cd1a29a94214a058b2970598bdd0924cced6618da58",
+  "yahoo_capture_root": "data/market/mbuu_source_overlap/pre-event-quote-capture-v1-b08e79ebc4322f51",
+  "yahoo_capture_manifest_sha256": "217916a7c923a64fc309f9899969f3fc9a21050a30d42e2c53d26ed7b9f37844",
+  "primary_capture_root": "data/market/mbuu_primary_history/mbuu-primary-history-capture-v1-d589d10aa70cf243",
+  "primary_capture_manifest_sha256": "31992d9bef070f26847b0dbbe2e57a7c1cf4637b00925d1e865a1d0d5e22ccba",
+  "required_sessions": 61,
+  "price_basis": "quote_close_conditional_proxy_not_total_return_or_unadjusted_certification",
+  "comparison_policy": "same_event_same_formula_same_exact_session_window_per_feature",
+  "economic_acceptance_threshold": null,
+  "network_allowed": false,
+  "provider_splicing": false,
+  "shorten_feature_lookbacks": false,
+  "returns_allowed": false,
+  "model_fitting_allowed": false,
+  "model_admission": false,
+  "trading_admission": false,
+  "note": "Descriptive source sensitivity, not a provider selection tournament. Full Yahoo proxy and the available exact-window Massive features are separate outputs; unavailable long features remain null. No canonical gate is relaxed. Split-free interval is required; dividends are disclosed but not added to the frozen price-only feature definition."
+}

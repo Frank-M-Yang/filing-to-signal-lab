@@ -1,0 +1,32 @@
+{
+  "version": "market-stress-replication-v1",
+  "base_config": "docs/market_stress_pilot_v1.json",
+  "base_config_sha256": "5355bbd4d41546f7f62161a9c479a8e6662212ba0756c81889081ef3c51b7164",
+  "source_snapshot": "data/market/market_stress/sources/market-stress-sources-abf3867abe76ffd5",
+  "source_manifest_sha256": "f46f024d264a5701a2bc36100f1618de9f58f66ad2ac07586a1863fcfa34c444",
+  "prior_result": "data/processed/market_stress/market-stress-pilot-v1-7805ba51d62fce87",
+  "prior_result_manifest_sha256": "8cedeec75c6ab3e35dd9d0221dc88fea8fd7117bf39d8fbffb04037636a49646",
+  "date_overrides": {
+    "input_start": "1997-01-01",
+    "input_end": "2010-01-11",
+    "train_start": "1998-01-01",
+    "evaluation_start": "2007-01-01",
+    "evaluation_end": "2009-12-31"
+  },
+  "descriptive_periods": {
+    "2007": ["2007-01-01", "2007-12-31"],
+    "2008": ["2008-01-01", "2008-12-31"],
+    "2009": ["2009-01-01", "2009-12-31"]
+  },
+  "design": "same nine-year initial training length and three-year evaluation; monthly expanding refits; all non-date numerical settings inherited unchanged",
+  "primary_comparison": "correlation-augmented ridge versus volatility-only ridge within each episode; persistence retained as a separate benchmark",
+  "comparison_rule": "report both episodes separately; call cross-episode candidate only if the originally frozen candidate screen passes in both",
+  "pooled_crisis_pvalue_allowed": false,
+  "sample_history_overlap": "2009 was a warm-up input in the prior replay; early 2010 label padding overlaps its training era; not an entirely unseen dataset",
+  "source_policy": "reuse exact cached raw ZIP bytes and original acquisition receipts; record protocol freeze separately from original download time",
+  "parameter_search_allowed": false,
+  "untouched_holdout": false,
+  "trading_admission": false,
+  "restore_retired_research": false,
+  "network_requests_allowed": false
+}

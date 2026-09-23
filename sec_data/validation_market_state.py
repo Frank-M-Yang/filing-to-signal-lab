@@ -16,7 +16,9 @@ import pandas as pd
 
 from sec_data.filing_catalog import FilingCatalogError, load_catalog_table
 
-VALIDATION_MARKET_STATE_VERSION: Final[str] = "validation-market-state-v1"
+VALIDATION_MARKET_STATE_VERSION: Final[str] = "validation-market-state-v2-local-split-ratios"
+RAW_PRICE_BASIS: Final[str] = "raw_as_traded"
+SPLIT_POLICY: Final[str] = "prior_local_split_from_over_split_to"
 MARKET_STATE_FEATURES: Final[tuple[str, ...]] = (
     "pre_price_momentum_5d",
     "pre_price_momentum_20d",
@@ -50,6 +52,8 @@ class ValidationMarketStateConfig:
 
     def validate(self) -> None:
         """Reject settings that weaken the declared feature history."""
+        if self.version != VALIDATION_MARKET_STATE_VERSION:
+            raise ValueError("Changed split semantics require the v2 market-state version")
         if self.short_window_sessions != 5 or self.medium_window_sessions != 20:
             raise ValueError("Short and medium market windows are frozen at 5 and 20 sessions")
         if self.long_window_sessions != 60:
@@ -86,6 +90,9 @@ def calculate_validation_market_state(
     filing_features: pd.DataFrame,
     exchange_sessions: pd.DataFrame,
     config: ValidationMarketStateConfig | None = None,
+    *,
+    issuer_price_basis: str,
+    benchmark_price_basis: str,
 ) -> ValidationMarketStateTables:
     """Build features using only sessions strictly before each filing date."""
     cfg = config or ValidationMarketStateConfig()
@@ -143,8 +150,12 @@ def calculate_validation_market_state(
     if not events["accepted_at"].eq(events["actual_available_at"]).all():
         raise ValidationMarketStateError("Filing and actual availability clocks do not match")
 
-    prices = _prepare_bars(issuer_bars, "price_target_id", "issuer bars")
-    benchmark = _prepare_bars(benchmark_bars, "benchmark_target_id", "benchmark bars")
+    prices = _prepare_bars(
+        issuer_bars, "price_target_id", "issuer bars", price_basis=issuer_price_basis
+    )
+    benchmark = _prepare_bars(
+        benchmark_bars, "benchmark_target_id", "benchmark bars", price_basis=benchmark_price_basis
+    )
     benchmark = benchmark.sort_values("session_date", kind="mergesort").drop_duplicates(
         "session_date", keep="last"
     )
@@ -218,6 +229,9 @@ def calculate_validation_market_state(
         "market_state_ready_coverage": float(ready.mean()),
         "status_counts": status_counts,
         "feature_columns": list(MARKET_STATE_FEATURES),
+        "split_adjustment_policy": SPLIT_POLICY,
+        "input_price_basis": RAW_PRICE_BASIS,
+        "vendor_cumulative_factor_used": False,
         "selection_uses_return_values": False,
         "outcome_values_loaded": False,
         "returns_computed": False,
@@ -283,6 +297,20 @@ def build_validation_market_state(
     input_hashes = {
         label: _sha256_file(root / "output_manifest.json") for label, root in roots.items()
     }
+    # Verify the provider request basis, not merely a column named unadjusted.
+    targets = load_catalog_table(price_audit_root, "validation_price_batch_targets.parquet")
+    if "adjusted" not in targets or not targets.adjusted.map(lambda v: v is False).all():
+        raise ValidationMarketStateError("Issuer query basis is not explicitly unadjusted")
+    benchmark_report_path = benchmark_root / "massive_benchmark_report.json"
+    if _sha256_file(benchmark_report_path) != _read_json(
+        benchmark_root / "output_manifest.json"
+    ).get("report_sha256"):
+        raise ValidationMarketStateError("Benchmark report hash mismatch")
+    benchmark_report = _read_json(benchmark_report_path)
+    if benchmark_report.get("query_adjusted") is not False:
+        raise ValidationMarketStateError("Benchmark query basis is not explicitly unadjusted")
+    if not load_catalog_table(benchmark_root, "benchmark_split_observations.parquet").empty:
+        raise ValidationMarketStateError("Benchmark splits need a separately specified adapter")
     tables = calculate_validation_market_state(
         load_catalog_table(return_gate_root, "validation_authorized_return_cohort.parquet"),
         load_catalog_table(price_audit_root, "validation_price_batch_event_endpoints.parquet"),
@@ -293,6 +321,8 @@ def build_validation_market_state(
         load_catalog_table(feature_root, "target_filing_features.parquet"),
         load_catalog_table(execution_plan_root, "validation_exchange_sessions.parquet"),
         cfg,
+        issuer_price_basis=RAW_PRICE_BASIS,
+        benchmark_price_basis=RAW_PRICE_BASIS,
     )
     payload = json.dumps(
         {"input_manifest_sha256": input_hashes, "config": asdict(cfg)}, sort_keys=True
@@ -358,6 +388,7 @@ def _feature_row(
         "market_feature_available_at": pd.NaT,
         "prior_common_sessions": 0,
         "split_adjustments_applied": 0,
+        "split_adjustment_policy": SPLIT_POLICY,
         "market_state_ready": False,
         "market_state_status": "insufficient_strictly_prior_history",
         **{column: np.nan for column in MARKET_STATE_FEATURES},
@@ -366,12 +397,14 @@ def _feature_row(
         result["market_state_status"] = "missing_issuer_price_history"
         return result
     cutoff = pd.Timestamp(event.accepted_at)
-    cutoff_date = cutoff.tz_convert(None).normalize()
+    cutoff_date = cutoff.tz_convert("America/New_York").tz_localize(None).normalize()
     stock = issuer_bars.loc[issuer_bars["session_date"].lt(cutoff_date)].copy()
     market = benchmark_bars.loc[benchmark_bars["session_date"].lt(cutoff_date)].copy()
     if stock.empty or market.empty:
         return result
-    stock, applied = _split_adjusted_history(stock, splits, cutoff_date)
+    stock, applied = _split_adjusted_history(
+        stock, splits, cutoff_date, price_basis=RAW_PRICE_BASIS
+    )
     common = stock.merge(
         market[["session_date", "close_unadjusted"]].rename(
             columns={"close_unadjusted": "market_close"}
@@ -442,7 +475,27 @@ def _feature_row(
     return result
 
 
-def _prepare_bars(frame: pd.DataFrame, target_column: str, label: str) -> pd.DataFrame:
+def _require_raw_basis(frame: pd.DataFrame, price_basis: str) -> None:
+    """Reject unknown/adjusted inputs and our own marked output; never infer basis from prices."""
+    if (
+        price_basis != RAW_PRICE_BASIS
+        or frame.attrs.get("price_basis", RAW_PRICE_BASIS) != RAW_PRICE_BASIS
+    ):
+        raise ValidationMarketStateError("Explicit raw_as_traded price basis required")
+    if {"close_adjusted_to_cutoff", "volume_adjusted_to_cutoff", "share_unit_factor"}.intersection(
+        frame
+    ):
+        raise ValidationMarketStateError("Already adjusted history cannot be adjusted twice")
+    if "share_unit_basis" in frame and not frame.share_unit_basis.eq(RAW_PRICE_BASIS).all():
+        raise ValidationMarketStateError("Already adjusted or unknown share-unit basis")
+    if "adjusted" in frame and not frame.adjusted.map(lambda v: v is False).all():
+        raise ValidationMarketStateError("Adjusted vendor quotes are not raw inputs")
+
+
+def _prepare_bars(
+    frame: pd.DataFrame, target_column: str, label: str, *, price_basis: str
+) -> pd.DataFrame:
+    _require_raw_basis(frame, price_basis)
     required = {
         target_column,
         "session_date",
@@ -456,7 +509,12 @@ def _prepare_bars(frame: pd.DataFrame, target_column: str, label: str) -> pd.Dat
     result["volume"] = pd.to_numeric(result["volume"], errors="raise")
     if result.duplicated([target_column, "session_date"]).any():
         raise ValidationMarketStateError(f"{label} contains duplicate target-session rows")
-    if (result["close_unadjusted"] <= 0.0).any() or (result["volume"] < 0.0).any():
+    if (
+        result.session_date.isna().any()
+        or not np.isfinite(result[["close_unadjusted", "volume"]].to_numpy(float)).all()
+        or (result["close_unadjusted"] <= 0.0).any()
+        or (result["volume"] < 0.0).any()
+    ):
         raise ValidationMarketStateError(f"{label} contains invalid prices or volume")
     return result
 
@@ -468,7 +526,7 @@ def _prepare_splits(
         return {}
     _require_columns(
         split_observations,
-        {"action_target_id", "execution_date", "historical_adjustment_factor"},
+        {"action_target_id", "execution_date", "split_from", "split_to"},
         "split observations",
     )
     _require_columns(action_targets, {"action_target_id", "price_target_id"}, "action targets")
@@ -480,12 +538,9 @@ def _prepare_splits(
     )
     if splits["price_target_id"].isna().any():
         raise ValidationMarketStateError("A split observation lacks a price target")
-    splits["execution_date"] = pd.to_datetime(splits["execution_date"], errors="raise")
-    splits["historical_adjustment_factor"] = pd.to_numeric(
-        splits["historical_adjustment_factor"], errors="raise"
-    )
-    if (splits["historical_adjustment_factor"] <= 0.0).any():
-        raise ValidationMarketStateError("Split adjustment factors must be positive")
+    # Validation and ratio calculation happen after each event's date cutoff.
+    # Future records and vendor cumulative fields never enter its conversion.
+    splits["execution_date"] = _split_dates(splits.execution_date)
     return {
         str(target_id): group.copy()
         for target_id, group in splits.groupby("price_target_id", sort=False)
@@ -493,25 +548,74 @@ def _prepare_splits(
 
 
 def _split_adjusted_history(
-    bars: pd.DataFrame, splits: pd.DataFrame, cutoff_date: pd.Timestamp
+    bars: pd.DataFrame, splits: pd.DataFrame, cutoff_date: pd.Timestamp, *, price_basis: str
 ) -> tuple[pd.DataFrame, int]:
+    _require_raw_basis(bars, price_basis)
+    cutoff_date = pd.Timestamp(cutoff_date)
+    if cutoff_date.tzinfo is not None or cutoff_date != cutoff_date.normalize():
+        raise ValidationMarketStateError("Split cutoff must be a naive New York calendar date")
     result = bars.sort_values("session_date", kind="mergesort").copy()
+    result["session_date"] = _split_dates(result.session_date)
+    if (
+        not result.session_date.lt(cutoff_date).all()
+        or result.session_date.duplicated().any()
+        or not np.isfinite(result[["close_unadjusted", "volume"]].to_numpy(float)).all()
+        or not result.close_unadjusted.gt(0).all()
+        or not result.volume.ge(0).all()
+    ):
+        raise ValidationMarketStateError("Invalid or non-prior raw history")
     result["close_adjusted_to_cutoff"] = result["close_unadjusted"].astype(float)
     result["volume_adjusted_to_cutoff"] = result["volume"].astype(float)
+    result["share_unit_factor"] = 1.0
+    result["share_unit_basis"] = "split_adjusted_to_cutoff"
+    result.attrs["price_basis"] = "split_adjusted_to_cutoff"
     applied = 0
     if splits.empty:
         return result, applied
+    _require_columns(splits, {"execution_date", "split_from", "split_to"}, "split observations")
+    splits = splits.copy()
+    splits["execution_date"] = _split_dates(splits.execution_date)
     eligible = splits.loc[splits["execution_date"].lt(cutoff_date)].sort_values(
         "execution_date", kind="mergesort"
     )
+    ratios = eligible[["split_from", "split_to"]].to_numpy(float)
+    if eligible.execution_date.duplicated().any():
+        raise ValidationMarketStateError(
+            "Ambiguous duplicate split date; no automatic deduplication"
+        )
+    if not np.isfinite(ratios).all() or (ratios <= 0).any():
+        raise ValidationMarketStateError("Single-event split ratios must be finite and positive")
     for split in eligible.itertuples(index=False):
-        factor = float(cast(Any, split.historical_adjustment_factor))
+        factor = float(cast(Any, split.split_from)) / float(cast(Any, split.split_to))
         mask = result["session_date"].lt(pd.Timestamp(cast(Any, split.execution_date)))
         if mask.any():
             result.loc[mask, "close_adjusted_to_cutoff"] *= factor
             result.loc[mask, "volume_adjusted_to_cutoff"] /= factor
+            result.loc[mask, "share_unit_factor"] *= factor
             applied += 1
+    if (
+        not np.isfinite(
+            result[
+                ["close_adjusted_to_cutoff", "volume_adjusted_to_cutoff", "share_unit_factor"]
+            ].to_numpy(float)
+        ).all()
+        or not result.close_adjusted_to_cutoff.gt(0).all()
+        or not np.allclose(
+            result.close_unadjusted * result.volume,
+            result.close_adjusted_to_cutoff * result.volume_adjusted_to_cutoff,
+            rtol=1e-12,
+            atol=0,
+        )
+    ):
+        raise ValidationMarketStateError("Invalid split conversion or changed price-times-volume")
     return result, applied
+
+
+def _split_dates(values: pd.Series) -> pd.Series:
+    dates = pd.to_datetime(values, errors="raise")
+    if dates.isna().any() or dates.dt.tz is not None or not dates.eq(dates.dt.normalize()).all():
+        raise ValidationMarketStateError("Session and split dates must be naive calendar dates")
+    return dates
 
 
 def _validate_inputs(*frames: pd.DataFrame) -> None:

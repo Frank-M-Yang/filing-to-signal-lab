@@ -1,0 +1,26 @@
+{
+  "version": "source-sensitivity-replication-v1",
+  "cases": [
+    {"ticker": "USNA", "admission_config": "docs/usna_event_admission_v1.json", "admission_config_sha256": "6f5b8f4e280a5a7a66103a90004a4669511fa69b0db4d21517887a9cb86f66af"},
+    {"ticker": "UFPT", "admission_config": "docs/event_admission_audit_v1.json", "admission_config_sha256": "3fa4f1c32541f20c21512cb2f630035b818f2102aacdc3a25fba29295f745ac1"}
+  ],
+  "selection_reason": "Both remaining previously reviewed publisher-clock cases, fixed before their Yahoo comparison. A purposive engineering sample, not a random market sample or untouched financial holdout. No replacement after collection or comparison.",
+  "prior_control_root": "data/processed/mbuu_source_sensitivity/mbuu-source-sensitivity-v1-c4c8f5b5fe716a98",
+  "prior_control_manifest_sha256": "bbcba23695b726f252051fe9d566950b23612518c11c35f069fbdf4566904f47",
+  "control_in_new_case_denominator": false,
+  "required_sessions": 61,
+  "maximum_requests": 4,
+  "price_absolute_tolerance_usd": 0.01,
+  "volume_absolute_tolerance": 0,
+  "economic_acceptance_threshold": null,
+  "collection_requires_explicit_flag": true,
+  "follow_redirects": false,
+  "retries": 0,
+  "sample_replacement": false,
+  "provider_splicing": false,
+  "shorten_lookbacks": false,
+  "post_event_returns_allowed": false,
+  "model_fitting_allowed": false,
+  "model_admission": false,
+  "trading_admission": false
+}

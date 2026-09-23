@@ -1,0 +1,17 @@
+{
+  "version": "mbuu-primary-history-probe-v1",
+  "repair_plan": "docs/mbuu_market_history_repair_v1.json",
+  "repair_plan_sha256": "c4ad5650e84fd3a0555ad804b4686323ae50c6c40c9bf174d411bf1172830e69",
+  "ticker_events_raw": "data/market/validation_security_actions/raw_store/raw/91/9146568ef201c445f2c4183a9f9d34982de13b78273ef373ff96e9d678dc3b67.json",
+  "ticker_events_sha256": "9146568ef201c445f2c4183a9f9d34982de13b78273ef373ff96e9d678dc3b67",
+  "maximum_requests": 8,
+  "request_interval_seconds": 12.1,
+  "retries": 0,
+  "follow_redirects": false,
+  "follow_pagination": false,
+  "automatic_splicing": false,
+  "returns_allowed": false,
+  "model_admission": false,
+  "trading_admission": false,
+  "note": "Frozen pre-event evidence only, 2024-08-06 through 2024-10-30. A 403 skips remaining queries in that endpoint family; 401/429/redirects stop all. No permission upgrade. Current historical data are retrospective provider reconstructions, not vintage market snapshots."
+}

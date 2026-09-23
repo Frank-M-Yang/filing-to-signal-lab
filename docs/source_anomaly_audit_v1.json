@@ -1,0 +1,28 @@
+{
+  "version": "source-anomaly-audit-v1",
+  "market_config": "docs/mbuu_publisher_market_rebuild_v1.json",
+  "market_config_sha256": "4cdcd85aaf7b0b09869c1cd1a29a94214a058b2970598bdd0924cced6618da58",
+  "continuity_root": "data/processed/validation_action_continuity/validation-action-continuity-v2-endpoints-daily-bars-same-ticker-events-7bba5d439e2a26ec",
+  "continuity_manifest_sha256": "74f3d8f01500d871a1e09273ec0ab3e92d8780ac6dcd5f858b7893cf76a5429b",
+  "exceptions_root": "data/processed/validation_execution_exceptions/validation-execution-exceptions-v1-no-imputation-aa07751e3bb5b21f",
+  "exceptions_manifest_sha256": "5ee2b7ad14f43801290b5f40c4462ae6dfc3d07a04b68724aebf55b90c40f48a",
+  "split_tickers": ["PANW", "EAF"],
+  "selection_rule": "All two split records in the frozen action audit; first frozen filing by the same CIK on a later New York date. All eight execution exceptions are retained for metadata-only review.",
+  "required_sessions": 61,
+  "maximum_requests": 4,
+  "cutoff_basis": "SEC acceptance is an analysis boundary only, not certified first-public availability or a trade signal cutoff",
+  "split_factor_basis": "split_from / split_to for individual actions strictly before cutoff, never vendor cumulative historical_adjustment_factor",
+  "yahoo_scenarios": ["as_supplied_quote", "apply_split_as_if_raw_quote"],
+  "scenario_winner_selection": false,
+  "sample_replacement": false,
+  "provider_splicing": false,
+  "forward_price_values_allowed": false,
+  "post_event_returns_allowed": false,
+  "model_admission": false,
+  "trading_admission": false,
+  "official_halt_evidence_available": false,
+  "background_sources_not_ingested_as_identity_certification": [
+    "https://www.sec.gov/Archives/edgar/data/1327567/000132756724000036/panw-20241120.htm",
+    "https://www.sec.gov/Archives/edgar/data/931148/000093114825000131/gti-20250828.htm"
+  ]
+}
