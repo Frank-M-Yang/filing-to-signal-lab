@@ -22,6 +22,44 @@ Filing-to-Signal Lab investigates a falsifiable question:
 
 ### Current empirical result
 
+A September 2026 [SEC disclosure follow-up](docs/sec_disclosure_followup_v1.md) checks the same
+fixed 30 events: 32 candidate headers are reconciled, with three clock conflicts quarantined;
+26 of 27 reviewed financial cells match original facts across 11 events. SEC acceptance is an
+operational proxy, **not a proven public-availability bound**. Three of six checked gross-margin
+forecasts have timing-risk flags against that proxy, not certified post-publication leakage.
+No original model, return result or policy is changed; no new alpha claim is made.
+
+The subsequent [clock-provenance audit](docs/sec_clock_provenance_v1.md) traces the
+conflicts to five source records, including two target 10-Qs. A separate five-row
+acceptance-clock correction proposal is evidence-bound but **not applied** to the
+main catalog. The 29 consistent controls are not shifted; no returns are recomputed.
+
+The [isolated clock-layer replay](docs/sec_clock_layer_v1.md) now applies those five
+corrections in a separate research view. It reproduces all 3,254 existing history
+events and rebuilds lag features, OOS forecasts and sigma without changing parameters.
+Signal values are unchanged within `1e-10`, but two session classifications and one
+legacy entry date change. Original outputs remain intact; first-public and trading
+admission gates remain closed.
+
+The [execution-contract migration](docs/sec_execution_migration_v1.md) retains all
+316 frozen execution events from 64 issuers. Defining entry as the second exchange
+session after the New York announcement date changes 70 windows (22.2%) relative
+to the legacy second-future-open convention. This is a separate schedule-only view:
+no returns are recomputed, and unresolved first-public clocks remain blocked.
+
+The [publisher-chronology follow-up](docs/publication_chronology_v1.md) now verifies
+four publisher pages and six original-value cells for three timing-risk cases. UFPT
+has a full-table, explicit-timezone release label more than three days before the
+reconstructed forecast. One disarmed replay candidate is prepared; publisher labels
+are not promoted to certified first-public clocks or return-study admission.
+
+The [publisher-time replay](docs/publisher_replay_v1.md) now rebuilds all 3,254 events
+with UFPT's earlier label in a separate view. It removes 21 late training observations;
+UFPT's negative Innovation changes only slightly, while its execution window moves.
+All 316 execution candidates are retained: 174 have joint financial/market metadata
+coverage, **zero are admitted to a new return study**. UFPT's old market cutoff is
+post-release and must be rebuilt. No returns are recomputed or trading authorized.
+
 A new external-expectation experiment provides the project's first strong positive forecast
 result. On 35 exact-quarter revenue-guidance events from 13 issuers, prior management guidance
 achieves **2.81% MAPE**, versus **13.73%** for a strictly point-in-time prior-year same-quarter
@@ -86,10 +124,29 @@ waiting or rejected, and fails if an event moves backwards across daily snapshot
 [Prospective Event State Machine v1](docs/prospective_event_state_machine_v1.md).
 
 An outcome-free consensus-quality layer now separates numeric revisions from provider-structure
-changes. Of 37 frozen events, 33 are currently clean, two MCK periods require review, and the NVDA
-and WMT 2026-10-31 periods are quarantined. All 37 remain observable, but only the 33 clean events
+changes. As of 2026-09-14, 25 of 37 frozen events are clean, nine require review, and three are
+quarantined. All 37 remain observable, but only the 25 clean events
 can progress into downstream Innovation or paper-decision states. See
 [Prospective Consensus Quality v1](docs/prospective_consensus_quality_v1.md).
+
+The 2026-09-14 membership review exposes an attribution and sample-capacity
+constraint. Eight of nine review-required events do not rule out composition-only
+mean changes under explicitly unverified nested-panel assumptions. No event is
+released: current admitted capacity is 25 events / 14 issuers, below the frozen
+30-event / 15-issuer formal minimum. This is a feasibility warning, not an alpha
+verdict. See [Consensus Membership Review v1](docs/prospective_consensus_review_v1.md).
+
+An offline capacity audit now separates the 20 core issuers with observed forward revenue
+consensus from the 62 unprobed issuers. It writes an outcome-free probe queue and explicit
+attrition/request-budget scenarios; it does not collect data or register a replacement cohort.
+Run `uv run python -m scripts.build_prospective_cohort_feasibility` with the local parent bundles.
+See [Prospective Cohort Feasibility v1](docs/prospective_cohort_feasibility_v1.md).
+
+The separate coverage probe captures a fixed batch of at most four unknown issuers, preserves
+errors, and shares a repository-local request budget with the original Alpha Vantage collectors.
+It does not register new events. Run `uv run python -m scripts.build_alpha_vantage_coverage_probe`
+offline, or add `--collect` with a process-scoped key. See
+[Revenue Consensus Coverage Probe v1](docs/alpha_vantage_coverage_probe_v1.md).
 
 The first cash-only shadow policy is now preregistered on the same 37 still-unobserved events. A
 Raw Revenue Innovation of at least +1% maps to a 2%-weight buy intention, at most -1% maps to exit
@@ -427,6 +484,31 @@ Filing-to-Signal Lab 研究一个可被证伪的问题：
 
 ### 当前实证结果
 
+2026年9月的[SEC附件复核](docs/sec_disclosure_followup_v1.md)沿用固定30个事件，核对32份原文头部，
+隔离3处时钟冲突；27个已核对数值中26个与原始财报一致，覆盖11个事件。SEC接收时间只是代理，
+**不是已证实的公开可得时间上界**。6个已检查毛利率预测中3个存在相对于代理时钟的风险，
+不能据此直接认定已发生公开信息泄漏。原模型、收益结果和交易政策未改动，没有新增Alpha结论。
+
+后续[时钟溯源审计](docs/sec_clock_provenance_v1.md)确认，相关3份8-K及2份10-Q存在原始时间表示冲突，
+已生成5条有证据的局部修正提案，**尚未应用到主库**。29份一致的对照文件不做平移，也未重算收益。
+
+新的[独立时间层重放](docs/sec_clock_layer_v1.md)已在隔离实验视图应用这5条修正，复现3,254个原有
+历史事件，并按原参数重建滞后特征、样本外预测与sigma。信号数值在1e-10容差内不变，但2处交易
+时段分类、1处旧算法入场日期改变。原输出保留，首次公开时间与交易准入仍未通过。
+
+新的[执行约定迁移](docs/sec_execution_migration_v1.md)保留64家发行人的全部316个冻结执行事件。
+按纽约公告日期之后第二个交易日入场，相对于旧“第二个未来开盘”算法，有70个窗口（22.2%）改变。
+这是单独版本的日程对照，不重算收益；尚未核实的首次公开时间不会因此获得回测准入。
+
+最新[发布来源时序核验](docs/publication_chronology_v1.md)核对4份发布网页及3家公司共6个原始数值。
+UFPT已取得完整财务表和带时区的发布标签，其时间比重建预测早三天多。已准备一个禁用交易的
+独立重放案例；发布标签不等于已认证的首次公开时间，也未新增收益实验准入。
+
+最新[发布时点重放](docs/publisher_replay_v1.md)已在独立副本中重算全部3,254个历史事件。
+UFPT训练集剔除21条晚于发布标签的记录，负向Innovation仅小幅变化，但执行窗口改变。
+316个执行候选事件全部保留，174个具有财报/市场共同元数据覆盖，**新收益实验准入仍为0**。
+UFPT旧市场特征含发布后行情，已列入重建队列；本轮未重算收益，也不授权交易。
+
 新的外部预期实验给出了项目目前第一个较强的正面预测结果。在 13 家发行人的 35 个精确同季度
 收入指引事件上，既往管理层指引的 MAPE 为 **2.81%**，严格点时的去年同季度基准为
 **13.73%**，相对改善 **79.53%**。逐事件胜率为 77.14%，发行人聚类的 APE 差区间完全低于
@@ -479,10 +561,25 @@ Q4。运行 `uv run python -m scripts.run_forward_research_daily` 可在不联�
 当前 37/37 个事件均处于 `consensus_revision_ready`，状态机没有授权任何模拟或真实仓位。详见
 [Prospective Event State Machine v1](docs/prospective_event_state_machine_v1.md)。
 
-一层不读取收益的一致预期质量审计现已把数值修订与供应商结构变化分开。37 个冻结事件中，当前
-33 个干净、MCK 两个财季需要复核、NVDA 与 WMT 的 2026-10-31 财季被隔离。全部事件仍会继续
-观察，但只有 33 个干净事件能够进入后续 Innovation 或模拟决策状态。详见
+一层不读取收益的一致预期质量审计现已把数值修订与供应商结构变化分开。截至 2026-09-14，
+37 个冻结事件中有 25 个干净、9 个待复核、3 个隔离。全部事件仍会继续
+观察，但只有 25 个干净事件能够进入后续 Innovation 或模拟决策状态。详见
 [Prospective Consensus Quality v1](docs/prospective_consensus_quality_v1.md)。
+
+9月14日的成员变化复核揭示了归因和样本容量约束：9个待审事件中，8个在明确但未验证的嵌套集合
+假设下不能排除“仅成员变化”解释。没有事件被解除待审；当前可准入容量为25个事件、14家发行人，
+低于冻结正式门槛30个事件、15家发行人。这是研究可行性警告，不是alpha结论。详见
+[Consensus Membership Review v1](docs/prospective_consensus_review_v1.md)。
+
+离线容量审计将核心库中 20 家已观察到前瞻收入一致预期的公司与 62 家尚未探测公司分开，
+生成不读取收益的探测队列及显式损耗、请求预算情景；不会抓取数据或注册替换队列。
+具备本地上游数据后，运行 `uv run python -m scripts.build_prospective_cohort_feasibility`。
+详见[新前瞻队列可行性 v1](docs/prospective_cohort_feasibility_v1.md)。
+
+独立覆盖探测一次只抓固定名单中最多 4 家未知公司，保留失败，并与原 Alpha Vantage 采集共用
+本仓库内的请求额度保护；不会注册新事件。离线运行
+`uv run python -m scripts.build_alpha_vantage_coverage_probe`，带进程内密钥时可加 `--collect`。
+详见[收入一致预期覆盖探测 v1](docs/alpha_vantage_coverage_probe_v1.md)。
 
 第一版仅现金影子交易政策已经在同一批 37 个尚未观察结果的事件上预注册：Raw Revenue
 Innovation 至少 +1% 时生成 2% 权重的买入意图，至多 -1% 时退出或保持现金，中间区间不交易；

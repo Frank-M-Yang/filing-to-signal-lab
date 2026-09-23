@@ -9,6 +9,9 @@ from pathlib import Path
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 MAX_PUBLIC_FILE_BYTES = 5 * 1024 * 1024
+# Source/docs/tests have grown past 5 MiB in aggregate. Keep a separate bounded
+# package budget; do not weaken per-file, private-path, or content leak checks.
+MAX_PUBLIC_TOTAL_BYTES = 6 * 1024 * 1024
 PRIVATE_DATA_ROOTS = (
     "data/interim/",
     "data/market/",
@@ -28,6 +31,12 @@ ALLOWED_EMAIL_DOMAINS = {
     "users.noreply.github.com",
 }
 EMAIL_PATTERN = re.compile(r"[A-Z0-9._%+-]+@([A-Z0-9.-]+\.[A-Z]{2,})", re.IGNORECASE)
+# Business Wire's numeric story URL contains a route named "home", not a user
+# directory. Exempt only this complete, query-free public URL from the path rule;
+# all secret/email checks still inspect the original text.
+PUBLIC_NEWSWIRE_STORY_URL = re.compile(
+    r"https://www\.businesswire\.com/news/" r"home/[0-9]{14}/en/(?=[\s\"'<>()]|$)"
+)
 CONTENT_PATTERNS = {
     "Windows absolute path": re.compile(r"(?<![A-Za-z0-9])[A-Za-z]:\\(?!Windows\\Fonts\\)"),
     "macOS/Linux user path": re.compile(r"/(?:Users|home)/[^/\s]+/"),
@@ -77,13 +86,20 @@ def audit_public_release(repository_root: Path = REPOSITORY_ROOT) -> ReleaseAudi
             continue
         text = payload.decode("utf-8", errors="replace")
         for label, pattern in CONTENT_PATTERNS.items():
-            if pattern.search(text):
+            searchable = (
+                PUBLIC_NEWSWIRE_STORY_URL.sub("", text)
+                if label == "macOS/Linux user path"
+                else text
+            )
+            if pattern.search(searchable):
                 issues.append(f"{label}: {normalized}")
         for match in EMAIL_PATTERN.finditer(text):
             domain = match.group(1).lower()
             if domain not in ALLOWED_EMAIL_DOMAINS:
                 issues.append(f"non-placeholder email domain {domain}: {normalized}")
 
+    if total_bytes > MAX_PUBLIC_TOTAL_BYTES:
+        issues.append(f"oversized public package: {total_bytes} bytes")
     return ReleaseAudit(files=len(candidates), bytes=total_bytes, issues=tuple(sorted(set(issues))))
 
 
