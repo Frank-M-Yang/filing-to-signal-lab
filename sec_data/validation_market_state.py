@@ -150,30 +150,15 @@ def calculate_validation_market_state(
     if not events["accepted_at"].eq(events["actual_available_at"]).all():
         raise ValidationMarketStateError("Filing and actual availability clocks do not match")
 
-    prices = _prepare_bars(
-        issuer_bars, "price_target_id", "issuer bars", price_basis=issuer_price_basis
+    price_groups, benchmark, split_map, close_lookup = _prepare_market_inputs(
+        issuer_bars,
+        benchmark_bars,
+        split_observations,
+        action_targets,
+        exchange_sessions,
+        issuer_price_basis=issuer_price_basis,
+        benchmark_price_basis=benchmark_price_basis,
     )
-    benchmark = _prepare_bars(
-        benchmark_bars, "benchmark_target_id", "benchmark bars", price_basis=benchmark_price_basis
-    )
-    benchmark = benchmark.sort_values("session_date", kind="mergesort").drop_duplicates(
-        "session_date", keep="last"
-    )
-    split_map = _prepare_splits(split_observations, action_targets)
-    calendar = exchange_sessions.copy()
-    calendar["session_date"] = pd.to_datetime(calendar["session_date"], errors="raise")
-    calendar["regular_close_at"] = _utc(calendar["regular_close_at"], "regular_close_at")
-    close_lookup = {
-        (
-            str(row.exchange_mic),
-            pd.Timestamp(cast(Any, row.session_date)).date(),
-        ): row.regular_close_at
-        for row in calendar.itertuples(index=False)
-    }
-    price_groups = {
-        str(target_id): group.copy()
-        for target_id, group in prices.groupby("price_target_id", sort=False)
-    }
     rows = [
         _feature_row(
             event,
@@ -272,6 +257,63 @@ def validate_validation_market_state(
         raise ValidationMarketStateError("A market feature is not strictly pre-filing")
 
 
+@dataclass(frozen=True)
+class ValidationMarketStateInputs:
+    """Hash-verified input tables shared by every market-state view."""
+
+    authorized_cohort: pd.DataFrame
+    event_endpoints: pd.DataFrame
+    issuer_bars: pd.DataFrame
+    benchmark_bars: pd.DataFrame
+    split_observations: pd.DataFrame
+    action_targets: pd.DataFrame
+    filing_features: pd.DataFrame
+    exchange_sessions: pd.DataFrame
+
+
+def load_validation_market_state_inputs(
+    return_gate_root: Path,
+    execution_plan_root: Path,
+    price_audit_root: Path,
+    benchmark_root: Path,
+    action_root: Path,
+    feature_root: Path,
+) -> ValidationMarketStateInputs:
+    """Load verified tables and reject any source whose price basis is not raw."""
+    # Verify the provider request basis, not merely a column named unadjusted.
+    targets = load_catalog_table(price_audit_root, "validation_price_batch_targets.parquet")
+    if "adjusted" not in targets or not targets.adjusted.map(lambda v: v is False).all():
+        raise ValidationMarketStateError("Issuer query basis is not explicitly unadjusted")
+    benchmark_report_path = benchmark_root / "massive_benchmark_report.json"
+    if _sha256_file(benchmark_report_path) != _read_json(
+        benchmark_root / "output_manifest.json"
+    ).get("report_sha256"):
+        raise ValidationMarketStateError("Benchmark report hash mismatch")
+    benchmark_report = _read_json(benchmark_report_path)
+    if benchmark_report.get("query_adjusted") is not False:
+        raise ValidationMarketStateError("Benchmark query basis is not explicitly unadjusted")
+    if not load_catalog_table(benchmark_root, "benchmark_split_observations.parquet").empty:
+        raise ValidationMarketStateError("Benchmark splits need a separately specified adapter")
+    return ValidationMarketStateInputs(
+        authorized_cohort=load_catalog_table(
+            return_gate_root, "validation_authorized_return_cohort.parquet"
+        ),
+        event_endpoints=load_catalog_table(
+            price_audit_root, "validation_price_batch_event_endpoints.parquet"
+        ),
+        issuer_bars=load_catalog_table(price_audit_root, "validation_price_batch_bars.parquet"),
+        benchmark_bars=load_catalog_table(
+            benchmark_root, "benchmark_daily_price_observations.parquet"
+        ),
+        split_observations=load_catalog_table(action_root, "split_observations.parquet"),
+        action_targets=load_catalog_table(action_root, "massive_security_actions_targets.parquet"),
+        filing_features=load_catalog_table(feature_root, "target_filing_features.parquet"),
+        exchange_sessions=load_catalog_table(
+            execution_plan_root, "validation_exchange_sessions.parquet"
+        ),
+    )
+
+
 def build_validation_market_state(
     return_gate_root: Path,
     execution_plan_root: Path,
@@ -297,29 +339,23 @@ def build_validation_market_state(
     input_hashes = {
         label: _sha256_file(root / "output_manifest.json") for label, root in roots.items()
     }
-    # Verify the provider request basis, not merely a column named unadjusted.
-    targets = load_catalog_table(price_audit_root, "validation_price_batch_targets.parquet")
-    if "adjusted" not in targets or not targets.adjusted.map(lambda v: v is False).all():
-        raise ValidationMarketStateError("Issuer query basis is not explicitly unadjusted")
-    benchmark_report_path = benchmark_root / "massive_benchmark_report.json"
-    if _sha256_file(benchmark_report_path) != _read_json(
-        benchmark_root / "output_manifest.json"
-    ).get("report_sha256"):
-        raise ValidationMarketStateError("Benchmark report hash mismatch")
-    benchmark_report = _read_json(benchmark_report_path)
-    if benchmark_report.get("query_adjusted") is not False:
-        raise ValidationMarketStateError("Benchmark query basis is not explicitly unadjusted")
-    if not load_catalog_table(benchmark_root, "benchmark_split_observations.parquet").empty:
-        raise ValidationMarketStateError("Benchmark splits need a separately specified adapter")
+    inputs = load_validation_market_state_inputs(
+        return_gate_root,
+        execution_plan_root,
+        price_audit_root,
+        benchmark_root,
+        action_root,
+        feature_root,
+    )
     tables = calculate_validation_market_state(
-        load_catalog_table(return_gate_root, "validation_authorized_return_cohort.parquet"),
-        load_catalog_table(price_audit_root, "validation_price_batch_event_endpoints.parquet"),
-        load_catalog_table(price_audit_root, "validation_price_batch_bars.parquet"),
-        load_catalog_table(benchmark_root, "benchmark_daily_price_observations.parquet"),
-        load_catalog_table(action_root, "split_observations.parquet"),
-        load_catalog_table(action_root, "massive_security_actions_targets.parquet"),
-        load_catalog_table(feature_root, "target_filing_features.parquet"),
-        load_catalog_table(execution_plan_root, "validation_exchange_sessions.parquet"),
+        inputs.authorized_cohort,
+        inputs.event_endpoints,
+        inputs.issuer_bars,
+        inputs.benchmark_bars,
+        inputs.split_observations,
+        inputs.action_targets,
+        inputs.filing_features,
+        inputs.exchange_sessions,
         cfg,
         issuer_price_basis=RAW_PRICE_BASIS,
         benchmark_price_basis=RAW_PRICE_BASIS,
@@ -372,6 +408,49 @@ def build_validation_market_state(
     )
     staging.replace(target)
     return ValidationMarketStateResult(target.resolve(), report)
+
+
+def _prepare_market_inputs(
+    issuer_bars: pd.DataFrame,
+    benchmark_bars: pd.DataFrame,
+    split_observations: pd.DataFrame,
+    action_targets: pd.DataFrame,
+    exchange_sessions: pd.DataFrame,
+    *,
+    issuer_price_basis: str,
+    benchmark_price_basis: str,
+) -> tuple[
+    dict[str, pd.DataFrame],
+    pd.DataFrame,
+    dict[str, pd.DataFrame],
+    dict[tuple[str, Any], Any],
+]:
+    """Price groups, benchmark, split map and official close clocks, shared by views."""
+    prices = _prepare_bars(
+        issuer_bars, "price_target_id", "issuer bars", price_basis=issuer_price_basis
+    )
+    benchmark = _prepare_bars(
+        benchmark_bars, "benchmark_target_id", "benchmark bars", price_basis=benchmark_price_basis
+    )
+    benchmark = benchmark.sort_values("session_date", kind="mergesort").drop_duplicates(
+        "session_date", keep="last"
+    )
+    split_map = _prepare_splits(split_observations, action_targets)
+    calendar = exchange_sessions.copy()
+    calendar["session_date"] = pd.to_datetime(calendar["session_date"], errors="raise")
+    calendar["regular_close_at"] = _utc(calendar["regular_close_at"], "regular_close_at")
+    close_lookup = {
+        (
+            str(row.exchange_mic),
+            pd.Timestamp(cast(Any, row.session_date)).date(),
+        ): row.regular_close_at
+        for row in calendar.itertuples(index=False)
+    }
+    price_groups = {
+        str(target_id): group.copy()
+        for target_id, group in prices.groupby("price_target_id", sort=False)
+    }
+    return price_groups, benchmark, split_map, close_lookup
 
 
 def _feature_row(

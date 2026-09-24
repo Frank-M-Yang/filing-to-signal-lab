@@ -93,6 +93,7 @@ files = [
   "scripts/audit_public_release.py",
   "scripts/audit_first_public_clock.py",
   "scripts/compare_first_public_execution.py",
+  "scripts/build_disclosure_market_state.py",
   "scripts/run_representation_research.py",
   "scripts/run_forecast_tournament.py",
   "scripts/run_revision_robustness.py",

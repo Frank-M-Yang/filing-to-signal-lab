@@ -66,6 +66,12 @@ of 10-Ks follow an Item 2.02 earnings 8-K by at least three days. Under the same
 execution contract, 113 of the 316 frozen execution events (35.8%) change entry date, 33 by at
 least ten sessions. Clocks remain proxies; no prices or returns are loaded and admission stays closed.
 
+A [disclosure-cut market state](docs/disclosure_market_state_v1.md) recomputes the 13 pre-filing
+market features with identical code, changing only the cutoff to the earliest disclosure. In the
+227-event validation cohort, 58 of the 175 v2-ready events (25 issuers) used at least one closing
+price after the earnings release; nine were ready only because of post-release sessions. Median
+5-day momentum changes by 3.9 percentage points. v2 consumers are unchanged pending a versioned switch.
+
 A new external-expectation experiment provides the project's first strong positive forecast
 result. On 35 exact-quarter revenue-guidance events from 13 issuers, prior management guidance
 achieves **2.81% MAPE**, versus **13.73%** for a strictly point-in-time prior-year same-quarter
@@ -519,6 +525,11 @@ UFPT旧市场特征含发布后行情，已列入重建队列；本轮未重算�
 在26.3万份原始定期报告中，33.7%的10-Q和62.5%的10-K比财报8-K（Item 2.02）晚至少三天。在同一份
 日期制执行契约下，316个冻结执行事件中有113个（35.8%）入场日改变，其中33个晚了至少10个交易日。
 时钟仍是代理；未加载价格或收益，准入门保持关闭。
+
+[按首次披露截止的市场状态](docs/disclosure_market_state_v1.md)用同一份代码重算13项事件前市场特征，
+只把截止时钟换成最早披露时间。在227个事件的验证队列中，175个v2就绪事件里有58个（25家发行人）
+用到了财报发布之后的收盘价，其中9个完全依赖发布后的交易日才凑够历史。5日动量变化的中位数为
+3.9个百分点。现有下游仍读取v2，是否切换需要单独的版本化决定。
 
 新的外部预期实验给出了项目目前第一个较强的正面预测结果。在 13 家发行人的 35 个精确同季度
 收入指引事件上，既往管理层指引的 MAPE 为 **2.81%**，严格点时的去年同季度基准为
