@@ -21,6 +21,10 @@ from prospective_consensus_review import (
     ConsensusReviewResult,
     build_prospective_consensus_review,
 )
+from prospective_disclosure_quality import (
+    ProspectiveDisclosureQualityResult,
+    build_prospective_disclosure_quality,
+)
 from prospective_event_state_machine import (
     ProspectiveEventStateMachineResult,
     build_prospective_event_state_machine,
@@ -43,6 +47,10 @@ from sec_data.forward_actual_revenue import (
     collect_forward_actual_snapshots,
 )
 from sec_data.forward_consensus_panel import build_forward_consensus_panel
+from sec_data.forward_disclosure_clock import (
+    ForwardDisclosureClockResult,
+    build_forward_disclosure_clock,
+)
 from sec_data.forward_filing_monitor import (
     build_forward_filing_monitor_audit,
     build_forward_filing_monitor_plan,
@@ -196,6 +204,8 @@ def main() -> int:
         actual_audit.output_root,
     )
     consensus_quality: ProspectiveConsensusQualityResult | None = None
+    disclosure_clock: ForwardDisclosureClockResult | None = None
+    disclosure_quality: ProspectiveDisclosureQualityResult | None = None
     consensus_review: ConsensusReviewResult | None = None
     event_state_machine: ProspectiveEventStateMachineResult | None = None
     shadow_trading_policy: ShadowTradingPolicyResult | None = None
@@ -217,6 +227,16 @@ def main() -> int:
             )
         )
         consensus_quality = build_prospective_consensus_quality(v3_readiness.output_root)
+        # v3.1 amendment view: re-times the same cohort at the earliest SEC disclosure
+        # using preserved snapshot bytes only; the v3 tables above are not modified.
+        disclosure_clock = build_forward_disclosure_clock(
+            v3_readiness.output_root, filing_audit.output_root
+        )
+        disclosure_quality = build_prospective_disclosure_quality(
+            v3_readiness.output_root,
+            disclosure_clock.output_root,
+            consensus_quality.output_root,
+        )
         consensus_review = build_prospective_consensus_review(
             consensus_quality.output_root, v3_readiness.output_root
         )
@@ -302,6 +322,16 @@ def main() -> int:
         "prospective_consensus_review": (
             _stage(consensus_review.output_root, consensus_review.report)
             if consensus_review is not None
+            else {"status": "not_preregistered"}
+        ),
+        "forward_disclosure_clock": (
+            _stage(disclosure_clock.output_root, disclosure_clock.report)
+            if disclosure_clock is not None
+            else {"status": "not_preregistered"}
+        ),
+        "prospective_disclosure_quality": (
+            _stage(disclosure_quality.output_root, disclosure_quality.report)
+            if disclosure_quality is not None
             else {"status": "not_preregistered"}
         ),
         "prospective_event_state_machine": (

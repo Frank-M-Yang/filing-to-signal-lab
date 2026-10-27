@@ -187,6 +187,16 @@ each side of zero. A registry-aware readiness ledger now covers 37/37 events and
 it continues consensus capture after fiscal period-end and stops only at each event's SEC
 acceptance. See [Prospective Market-Innovation v3](docs/prospective_market_innovation_v3.md).
 
+The [v3.1 amendment](docs/prospective_market_innovation_v3_1.md) changes one thing about that
+protocol: the event clock moves from the 10-Q/10-K acceptance to the earliest SEC-evidenced
+disclosure, usually an Item 2.02 earnings 8-K read from the same preserved snapshots. Captures
+between the release and the periodic report are counted and excluded; the seven-day staleness
+limit, the 37-event cohort, and the 30/15/8/8 thresholds are unchanged. The amendment record can
+only be frozen while every event is outcome-free; at declaration (2026-10-27) all 37 were
+`awaiting_disclosure`, and the rule for the September 19 capture gap is fixed in advance. Even if
+every later-period event stays clean, at most 21 events can be admissible this round, so the
+round cannot pass the formal gate. v3 outputs continue to be reported alongside.
+
 Conditional Drift Study v1 now joins State, Delta, Innovation, and the market reaction observable
 before the formal second-session-open entry on the same events. It produces gross and explicit
 10/25/50-bps cost-adjusted 5-, 20-, and 60-session labels. Thirty-five events from 15 issuers have
@@ -626,6 +636,13 @@ SEC acceptance 前最后一次可验证分析师收入一致预期的偏离”�
 [Prospective Market-Innovation v3](docs/prospective_market_innovation_v3.md)。注册表驱动的就绪账本
 现已覆盖 37/37 个事件和 20 家 SEC 发行人；一致预期采集不会在财季末停止，而会持续到每个
 事件各自的 SEC acceptance。
+
+[v3.1 修订](docs/prospective_market_innovation_v3_1.md)只改一件事：事件时钟从 10-Q/10-K 接受时间
+改为最早的 SEC 披露——通常是从同一批已保存快照里读出的财报 8-K（Item 2.02）。发布与定期报告之间
+的采集计数并排除；7 天时效限额、37 个事件的样本和 30/15/8/8 门槛均不变。修订记录只能在所有事件
+都没有结果时冻结；声明时（2026-10-27）37 个事件全部处于 `awaiting_disclosure`，对 9 月 19 日
+之后采集断档的处理规则也已预先定死。即使后续财季全部干净，本轮最多 21 个事件可入样，因此不可能
+通过正式检验。v3 的输出继续并行报告。
 
 Conditional Drift Study v1 现已把 State、Delta、Innovation 和正式第二交易日开盘入场前
 能够观察到的市场 Reaction 合并到同一事件，并生成 5 / 20 / 60 日毛收益和显式扣除

@@ -9,14 +9,18 @@ The daily runner executes the forward research layers in a fixed order:
 5. collect accession-level companyfacts for detected original filings;
 6. build raw and strictly standardized revenue Innovation features;
 7. classify provider structure and analyst-coverage contamination;
-8. append a non-promoting aggregate membership review with conditional bounds;
-9. resolve every frozen event through the prospective event state machine;
-10. load the outcome-blind, cash-only shadow trading policy;
-11. append one policy-aware shadow decision and blocking reason per event;
-12. plan acceptance-gated identity, price, split, and dividend evidence;
-13. preserve and audit acceptance-gated identity, price, split, and dividend
+8. assign each frozen event its earliest SEC-evidenced disclosure (v3.1 clock)
+   from the preserved submissions snapshots, with no additional request;
+9. re-time consensus eligibility and staleness at that disclosure and count
+   excluded post-disclosure captures (v3.1 quality view; v3 tables unchanged);
+10. append a non-promoting aggregate membership review with conditional bounds;
+11. resolve every frozen event through the prospective event state machine;
+12. load the outcome-blind, cash-only shadow trading policy;
+13. append one policy-aware shadow decision and blocking reason per event;
+14. plan acceptance-gated identity, price, split, and dividend evidence;
+15. preserve and audit acceptance-gated identity, price, split, and dividend
     responses; and
-14. apply cash, gross, issuer, concurrency, and pre-entry clock limits to any
+16. apply cash, gross, issuer, concurrency, and pre-entry clock limits to any
     fully evidenced shadow intention.
 
 The v3 registry-aware layer continues to admit live consensus snapshots after a
@@ -34,6 +38,14 @@ The consensus-quality layer keeps every observation but admits only `clean`
 events downstream. Review and quarantined events remain visible in the state
 ledger and cannot silently become Innovation or paper-trade candidates. See
 `docs/prospective_consensus_quality_v1.md`.
+
+The v3.1 amendment layer (steps 8–9) reads the same registry, snapshots, and
+quality table and re-times every event at its earliest SEC disclosure, usually
+an Item 2.02 earnings 8-K. It reports which v3 "pre-acceptance" captures are in
+fact post-announcement and whether v3 would have selected one. The state
+machine, Innovation ledger, and shadow layers still run on the v3 acceptance
+clock; switching them is a separate versioned change. See
+`docs/prospective_market_innovation_v3_1.md`.
 
 The separate aggregate membership review tests whether net count changes could
 explain a mean revision under explicit nested-panel assumptions. It never
