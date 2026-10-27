@@ -1,0 +1,25 @@
+{
+  "version": "information-data-closure-v1",
+  "source_root": "data/processed/information_complexity/information-complexity-v1-audit-90196ac7731585be",
+  "source_manifest_sha256": "45d4db441130d214c280b5c9fb08817194aa19cf866463436c9499325ff56b64",
+  "return_source_root": "data/processed/announcement_market_supplement/announcement-market-supplement-v1-diagnostic-0b89a3aab3a77200",
+  "expanded_plan_root": "data/processed/announcement_expanded_returns/plans/announcement-expanded-returns-v1-plan-bc945a40bd45269f",
+  "expanded_plan_manifest_sha256": "946fd282d84e034978477eb2265e62b1f820d3435046745b2f799af7277b77fa",
+  "history_root": "data/processed/announcement_expanded_returns/announcement-expanded-returns-v1-1f12d97dac867acc",
+  "history_manifest_sha256": "a5fc3f1a93b7bc895b95c784ab465fa2a791f6179f8a3dd98fc3d3462fe1abad",
+  "sec_cache_roots": ["data/sec/guidance_evidence", "data/sec/disclosure_audit"],
+  "actions_raw_root": "data/market/validation_security_actions",
+  "benchmark_raw_root": "data/market/validation_benchmark",
+  "core_tickers": ["TTC", "USNA", "UFPT"],
+  "permission_review_as_of": "2026-10-02",
+  "advertised_basic_history_years": 2,
+  "permission_policy_sources": [
+    "https://www.massive.com/stocks",
+    "https://massive.com/knowledge-base/article/how-much-historical-stock-data-does-massive-have"
+  ],
+  "account_entitlement": "unknown_not_probed",
+  "network_allowed": false,
+  "model_fitting_allowed": false,
+  "overwrite_originals": false,
+  "trading_admission": false
+}

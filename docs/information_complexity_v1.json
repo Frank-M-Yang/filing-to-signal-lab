@@ -1,0 +1,12 @@
+{
+  "version": "information-complexity-v1",
+  "source_root": "data/processed/announcement_market_supplement/announcement-market-supplement-v1-diagnostic-0b89a3aab3a77200",
+  "source_manifest_sha256": "d5c9baa7aa73da97612c37979a83dee12bcc2b19682313cadf39cb81896e5873",
+  "industry_root": "data/processed/announcement_expansion/announcement-expansion-v1-prepared-fb23d7304ce27ecb",
+  "industry_manifest_sha256": "64d3aed6120bfb33b3e8d0f270281ba018a80d7497febbce8f6ea9b1dac384c8",
+  "network_allowed": false,
+  "financial_model_refitting_allowed": false,
+  "overwrite_originals": false,
+  "hyperparameter_search_allowed": false,
+  "trading_admission": false
+}
