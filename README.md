@@ -72,6 +72,14 @@ market features with identical code, changing only the cutoff to the earliest di
 price after the earnings release; nine were ready only because of post-release sessions. Median
 5-day momentum changes by 3.9 percentage points. v2 consumers are unchanged pending a versioned switch.
 
+A [disclosure-clock return diagnostic](docs/disclosure_return_diagnostic_v1.md) then re-schedules
+the 227 observed validation events under the same date-based contract from both clocks and recomputes
+their cash-retained returns from the same bars; the 182 unchanged windows reproduce the frozen ledger
+exactly. On the same 216-event sample the Innovation IC moves from −0.004 to +0.026 and every
+interval still spans zero: **the clock correction was necessary for validity but does not change the
+null result.** It also shows that 130 of the 227 Innovation features used forecast inputs that
+arrived after the release, so a re-timed forecast replay precedes any Innovation claim.
+
 A new external-expectation experiment provides the project's first strong positive forecast
 result. On 35 exact-quarter revenue-guidance events from 13 issuers, prior management guidance
 achieves **2.81% MAPE**, versus **13.73%** for a strictly point-in-time prior-year same-quarter
@@ -540,6 +548,12 @@ UFPT旧市场特征含发布后行情，已列入重建队列；本轮未重算�
 只把截止时钟换成最早披露时间。在227个事件的验证队列中，175个v2就绪事件里有58个（25家发行人）
 用到了财报发布之后的收盘价，其中9个完全依赖发布后的交易日才凑够历史。5日动量变化的中位数为
 3.9个百分点。现有下游仍读取v2，是否切换需要单独的版本化决定。
+
+[披露时钟收益诊断](docs/disclosure_return_diagnostic_v1.md)把227个已观察的验证事件在同一份日期制契约下
+按两种时钟各排一次日程，用同一批价格重算现金留存收益；182个窗口未变的事件与冻结账本完全一致。在同一
+216个事件样本上，Innovation的IC从−0.004变为+0.026，所有区间仍跨零：**时钟修正对有效性是必要的，但
+不改变空结果。** 它还发现227个Innovation中有130个用到了发布之后才到达的预测输入，因此在任何Innovation
+结论之前，必须先按披露时钟重放预测。
 
 新的外部预期实验给出了项目目前第一个较强的正面预测结果。在 13 家发行人的 35 个精确同季度
 收入指引事件上，既往管理层指引的 MAPE 为 **2.81%**，严格点时的去年同季度基准为

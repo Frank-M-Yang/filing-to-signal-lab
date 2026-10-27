@@ -99,6 +99,7 @@ files = [
   "scripts/build_forward_disclosure_clock.py",
   "scripts/build_prospective_disclosure_quality.py",
   "scripts/freeze_prospective_market_innovation_v3_1.py",
+  "scripts/build_disclosure_return_diagnostic.py",
   "scripts/run_representation_research.py",
   "scripts/run_forecast_tournament.py",
   "scripts/run_revision_robustness.py",
