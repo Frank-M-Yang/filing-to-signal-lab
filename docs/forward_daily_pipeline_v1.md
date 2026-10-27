@@ -95,3 +95,16 @@ Remove-Item Env:SEC_USER_AGENT
 The Alpha Vantage interval is at least 12 seconds and SEC access remains below
 five requests per second. Re-running a completed capture reuses immutable
 completion records rather than spending the same quota again.
+
+### Unattended daily run (Windows)
+
+`scripts/run_forward_research_daily.ps1` wraps the live command for Task
+Scheduler. It reads `ALPHA_VANTAGE_API_KEY`, `SEC_USER_AGENT`, and the optional
+`MASSIVE_API_KEY` from the user-level environment (set once with
+`[Environment]::SetEnvironmentVariable(name, value, "User")`, never committed),
+requests market capture only when the Massive key exists, writes logs to
+`output/daily_logs/`, and returns the pipeline's exit code. `-Offline` rebuilds
+from preserved data without credentials. Because completion records are keyed
+by UTC date, a second trigger later in the day is a safe retry: it spends no
+quota when the morning run succeeded. The capture gap of 2026-09-19 to
+2026-10-27 is the reason this exists.
