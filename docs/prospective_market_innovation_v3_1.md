@@ -42,6 +42,34 @@ versions at declaration. At declaration (2026-10-27) every event was in
 target-period disclosure, so the amendment view reports 37/37 `awaiting_disclosure` and
 zero disclosed events.
 
+### First live observation (2026-10-27, after declaration)
+
+The first capture after declaration read 39 preserved submissions snapshots with zero
+additional requests and found six disclosed events. Clocks and statuses only; no actual
+value or return was loaded.
+
+| Ticker | Period | Clock source | Release → periodic lead | Last pre-disclosure capture | v3.1 status | v3 status |
+|---|---|---|---:|---|---|---|
+| COST | 2026-08-31 | Item 2.02 8-K (Sep 24) | 12.2 days to the 10-K | Sep 19, 5 days | `clean_pre_disclosure` | quarantined (18 days stale at the 10-K) |
+| CNC | 2026-09-30 | periodic report (Oct 26) | — | Sep 19, 37 days | `stale_at_disclosure` | quarantined |
+| COR | 2026-09-30 | Item 2.02 8-K (Oct 21) | 10-Q not yet filed | Sep 19, 32 days | `stale_at_disclosure` | clean; **would select the Oct 27 post-release capture** |
+| ELV | 2026-09-30 | Item 2.02 8-K (Oct 21) | 0.3 days | Sep 19, 32 days | `stale_at_disclosure` | quarantined |
+| META | 2026-09-30 | Item 2.02 8-K (Oct 21) | 0.2 days | Sep 19, 32 days | `stale_at_disclosure` | quarantined |
+| UNH | 2026-09-30 | Item 2.02 8-K (Oct 13) | 10-Q not yet filed | Sep 19, 24 days | `stale_at_disclosure` | quarantined; **would select the Oct 27 post-release capture** |
+
+Two readings follow directly from the frozen rule. COST is clean under v3.1 because its
+September 19 capture was five days before the September 24 release, while v3 quarantines
+it as eighteen days stale at the October 7 10-K: the clock change turns one event from
+lost to admissible without any reference to its outcome. COR and UNH show the
+contamination the amendment exists to prevent: under v3 the latest capture before a
+not-yet-filed 10-Q is the October 27 capture, which postdates both releases. The five
+September-quarter quarantines are the pre-declared consequence of the capture gap, not a
+judgment about those issuers. CNC's clock is its 10-Q because no original 8-K in its
+snapshot carries Item 2.02; the rule does not infer a release from other items. The
+same run exposed two latent v3 code paths that had never executed on real data (the 10-K
+Q4 derivation and the market-evidence audit with queries but no captures); both are fixed
+with regression tests.
+
 ### Pre-declared handling of the capture gap
 
 Daily capture stopped on 2026-09-19. The rule below is fixed now so that no event is
