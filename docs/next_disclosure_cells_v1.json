@@ -1,0 +1,115 @@
+{
+  "version": "next-disclosure-review-v1",
+  "reviews": [
+    {
+      "ticker": "NOBH", "release_accession": "0001193125-24-216991", "exhibit_filename": "d825466dex991.htm",
+      "submission_sha256": "bd7cf1c6e5d1833de3b9dc8bcc753a239910a7e5a7e221e1a8eb5618b73d8d13",
+      "exhibit_sha256": "1a6ef67b8b214364d2fab787df57144a64a3bfb2ca55205626472916772ec83b",
+      "document_anchor": "NOBILITY HOMES, INC. ANNOUNCES SALES AND EARNINGS FOR ITS THIRD QUARTER 2024",
+      "period_anchor": "Three Months Ended Nine Months Ended August 3, August 5, August 3, August 5, 2024 2023 2024 2023",
+      "unit_anchor": "Net sales $ 13,803,340 $ 14,654,789 $ 40,099,316 $ 48,599,139", "scale": 1,
+      "cells": [
+        {"metric": "revenue", "display_value": "13,803,340", "text_anchor": "Net sales $ 13,803,340 $ 14,654,789 $ 40,099,316 $ 48,599,139", "scope_note": "First current-quarter consolidated GAAP column; literal dollar amounts, not rounded million-dollar narrative."},
+        {"metric": "gross_profit", "display_value": "4,606,600", "text_anchor": "Gross profit 4,606,600 5,114,390 13,509,340 16,939,297", "scope_note": "Same current-quarter consolidated income statement and scope as net sales."}
+      ]
+    },
+    {
+      "ticker": "CTSO", "release_accession": "0001104659-24-115296", "exhibit_filename": "tm2427790d1_ex99-1.htm",
+      "submission_sha256": "3133deeda4e3fbace15983eb414ea4684fe20b0ee4cd7481eca3fcf1cd514602",
+      "exhibit_sha256": "6a16f8acf00c337ed8f37fe2e5c8fca94955ec50beff1fc7040111f9408a0d10",
+      "document_anchor": "CytoSorbents Reports Third Quarter 2024 Financial and Operational Results",
+      "period_anchor": "Three months ended September 30, Nine months ended September 30, 2024 2023 2024 2023",
+      "unit_anchor": "Revenue: CytoSorb sales $ 8,586,274 $ 7,709,085 $ 26,381,455 $ 23,681,183", "scale": 1,
+      "cells": [
+        {"metric": "revenue", "display_value": "9,390,388", "text_anchor": "Total revenue 9,390,388 8,810,847 29,071,316 27,681,164", "scope_note": "Current-quarter total consolidated revenue includes grant income; product sales alone are not substituted."},
+        {"metric": "gross_profit", "display_value": "5,281,615", "text_anchor": "Gross profit 5,281,615 5,606,866 18,354,922 17,080,743", "scope_note": "Current-quarter GAAP statement in dollars, not the later non-GAAP thousand-dollar reconciliation."}
+      ]
+    },
+    {
+      "ticker": "AOS", "release_accession": "0000091142-24-000169", "exhibit_filename": "a9302024exhibit991.htm",
+      "submission_sha256": "afd6d4e38730bf8de4c95e6ceaf44589264377b1067b14f5554486ec0b6551f6",
+      "exhibit_sha256": "9a1a0a7c923e0c4cf9b72ced486fe915b0f593da0631cf7952af78e979b33d82",
+      "document_anchor": "A. O. Smith Reports Third Quarter Performance",
+      "period_anchor": "Three Months Ended September 30, Nine Months Ended September 30, 2024 2023 2024 2023",
+      "unit_anchor": "Condensed Consolidated Statement of Earnings (dollars in millions, except share data)", "scale": 1000000,
+      "cells": [
+        {"metric": "revenue", "display_value": "902.6", "text_anchor": "Net sales $ 902.6 $ 937.5 $ 2,905.7 $ 2,864.7"},
+        {"metric": "gross_profit", "display_value": "337.3", "text_anchor": "Gross profit 337.3 356.2 1,118.0 1,115.0", "scope_note": "Current-quarter GAAP consolidated gross profit, not adjusted segment earnings."}
+      ]
+    },
+    {
+      "ticker": "ROCK", "release_accession": "0000912562-24-000059", "exhibit_filename": "exhibit991q32024earningsre.htm",
+      "submission_sha256": "061af079d2a962f69f5d2f8d294485eb56eadb20f23806d5811a3c1bcc7f6dae",
+      "exhibit_sha256": "71ad8552b3f7ff4535d26ec540cdd0705803064794e806ee73408cb36d7103e6",
+      "document_anchor": "GIBRALTAR ANNOUNCES THIRD QUARTER 2024 FINANCIAL RESULTS",
+      "period_anchor": "Three Months Ended September 30, Nine Months Ended September 30, 2024 2023 2024 2023",
+      "unit_anchor": "CONSOLIDATED STATEMENTS OF INCOME (in thousands, except per share data)", "scale": 1000,
+      "cells": [
+        {"metric": "revenue", "display_value": "361,196", "text_anchor": "Net sales $ 361,196 $ 390,744 $ 1,006,707 $ 1,048,925"},
+        {"metric": "gross_profit", "display_value": "93,526", "text_anchor": "Gross profit 93,526 105,384 273,787 279,052", "scope_note": "Current-quarter original GAAP column, not recast or adjusted business-segment results."}
+      ]
+    },
+    {
+      "ticker": "ARC", "release_accession": "0001305168-24-000072", "exhibit_filename": "exhibit991-q32024earningsr.htm",
+      "submission_sha256": "a5bc819f4bce635f22530a984193f2995e135bcf21e65a347ebeb8f28b3c721a",
+      "exhibit_sha256": "480e7ff61c32a24a3f57abb2999935493bee78b2c47a64467a7835d3b5eee586",
+      "document_anchor": "ARC Reports Financial Results for Third Quarter 2024",
+      "period_anchor": "Three Months Ended Nine Months Ended September 30, September 30, 2024 2023 2024 2023",
+      "unit_anchor": "Consolidated Statements of Operations (In thousands, except per share data)", "scale": 1000,
+      "cells": [
+        {"metric": "revenue", "display_value": "74,448", "text_anchor": "Net sales $ 74,448 $ 71,057 $ 220,354 $ 212,325"},
+        {"metric": "gross_profit", "display_value": "24,759", "text_anchor": "Gross profit 24,759 24,149 73,954 72,250", "scope_note": "Exact GAAP cells do not override the five-hour raw-header/catalog conflict."}
+      ]
+    },
+    {
+      "ticker": "RAMP", "release_accession": "0000733269-24-000037", "exhibit_filename": "a2025q2ex991earningsrelease.htm",
+      "submission_sha256": "3880c2812e9fbe629ef25815e1c2b2ca1fa5a5e8b5bc5730a257da38099eee71",
+      "exhibit_sha256": "73577f87ff47b51819f54e95878d594e1ee3376885f6cf6785cf0269496211b7",
+      "document_anchor": "LIVERAMP ANNOUNCES RESULTS FOR SECOND QUARTER FY25",
+      "period_anchor": "For the three months ended September 30, $ % 2024 2023 Variance Variance",
+      "unit_anchor": "CONSOLIDATED STATEMENTS OF OPERATIONS (Unaudited) (Dollars in thousands, except per share amounts)", "scale": 1000,
+      "cells": [
+        {"metric": "revenue", "display_value": "185,483", "text_anchor": "Revenues $ 185,483 $ 159,871 25,612 16.0 %"},
+        {"metric": "gross_profit", "display_value": "134,249", "text_anchor": "Gross profit 134,249 118,659 15,590 13.1 %", "scope_note": "First current-quarter GAAP table; excluded-items/non-GAAP gross profit is not used."}
+      ]
+    },
+    {
+      "ticker": "ORA", "release_accession": "0001437749-24-033671", "exhibit_filename": "ex_744058.htm",
+      "submission_sha256": "6ac4289010109406211ea9ad6f6a054980f45acd3ea81d2ccf45b42958c5d1a5",
+      "exhibit_sha256": "eae5884676c49f636372b0cae78ba52a9962e80cae8cd954f107652f0ba4e47e",
+      "document_anchor": "ORMAT TECHNOLOGIES REPORTS THIRD QUARTER",
+      "period_anchor": "Three Months Ended September 30, Nine Months Ended September 30, 2024 2023 2024 2023",
+      "unit_anchor": "(Dollars in thousands, except per share data)", "scale": 1000,
+      "cells": [
+        {"metric": "revenue", "display_value": "211,784", "text_anchor": "Total Revenues 211,784 208,056 648,913 588,084"},
+        {"metric": "gross_profit", "display_value": "58,862", "text_anchor": "Total gross profit 58,862 60,003 199,058 185,562", "scope_note": "Total consolidated gross profit, not a segment margin or EBITDA."}
+      ]
+    }
+  ],
+  "partial_candidates": [
+    {"ticker": "CTSO", "release_accession": "0001104659-24-104669", "exhibit_filename": "tm2425307d1_ex99-1.htm", "submission_sha256": "ff37ce48783ffc7b265079113d92f57fb04a7d08801c62957a4d28b27155836c", "exhibit_sha256": "03fe0ce99333f1d54a8f84a8db1695d93e4cbe384a7715043fbbeb2477df467e", "kind": "preliminary_results", "document_anchor": "Provides Business Update", "scope_note": "Business update with an FDA application and estimates; no exact complete quarterly GAAP revenue/GP pair has been verified here."},
+    {"ticker": "AOS", "release_accession": "0000091142-24-000167", "exhibit_filename": "a10112024exhibit991.htm", "submission_sha256": "33b1ebc3b71b8a0b9c75f32e2980ccdef06204d8e9319838d991d597881efc07", "exhibit_sha256": "d86ba6520bc237c6874ded5a572259f78fadb392e26c133589f0589c7498e543", "kind": "preliminary_results", "document_anchor": "A. O. Smith Announces Preliminary Third Quarter Results and Provides Revised 2024 Full Year Guidance", "scope_note": "Preliminary release is retained. The later consolidated GP cell is not backfilled to this timestamp."},
+    {"ticker": "ROCK", "release_accession": "0000912562-24-000055", "exhibit_filename": "exhibit991-newrelease10x11.htm", "submission_sha256": "6cfce8c69d0a6dfb96c67104b98c8f26f62dd06437156470e8c384e0ae025749", "exhibit_sha256": "5050dbf8daac586a18f207873c7366030e75b578c8b6689df4cb31079a15bf3f", "kind": "preliminary_results", "document_anchor": "GIBRALTAR REVISES 2024 FINANCIAL GUIDANCE", "scope_note": "Preliminary revenue/EPS ranges are retained, not replaced by later exact GAAP quarter cells."}
+  ],
+  "unresolved_reasons": {
+    "SMID": "periodic_original_quarter_available_but_earlier_earnings_release_not_resolved_CFO_transition_not_results",
+    "SGRP": "periodic_original_quarter_available_but_no_earnings_release_in_bounded_catalog_not_proof_of_first_public",
+    "HAIN": "annual_quarter_requires_separate_original_source_proof_no_annual_minus_YTD_shortcut",
+    "ASTC": "annual_results_not_verified_as_exact_target_quarter",
+    "AZO": "annual_and_extended_seventeen_week_quarter_requires_explicit_source_and_period_policy",
+    "TRAK": "annual_quarter_and_cost_derived_margin_scope_quarantined",
+    "MCD": "missing_direct_original_GrossProfit_and_cost_derived_margin_scope_quarantined",
+    "TT": "missing_direct_original_GrossProfit_and_cost_derived_margin_scope_quarantined",
+    "CHEF": "periodic_original_quarter_available_but_earlier_earnings_release_not_resolved",
+    "ARC": "exact_original_cells_but_five_hour_raw_header_catalog_conflict_quarantined",
+    "PRPL": "periodic_original_quarter_available_but_earlier_earnings_release_not_resolved",
+    "SRDX": "five_hour_clock_conflict_plus_annual_quarter_and_cost_derived_margin_scope_quarantined",
+    "SENEA": "periodic_source_without_direct_GrossProfit_cost_derived_margin_scope_quarantined",
+    "NATH": "missing_direct_original_GrossProfit_and_cost_derived_margin_scope_quarantined"
+  },
+  "first_public_certified": false,
+  "model_fitting_allowed": false,
+  "return_values_allowed": false,
+  "sample_replacement_allowed": false,
+  "rounding_plugs_allowed": false
+}

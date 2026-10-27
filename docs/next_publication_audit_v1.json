@@ -1,0 +1,308 @@
+{
+  "version": "next-publication-audit-v1",
+  "frozen_queue_issuers": 20,
+  "frozen_pair_cases": 6,
+  "selection": "Same six complete original quarter pairs and all twenty original dispositions. No prices, return values, replacements, models or threshold search.",
+  "review_root": "data/processed/next_disclosure_review/next-disclosure-review-v1-reviewed-3fb41418add65ec1",
+  "review_manifest_sha256": "e201ad756430fc5dd9f1ac4c8a34813579a8f0ac819f2e43c471764f29d6b8c9",
+  "replay_root": "data/processed/next_disclosure_replay/next-disclosure-replay-v1-0d2e1dbaa8038732",
+  "replay_manifest_sha256": "2ac5812274ba99e783f7e41e419390c8c93c66788804e534a81741e3c5caae3c",
+  "replay_plan_root": "data/processed/next_disclosure_replay/plans/next-disclosure-replay-v1-plan-1f0e00424e45950c",
+  "replay_plan_manifest_sha256": "d586c1cc121967526d86e0ae63746b1ecd5e432a3c7c290bfac3a1f0a792f4c4",
+  "expanded_plan_root": "data/processed/announcement_expanded_returns/plans/announcement-expanded-returns-v1-plan-bc945a40bd45269f",
+  "expanded_plan_manifest_sha256": "946fd282d84e034978477eb2265e62b1f820d3435046745b2f799af7277b77fa",
+  "batches": [
+    {
+      "root": "data/raw/next_publication/release-clock-snapshots-v1-1b83b73832b8a677",
+      "manifest_sha256": "9734a9a891fdb3ccb4565dd77faa71142b23615cabc11f61030ba3c5cd3ae7ce",
+      "config": "docs/next_publication_sources_v1.json",
+      "config_sha256": "bb9ea3e182bf62b176833f9e4d59b82861bac214552dee2853a0ec18429ef308"
+    },
+    {
+      "root": "data/raw/next_publication/release-clock-snapshots-v1-efbc67e12d13fe5b",
+      "manifest_sha256": "d36fce9cfc904719f8c5e944ceddd3b7b6a82ea00c7f0a191c027033f1c5353b",
+      "config": "docs/next_publication_sources_v1.json",
+      "config_sha256": "bb9ea3e182bf62b176833f9e4d59b82861bac214552dee2853a0ec18429ef308"
+    }
+  ],
+  "reviews": [
+    {
+      "source_id": "nobh_original_full_table",
+      "ticker": "NOBH",
+      "cik": "0000072205",
+      "release_accession": "0001193125-24-216991",
+      "period_start": "2024-05-05",
+      "period_end": "2024-08-03",
+      "snapshot_sha256": "ea1767e2b6994373559494189689339c70cff91e35622c84e4f7a0e3438c5b5d",
+      "url": "https://www.accessnewswire.com/newsroom/en/real-estate/nobility-homes-inc.-announces-sales-and-earnings-for-its-third-quarter-2024-915132",
+      "canonical_url": "https://www.accessnewswire.com/newsroom/en/real-estate/nobility-homes-inc.-announces-sales-and-earnings-for-its-third-quarter-2024-915132",
+      "scope_max_chars": 5000,
+      "statement_anchor": "NOBILITY HOMES, INC. Condensed Consolidated Statements of Income",
+      "quarter_anchor": "Three Months Ended Nine Months Ended August 3, August 5, August 3, August 5, 2024 2023 2024 2023",
+      "scale_anchor": "Net sales $",
+      "display_scale": 1,
+      "context_anchors": [
+        "Nobility Homes, Inc. Announces Sales and Earnings for Its Third Quarter 2024",
+        "(OTCQX:NOBH)"
+      ],
+      "cells": [
+        {
+          "metric": "revenue",
+          "row_label": "Net sales",
+          "display_value": "13,803,340",
+          "value_usd": 13803340,
+          "anchor": "Net sales $ 13,803,340 $ 14,654,789 $ 40,099,316 $ 48,599,139",
+          "column_index": 0
+        },
+        {
+          "metric": "gross_profit",
+          "row_label": "Gross profit",
+          "display_value": "4,606,600",
+          "value_usd": 4606600,
+          "anchor": "Gross profit 4,606,600 5,114,390 13,509,340 16,939,297",
+          "column_index": 0
+        }
+      ],
+      "clock_kind": "visible_naive_minute",
+      "clock_literal": "2024-09-10T10:00:00",
+      "visible_clock_literal": "Tuesday, 10 September 2024 10:00 AM",
+      "visible_clock_format": "%A, %d %B %Y %I:%M %p",
+      "clock_anchor": "Tuesday, 10 September 2024 10:00 AM",
+      "visible_zone": null,
+      "meta_clock_literal": "09/10/2024 10:00:00",
+      "meta_clock_format": "%m/%d/%Y %H:%M:%S",
+      "reported_date": "2024-09-10"
+    },
+    {
+      "source_id": "aos_original_full_table",
+      "ticker": "AOS",
+      "cik": "0000091142",
+      "release_accession": "0000091142-24-000169",
+      "period_start": "2024-07-01",
+      "period_end": "2024-09-30",
+      "snapshot_sha256": "dac8d5ad3a94b315a9a9133c9e52c853615e742da14772651543adce4976ef1f",
+      "url": "https://www.prnewswire.com/news-releases/a-o-smith-reports-third-quarter-performance-302282384.html",
+      "canonical_url": "https://www.prnewswire.com/news-releases/a-o-smith-reports-third-quarter-performance-302282384.html",
+      "scope_max_chars": 5000,
+      "statement_anchor": "A. O. SMITH CORPORATION Condensed Consolidated Statement of Earnings",
+      "quarter_anchor": "Three Months Ended September 30, Nine Months Ended September 30, 2024 2023 2024 2023",
+      "scale_anchor": "(dollars in millions, except share data)",
+      "display_scale": 1000000,
+      "context_anchors": [
+        "A. O. Smith Reports Third Quarter Performance",
+        "(NYSE: AOS)"
+      ],
+      "cells": [
+        {
+          "metric": "revenue",
+          "row_label": "Net sales",
+          "display_value": "902.6",
+          "value_usd": 902600000,
+          "anchor": "Net sales $ 902.6 $ 937.5 $ 2,905.7 $ 2,864.7",
+          "column_index": 0
+        },
+        {
+          "metric": "gross_profit",
+          "row_label": "Gross profit",
+          "display_value": "337.3",
+          "value_usd": 337300000,
+          "anchor": "Gross profit 337.3 356.2 1,118.0 1,115.0",
+          "column_index": 0
+        }
+      ],
+      "clock_kind": "jsonld_datePublished",
+      "clock_literal": "2024-10-22T06:55:00-04:00",
+      "visible_clock_literal": "Oct 22, 2024, 06:55 ET",
+      "visible_clock_format": "%b %d, %Y, %H:%M ET",
+      "clock_anchor": "Oct 22, 2024, 06:55 ET Share this article",
+      "visible_zone": "ET",
+      "reported_date": "2024-10-22"
+    },
+    {
+      "source_id": "rock_original_full_table",
+      "ticker": "ROCK",
+      "cik": "0000912562",
+      "release_accession": "0000912562-24-000059",
+      "period_start": "2024-07-01",
+      "period_end": "2024-09-30",
+      "snapshot_sha256": "32246b21143646fab6b86b71099ea03d3d4f7a8ca8baab0e32282f874489fde4",
+      "url": "https://ir.gibraltar1.com/news-releases/news-release-details/gibraltar-announces-third-quarter-2024-financial-results/",
+      "canonical_url": "https://ir.gibraltar1.com/news-releases/news-release-details/gibraltar-announces-third-quarter-2024-financial-results",
+      "scope_max_chars": 5000,
+      "statement_anchor": "GIBRALTAR INDUSTRIES, INC. CONSOLIDATED STATEMENTS OF INCOME",
+      "quarter_anchor": "Three Months Ended September 30, Nine Months Ended September 30, 2024 2023 2024 2023",
+      "scale_anchor": "(in thousands, except per share data)",
+      "display_scale": 1000,
+      "context_anchors": [
+        "Gibraltar Announces Third Quarter 2024 Financial Results"
+      ],
+      "cells": [
+        {
+          "metric": "revenue",
+          "row_label": "Net sales",
+          "display_value": "361,196",
+          "value_usd": 361196000,
+          "anchor": "Net sales $ 361,196 $ 390,744 $ 1,006,707 $ 1,048,925",
+          "column_index": 0
+        },
+        {
+          "metric": "gross_profit",
+          "row_label": "Gross profit",
+          "display_value": "93,526",
+          "value_usd": 93526000,
+          "anchor": "Gross profit 93,526 105,384 273,787 279,052",
+          "column_index": 0
+        }
+      ],
+      "clock_kind": "jsonld_datePublished",
+      "clock_literal": "2024-10-30T07:35:24-0400",
+      "visible_clock_literal": "10/30/24 at 7:35 AM EDT",
+      "visible_clock_format": "%m/%d/%y at %I:%M %p EDT",
+      "clock_anchor": "10/30/24 at 7:35 AM EDT",
+      "visible_zone": "EDT",
+      "reported_date": "2024-10-30"
+    },
+    {
+      "source_id": "ramp_original_full_table",
+      "ticker": "RAMP",
+      "cik": "0000733269",
+      "release_accession": "0000733269-24-000037",
+      "period_start": "2024-07-01",
+      "period_end": "2024-09-30",
+      "snapshot_sha256": "21b1d0ea4a08df1fe9db755f90474ab3831b84f7720bcb1dbc1d2edc1995bef0",
+      "url": "https://www.globenewswire.com/news-release/2024/11/06/2976044/0/en/LiveRamp-Announces-Results-for-Second-Quarter-FY25.html",
+      "canonical_url": "https://www.globenewswire.com/news-release/2024/11/06/2976044/0/en/LiveRamp-Announces-Results-for-Second-Quarter-FY25.html",
+      "scope_max_chars": 5000,
+      "statement_anchor": "LIVERAMP HOLDINGS, INC. AND SUBSIDIARIES CONDENSED CONSOLIDATED STATEMENTS OF OPERATIONS (Unaudited) (Dollars in thousands, except per share amounts) For the three months ended September 30, $ % 2024 2023 Variance Variance",
+      "quarter_anchor": "For the three months ended September 30, $ % 2024 2023 Variance Variance",
+      "scale_anchor": "(Dollars in thousands, except per share amounts)",
+      "display_scale": 1000,
+      "context_anchors": [
+        "LiveRamp Announces Results for Second Quarter FY25"
+      ],
+      "cells": [
+        {
+          "metric": "revenue",
+          "row_label": "Revenues",
+          "display_value": "185,483",
+          "value_usd": 185483000,
+          "anchor": "Revenues 185,483 159,871 25,612 16.0 %",
+          "column_index": 0
+        },
+        {
+          "metric": "gross_profit",
+          "row_label": "Gross profit",
+          "display_value": "134,249",
+          "value_usd": 134249000,
+          "anchor": "Gross profit 134,249 118,659 15,590 13.1 %",
+          "column_index": 0
+        }
+      ],
+      "clock_kind": "time_datetime",
+      "clock_literal": "2024-11-06T21:05:00Z",
+      "visible_clock_literal": "November 06, 2024 16:05 ET",
+      "visible_clock_format": "%B %d, %Y %H:%M ET",
+      "clock_anchor": "November 06, 2024 16:05 ET",
+      "visible_zone": "ET",
+      "reported_date": "2024-11-06"
+    },
+    {
+      "source_id": "ora_original_full_table",
+      "ticker": "ORA",
+      "cik": "0001296445",
+      "release_accession": "0001437749-24-033671",
+      "period_start": "2024-07-01",
+      "period_end": "2024-09-30",
+      "snapshot_sha256": "01b2d6f88db0a136a24415003372aaa70c4cdd7b0a56558fdf5a04e3551c814c",
+      "url": "https://www.globenewswire.com/news-release/2024/11/06/2976115/26372/en/ormat-technologies-reports-third-quarter-2024-financial-results.html",
+      "canonical_url": "https://www.globenewswire.com/news-release/2024/11/06/2976115/26372/en/ormat-technologies-reports-third-quarter-2024-financial-results.html",
+      "scope_max_chars": 5000,
+      "statement_anchor": "ORMAT TECHNOLOGIES, INC AND SUBSIDIARIES Condensed Consolidated Statement of Operations",
+      "quarter_anchor": "For the Three and nine-Month periods Ended September 30, 2024, and 2023 Three Months Ended September 30, Nine Months Ended September 30, 2024 2023 2024 2023",
+      "scale_anchor": "(Dollars in thousands, except per share data)",
+      "display_scale": 1000,
+      "context_anchors": [
+        "Ormat Technologies Reports Third Quarter 2024 Financial Results"
+      ],
+      "cells": [
+        {
+          "metric": "revenue",
+          "row_label": "Total Revenues",
+          "display_value": "211,784",
+          "value_usd": 211784000,
+          "anchor": "Total Revenues 211,784 208,056 648,913 588,084",
+          "column_index": 0
+        },
+        {
+          "metric": "gross_profit",
+          "row_label": "Total gross profit",
+          "display_value": "58,862",
+          "value_usd": 58862000,
+          "anchor": "Total gross profit 58,862 60,003 199,058 185,562",
+          "column_index": 0
+        }
+      ],
+      "clock_kind": "time_datetime",
+      "clock_literal": "2024-11-06T21:15:00Z",
+      "visible_clock_literal": "November 06, 2024 16:15 ET",
+      "visible_clock_format": "%B %d, %Y %H:%M ET",
+      "clock_anchor": "November 06, 2024 16:15 ET",
+      "visible_zone": "ET",
+      "reported_date": "2024-11-06"
+    },
+    {
+      "source_id": "ctso_original_full_table",
+      "ticker": "CTSO",
+      "cik": "0001175151",
+      "release_accession": "0001104659-24-115296",
+      "period_start": "2024-07-01",
+      "period_end": "2024-09-30",
+      "snapshot_sha256": "06bf3b84dcc033c98a8397567b7df0dd841b0370cbb59bd96fe3e7170a5edb90",
+      "url": "https://www.globenewswire.com/news-release/2024/11/07/2977166/25359/en/CytoSorbents-Reports-Third-Quarter-2024-Financial-and-Operational-Results.html",
+      "canonical_url": "https://www.globenewswire.com/news-release/2024/11/07/2977166/25359/en/CytoSorbents-Reports-Third-Quarter-2024-Financial-and-Operational-Results.html",
+      "scope_max_chars": 5000,
+      "statement_anchor": "CYTOSORBENTS CORPORATION CONSOLIDATED STATEMENTS OF OPERATIONS AND COMPREHENSIVE LOSS",
+      "quarter_anchor": "Three months ended September 30, Nine months ended September 30, 2024 2023 2024 2023",
+      "scale_anchor": "CytoSorb sales $",
+      "display_scale": 1,
+      "context_anchors": [
+        "CytoSorbents Reports Third Quarter 2024 Financial and Operational Results"
+      ],
+      "cells": [
+        {
+          "metric": "revenue",
+          "row_label": "Total revenue",
+          "display_value": "9,390,388",
+          "value_usd": 9390388,
+          "anchor": "Total revenue 9,390,388 8,810,847 29,071,316 27,681,164",
+          "column_index": 0
+        },
+        {
+          "metric": "gross_profit",
+          "row_label": "Gross profit",
+          "display_value": "5,281,615",
+          "value_usd": 5281615,
+          "anchor": "Gross profit 5,281,615 5,606,866 18,354,922 17,080,743",
+          "column_index": 0
+        }
+      ],
+      "clock_kind": "time_datetime",
+      "clock_literal": "2024-11-07T21:05:00Z",
+      "visible_clock_literal": "November 07, 2024 16:05 ET",
+      "visible_clock_format": "%B %d, %Y %H:%M ET",
+      "clock_anchor": "November 07, 2024 16:05 ET",
+      "visible_zone": "ET",
+      "reported_date": "2024-11-07"
+    }
+  ],
+  "network_allowed": false,
+  "price_values_allowed": false,
+  "returns_allowed": false,
+  "forecast_refit_allowed": false,
+  "overwrite_originals": false,
+  "sample_replacement_allowed": false,
+  "first_public_certified": false,
+  "model_admission": false,
+  "return_admission": false,
+  "trading_admission": false
+}

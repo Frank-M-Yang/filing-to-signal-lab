@@ -1,0 +1,12 @@
+{
+  "version": "next-publication-sources-v1",
+  "selection": "Exactly the six reviewed complete-pair issuers. Official releases discovered by identity/quarter only, without price or return selection. Collection does not certify first-public time.",
+  "sources": [
+    {"ticker": "NOBH", "cik": "0000072205", "release_accession": "0001193125-24-216991", "kind": "issuer_distributed_newswire_release", "url": "https://www.accessnewswire.com/newsroom/en/real-estate/nobility-homes-inc.-announces-sales-and-earnings-for-its-third-quarter-2024-915132"},
+    {"ticker": "AOS", "cik": "0000091142", "release_accession": "0000091142-24-000169", "kind": "issuer_distributed_newswire_release", "url": "https://www.prnewswire.com/news-releases/a-o-smith-reports-third-quarter-performance-302282384.html"},
+    {"ticker": "ROCK", "cik": "0000912562", "release_accession": "0000912562-24-000059", "kind": "issuer_ir_release", "url": "https://ir.gibraltar1.com/news-releases/news-release-details/gibraltar-announces-third-quarter-2024-financial-results/"},
+    {"ticker": "RAMP", "cik": "0000733269", "release_accession": "0000733269-24-000037", "kind": "issuer_distributed_newswire_release", "url": "https://www.globenewswire.com/news-release/2024/11/06/2976044/0/en/LiveRamp-Announces-Results-for-Second-Quarter-FY25.html"},
+    {"ticker": "ORA", "cik": "0001296445", "release_accession": "0001437749-24-033671", "kind": "issuer_distributed_newswire_release", "url": "https://www.globenewswire.com/news-release/2024/11/06/2976115/26372/en/ormat-technologies-reports-third-quarter-2024-financial-results.html"},
+    {"ticker": "CTSO", "cik": "0001175151", "release_accession": "0001104659-24-115296", "kind": "issuer_distributed_newswire_release", "url": "https://www.globenewswire.com/news-release/2024/11/07/2977166/25359/en/CytoSorbents-Reports-Third-Quarter-2024-Financial-and-Operational-Results.html"}
+  ]
+}

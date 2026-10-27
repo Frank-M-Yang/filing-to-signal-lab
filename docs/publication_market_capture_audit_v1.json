@@ -1,0 +1,41 @@
+{
+  "version": "publication-market-capture-audit-v1",
+  "bridge_root": "data/processed/publication_market_bridge/publication-market-bridge-v1-5193eae1819d70e1",
+  "bridge_manifest_sha256": "e06bae497650663708b501751b95e8e78df20c2e00694e35f7dd785f2c9d2807",
+  "capture_root": "data/raw/publication_market_gaps/publication-market-gap-capture-v1-21fc44d67a5ed78c",
+  "capture_manifest_sha256": "e90ccdd1cd9cbea27b912c7ae3c38992dff29b7f43d34c1b0b30a001cb5dd021",
+  "response_root": "data/raw/publication_market_gaps/responses",
+  "action_template_root": "data/processed/validation_security_actions/massive-security-actions-audit-v1-17ad2aca3feeaf73",
+  "action_template_manifest_sha256": "f89319281ff4f64d43488f2ea1e6f990d84fd712481a2a4ab53b28d676e8da0a",
+  "cached_price_witnesses": [
+    {
+      "ticker": "NOBH",
+      "price_target_id": "783d5447ff7a19e3090247866e1bf7a1a9b93516c35c186e210c7d9f457ccb48",
+      "receipt_path": "data/market/validation_price_pilot/snapshots/169745e88d5312b2524908c089f2e902076084647cb728e39c2033f021e2008b/6ea2d6bd122bc19c6192e29402e15f3c89ae96a1069d3d1cf9b3a9df569f7694.json",
+      "receipt_sha256": "9ec6ed23e88d354f7de615cbb83ac71d3844d83562e3d814564b426ee4c412b6",
+      "raw_path": "data/market/validation_price_pilot/raw/6e/6ea2d6bd122bc19c6192e29402e15f3c89ae96a1069d3d1cf9b3a9df569f7694.json",
+      "raw_sha256": "6ea2d6bd122bc19c6192e29402e15f3c89ae96a1069d3d1cf9b3a9df569f7694"
+    }
+  ],
+  "market_payload_validation_allowed": true,
+  "assumed_basic_history_days": 730,
+  "actual_key_plan_verified": false,
+  "history_horizon_rule_verified": false,
+  "history_horizon_source_url": "https://www.massive.com/stocks",
+  "network_allowed": false,
+  "forecast_refit_allowed": false,
+  "returns_allowed": false,
+  "sample_replacement_allowed": false,
+  "partial_sample_returns_allowed": false,
+  "missing_price_imputation_allowed": false,
+  "overwrite_originals": false,
+  "frozen_pair_cases": 6,
+  "frozen_queue_issuers": 20,
+  "frozen_financial_scenarios": 17,
+  "entry_session_offset": 2,
+  "holding_sessions_inclusive": 20,
+  "first_public_certified": false,
+  "model_admission": false,
+  "return_admission": false,
+  "trading_admission": false
+}

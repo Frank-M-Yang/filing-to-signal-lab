@@ -1,0 +1,28 @@
+{
+  "version": "publication-market-access-probe-v1",
+  "user_reported_plan": "Basic",
+  "actual_key_plan_verified": false,
+  "provider_docs": [
+    "https://www.massive.com/stocks",
+    "https://massive.com/docs/rest/stocks/tickers/all-tickers",
+    "https://massive.com/knowledge-base/article/how-much-historical-stock-data-does-massive-have"
+  ],
+  "audit_root": "data/processed/publication_market_capture_audit/publication-market-capture-audit-v1-4fd3ac4a684c0dde",
+  "audit_manifest_sha256": "63a9924b6b4284f555e3af74791046acd9f6ce6fc4d4e0d4b8d9cacfd92ce16b",
+  "audit_plan_root": "data/processed/publication_market_capture_audit/plans/publication-market-capture-audit-v1-plan-0355afae08629c88",
+  "audit_plan_manifest_sha256": "2625802afffe4b253d1d9c582bb06cc1e1d929577601153f09314ab12ccbc2a9",
+  "maximum_requests": 12,
+  "request_interval_seconds": 12.1,
+  "retries": 0,
+  "follow_redirects": false,
+  "follow_pagination": false,
+  "automatic_splicing": false,
+  "returns_allowed": false,
+  "forecast_refit_allowed": false,
+  "sample_replacement_allowed": false,
+  "missing_price_imputation_allowed": false,
+  "first_public_certified": false,
+  "model_admission": false,
+  "return_admission": false,
+  "trading_admission": false
+}

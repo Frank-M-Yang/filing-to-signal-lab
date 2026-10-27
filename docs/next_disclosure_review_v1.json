@@ -1,0 +1,14 @@
+{
+  "version": "next-disclosure-review-v1",
+  "source_root": "data/processed/information_data_closure/information-data-closure-v1-audit-31c075b80fc53ccb",
+  "source_manifest_sha256": "215990ab4d24f3f33e65c924e9abfc866ce0541f250b0b55dd9c2729c2cd88a7",
+  "expanded_plan_root": "data/processed/announcement_expanded_returns/plans/announcement-expanded-returns-v1-plan-bc945a40bd45269f",
+  "expanded_plan_manifest_sha256": "946fd282d84e034978477eb2265e62b1f820d3435046745b2f799af7277b77fa",
+  "raw_root": "data/sec/next_disclosure_review",
+  "network_allowed": true,
+  "sample_replacement_allowed": false,
+  "model_fitting_allowed": false,
+  "return_values_allowed": false,
+  "trading_admission": false,
+  "overwrite_originals": false
+}
