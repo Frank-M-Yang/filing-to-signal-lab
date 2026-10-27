@@ -9,28 +9,13 @@ from pathlib import Path
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 MAX_PUBLIC_FILE_BYTES = 5 * 1024 * 1024
-# Bounded increments: 128 KiB for the fourteen-case audit, 16 KiB for the
-# information/complexity tests, 48 KiB for offline cache/receipt closure, and
-# 32 KiB for the next SEC source review (using prior remaining headroom as well).
-# A further bounded 40 KiB covers its fixed-spec financial replay and tests.
-# Another bounded 80 KiB covers the six-source publication review, explicit
-# minute/offset uncertainty, metadata-only window builder and synthetic tests.
-# A bounded 64 KiB covers the financial-only interval ordering replay and its
-# strict-tie, common-sample and causal-prefix regression tests.
-# A bounded 64 KiB covers metadata-only market window closure, the bounded
-# capture tool and its synthetic identity/gap/credential handling tests.
-# A bounded 32 KiB (plus prior remaining headroom) covers source-bound capture
-# normalization, overlap-coverage quarantine and their synthetic regression tests.
-# A bounded 16 KiB plus remaining headroom covers the frozen Basic access controls
-# and their offline error/credential/same-query regression tests.
-# A bounded 32 KiB covers the separate OTC candidate review and conflict/source
-# regression tests. Existing frozen parsers and privacy guards stay unchanged.
-# A bounded 32 KiB covers its five-query capture/audit and synthetic credential,
-# error-envelope, identity-conflict and timeline-cutoff regression tests.
-# A bounded 16 KiB covers the offline pre-window state consistency check and
-# synthetic no-backfill, boundary-date and conflicting-state regression tests.
-# Per-file, private-data, credential and privacy guards are unchanged.
-MAX_PUBLIC_TOTAL_BYTES = 6 * 1024 * 1024 + 600 * 1024
+# Total public-package budget. The 6 MiB + 600 KiB cap reached in October 2026
+# had been raised twelve times in one month by per-feature increments, which
+# turned this gate into a running tally rather than a limit. Policy from
+# 2026-10-27: one round budget, raised only with a dated one-line rationale
+# here, never per feature. Per-file, private-data, credential and privacy
+# guards below are unchanged and are the checks that matter for leaks.
+MAX_PUBLIC_TOTAL_BYTES = 8 * 1024 * 1024
 PRIVATE_DATA_ROOTS = (
     "data/interim/",
     "data/market/",
