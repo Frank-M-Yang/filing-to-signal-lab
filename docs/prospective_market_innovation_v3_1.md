@@ -70,6 +70,14 @@ same run exposed two latent v3 code paths that had never executed on real data (
 Q4 derivation and the market-evidence audit with queries but no captures); both are fixed
 with regression tests.
 
+Later the same day (15:47 UTC, after the 14:25 UTC declaration) the accession-level
+companyfacts for COST, CNC, ELV, and META were collected and the v3 ledger computed four
+Raw Innovations. For these four events both clocks select the same September 19
+capture, because every later capture postdates the periodic report as well as the
+release, so the Innovation values are identical under v3 and v3.1; only admission
+differs. v3 quarantines all four as stale at acceptance, v3.1 admits COST. No return is
+loaded, no standardized Innovation exists yet, and no shadow order was created.
+
 ### Pre-declared handling of the capture gap
 
 Daily capture stopped on 2026-09-19. The rule below is fixed now so that no event is
