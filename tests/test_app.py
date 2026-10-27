@@ -120,10 +120,16 @@ def test_streamlit_app_renders_without_exception() -> None:
     assert any("从“市场预期”走到“真正意外”" in item.value for item in app.markdown)
     forward_pipeline_root = app_path.parent / "data" / "processed" / "forward_innovation_ledger"
     if forward_pipeline_root.exists():
+        # The forward ledger advances over time: assert the structure, not a snapshot
+        # of the counts (zero candidates, then filings observed, then the gate).
         assert any(
-            metric.value == "0" and metric.label == "Raw Innovation" for metric in app.metric
+            metric.label == "Raw Innovation" and metric.value.isdigit() for metric in app.metric
         )
-        assert any("时间顺序正确" in item.value for item in app.info)
+        status_messages = [item.value for item in (*app.info, *app.warning, *app.success)]
+        assert any(
+            "时间顺序正确" in text or "已经出现未来披露" in text or "Gate 已通过" in text
+            for text in status_messages
+        )
         assert len(app.get("plotly_chart")) == 1
     else:
         assert any("本地尚无完整前向流水线" in item.value for item in app.warning)
