@@ -541,7 +541,15 @@ def _query_audit(
             last_fetched_at=("fetched_at", "max"),
         )
         if not snapshots.empty
-        else pd.DataFrame(columns=["market_evidence_query_id"])
+        else pd.DataFrame(
+            columns=[
+                "market_evidence_query_id",
+                "capture_dates",
+                "snapshot_pages",
+                "first_fetched_at",
+                "last_fetched_at",
+            ]
+        )
     )
     rejection_counts = (
         rejections.groupby("market_evidence_query_id", as_index=False)

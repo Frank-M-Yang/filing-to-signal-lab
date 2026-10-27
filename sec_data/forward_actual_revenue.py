@@ -141,8 +141,14 @@ def _attach_q4_prior_filing_metadata(
 ) -> pd.DataFrame:
     output = targets.copy()
     output["q4_prior_10q_accession"] = None
-    output["q4_prior_10q_accepted_at"] = pd.NaT
-    output["q4_prior_10q_report_date"] = pd.NaT
+    # Declare the UTC dtype up front: a bare NaT column is tz-naive and rejects
+    # the tz-aware acceptance and report clocks attached below.
+    output["q4_prior_10q_accepted_at"] = pd.Series(
+        pd.NaT, index=output.index, dtype="datetime64[ns, UTC]"
+    )
+    output["q4_prior_10q_report_date"] = pd.Series(
+        pd.NaT, index=output.index, dtype="datetime64[ns, UTC]"
+    )
     output["q4_prior_10q_form"] = None
     output["q4_derivation_status"] = "not_applicable"
     ten_k_indexes = output.index[output["form"].astype(str).eq("10-K")]

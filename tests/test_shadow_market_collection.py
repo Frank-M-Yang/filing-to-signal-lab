@@ -225,3 +225,17 @@ def _event() -> dict[str, object]:
         "return_values_loaded": False,
         "live_trading_authorized": False,
     }
+
+
+def test_query_audit_with_queries_but_no_snapshots_reports_zero_captures() -> None:
+    # Regression: the first live run produced market queries before any market
+    # capture existed, and the empty-snapshot summary lacked the count columns.
+    from shadow_market_collection import _query_audit
+
+    queries = pd.DataFrame({"market_evidence_query_id": ["q-1", "q-2"], "ticker": ["AAA", "BBB"]})
+    audit = _query_audit(queries, pd.DataFrame(), pd.DataFrame())
+    assert list(audit["capture_dates"]) == [0, 0]
+    assert list(audit["snapshot_pages"]) == [0, 0]
+    assert list(audit["parse_rejections"]) == [0, 0]
+    assert not audit["query_capture_observed"].any()
+    assert audit["first_fetched_at"].isna().all()

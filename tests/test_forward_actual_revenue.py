@@ -238,3 +238,31 @@ def _companyfacts_payload() -> bytes:
             },
         }
     ).encode()
+
+
+def test_ten_k_prior_ten_q_metadata_accepts_tz_aware_filing_clocks() -> None:
+    # Regression: the first live 10-K target crashed because the prior-10-Q clock
+    # columns were created tz-naive while SEC acceptance clocks are UTC-aware.
+    ten_k = _candidate(form="10-K", accession="0000000001-26-000020")
+    ten_k.loc[0, "target_period_end"] = pd.Timestamp("2026-08-31", tz="UTC")
+    ten_k.loc[0, "report_date"] = pd.Timestamp("2026-08-30", tz="UTC")
+    ten_k.loc[0, "accepted_at"] = pd.Timestamp("2026-10-07T01:13:15Z")
+    observations = pd.DataFrame(
+        [
+            {
+                "cik": "0000000001",
+                "accession_number": "0000000001-26-000010",
+                "form": "10-Q",
+                "report_date": pd.Timestamp("2026-05-31", tz="UTC"),
+                "accepted_at": pd.Timestamp("2026-06-03T20:43:00Z"),
+                "amendment_form": False,
+            }
+        ]
+    )
+    targets = calculate_forward_actual_targets(ten_k, observations)
+    row = targets.iloc[0]
+    assert row["q4_derivation_status"] == "prior_9m_filing_candidate_identified"
+    assert row["q4_prior_10q_accession"] == "0000000001-26-000010"
+    assert pd.Timestamp(row["q4_prior_10q_accepted_at"]) == pd.Timestamp("2026-06-03T20:43:00Z")
+    assert pd.Timestamp(row["q4_prior_10q_report_date"]) == pd.Timestamp("2026-05-31", tz="UTC")
+    assert str(targets["q4_prior_10q_accepted_at"].dtype) == "datetime64[ns, UTC]"
