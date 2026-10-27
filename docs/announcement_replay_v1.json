@@ -1,0 +1,28 @@
+{
+  "version": "announcement-replay-v1",
+  "admission_root": "data/processed/announcement_admission/announcement-admission-v1-f9a04dc0d6557987",
+  "admission_manifest_sha256": "b6716af9c050f7096fef0d0f53f8d0da12d35bf8837cd67459cf157fff3299bd",
+  "admission_plan_root": "data/processed/announcement_admission/plans/announcement-admission-v1-plan-c1aca2a2c089bd84",
+  "admission_plan_manifest_sha256": "c52e3819fd593d1a5c19d18c0400b1124c74c55f140c314e1f380aef1c45b0ba",
+  "clock_root": "data/processed/sec_clock_layer/sec-clock-layer-v1-fceec0176d64c32a",
+  "clock_manifest_sha256": "374dc6f9964ee8f4e497527f5510d18bf2998dc6fb5e288038b7b1da0672de6d",
+  "clock_plan_root": "data/processed/sec_clock_layer/sec-clock-layer-plan-v1-928a5cfafbd30887",
+  "clock_plan_manifest_sha256": "99c2d9590a791ff605724cf01bbde11d3a2db57315f655ffea24375ae4953a9c",
+  "case_event_ids": [
+    "a2c46f4d9da660a09e888d35608af62a8394fbeb0c1a2f9f542261104e4d664f",
+    "3ff0cd8fc745bb5a48f5a0f6e599c3c49bb3e815a9b53dd513fec1e6125bb396"
+  ],
+  "selection": "Exactly the two local replay candidates in the pinned readiness audit; no return values used.",
+  "frozen_event_count": 316,
+  "numeric_absolute_tolerance": 1e-10,
+  "fixed_specification_refit_allowed": true,
+  "hyperparameter_search_allowed": false,
+  "market_features_in_forecast": false,
+  "network_allowed": false,
+  "post_event_prices_allowed": false,
+  "returns_allowed": false,
+  "first_public_certified": false,
+  "trading_admission": false,
+  "sample_replacement_allowed": false,
+  "overwrite_originals": false
+}

@@ -1,0 +1,21 @@
+{
+  "version": "announcement-admission-v1",
+  "frozen_event_count": 316,
+  "clock_root": "data/processed/first_public_clock/first-public-clock-v1-a4b97081133fe0ac",
+  "clock_manifest_sha256": "ac29d5f41fe1777f9f866b8aa9e17a050698281a3247c1ae971c807095f06986",
+  "market_config": "docs/mbuu_publisher_market_rebuild_v1.json",
+  "market_config_sha256": "4cdcd85aaf7b0b09869c1cd1a29a94214a058b2970598bdd0924cced6618da58",
+  "review_config": "docs/sec_disclosure_followup_v1.json",
+  "review_config_sha256": "aa76e8e7164793ee730ca9a6dc1bd1036d4dc90e865e07c18b8b95936fdb52c8",
+  "continuity_config": "docs/source_anomaly_audit_v1.json",
+  "continuity_config_sha256": "51ff4b757a0cc311db7503b2d77da3e1ddd9afd588c4816a5d2d84e186665ae6",
+  "clock_policy": "rule_matched_SEC_acceptance_proxy_not_certified_first_public",
+  "required_sessions": 61,
+  "metric_pair": ["revenue", "gross_profit"],
+  "network_allowed": false,
+  "post_event_numeric_prices_allowed": false,
+  "returns_allowed": false,
+  "model_fitting_allowed": false,
+  "sample_replacement_allowed": false,
+  "overwrite_originals": false
+}

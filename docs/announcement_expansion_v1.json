@@ -1,0 +1,17 @@
+{
+  "version": "announcement-expansion-v1",
+  "base_return_config": "docs/announcement_return_diagnostic_v1.json",
+  "base_return_config_sha256": "e87e835a663010732bc898b360925951e9b42a3ba1b421f11ac054ca350d8125",
+  "new_issuer_batch_size": 20,
+  "selection_policy": "first_cached_candidate_per_new_issuer_then_earliest_proxy",
+  "frozen_cohort_events": 316,
+  "minimum_industry_events": 20,
+  "minimum_distinct_issuers_per_industry": 2,
+  "industry_grouping": "strictly_prior_original_header_SIC_2digit",
+  "network_allowed": false,
+  "sample_replacement_allowed": false,
+  "model_retuning_allowed": false,
+  "first_public_certified": false,
+  "trading_admission": false,
+  "overwrite_originals": false
+}

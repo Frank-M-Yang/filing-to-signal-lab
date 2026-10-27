@@ -1,0 +1,30 @@
+{
+  "version": "announcement-replay-v2-clock-failures",
+  "case_selection_policy": "reviewed_values_clock_failures",
+  "admission_root": "data/processed/announcement_admission/announcement-admission-v1-f9a04dc0d6557987",
+  "admission_manifest_sha256": "b6716af9c050f7096fef0d0f53f8d0da12d35bf8837cd67459cf157fff3299bd",
+  "admission_plan_root": "data/processed/announcement_admission/plans/announcement-admission-v1-plan-c1aca2a2c089bd84",
+  "admission_plan_manifest_sha256": "c52e3819fd593d1a5c19d18c0400b1124c74c55f140c314e1f380aef1c45b0ba",
+  "clock_root": "data/processed/sec_clock_layer/sec-clock-layer-v1-fceec0176d64c32a",
+  "clock_manifest_sha256": "374dc6f9964ee8f4e497527f5510d18bf2998dc6fb5e288038b7b1da0672de6d",
+  "clock_plan_root": "data/processed/sec_clock_layer/sec-clock-layer-plan-v1-928a5cfafbd30887",
+  "clock_plan_manifest_sha256": "99c2d9590a791ff605724cf01bbde11d3a2db57315f655ffea24375ae4953a9c",
+  "case_event_ids": [
+    "5071974e1fb5c7762c864dc7bd3c2fe7beb21f1b5a2814cca78af9193f4cfd05",
+    "d68f49d6eef67e786866a50669ccfa24b8fb26f92573e0fa0abba31d553fe525",
+    "8d8b059473de27a381d17a57b4ee314460388362a9be1e731ddfe114560be71b"
+  ],
+  "selection": "Every event in the pinned 316-event audit with a verified revenue/gross-profit pair and failed forecast-clock precheck. Keep MBUU despite market-history gaps; the frozen financial forecast uses no prices.",
+  "frozen_event_count": 316,
+  "numeric_absolute_tolerance": 1e-10,
+  "fixed_specification_refit_allowed": true,
+  "hyperparameter_search_allowed": false,
+  "market_features_in_forecast": false,
+  "network_allowed": false,
+  "post_event_prices_allowed": false,
+  "returns_allowed": false,
+  "first_public_certified": false,
+  "trading_admission": false,
+  "sample_replacement_allowed": false,
+  "overwrite_originals": false
+}
